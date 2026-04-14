@@ -32,7 +32,6 @@
     min-height:100vh; display:flex; flex-direction:column;
   }
 
-  /* HEADER */
   .topbar {
     background:var(--accent); padding:.9rem 1.4rem;
     display:flex; align-items:center; justify-content:space-between;
@@ -46,7 +45,6 @@
     border-radius:20px; padding:5px 18px; color:var(--accent);
   }
 
-  /* CONFIG */
   .config-panel {
     background:var(--panel-bg); border-bottom:3px solid var(--border-d);
     padding:.8rem 1.4rem; display:flex; flex-wrap:wrap; gap:1.2rem; align-items:flex-start;
@@ -67,7 +65,6 @@
   .cbox:hover { border-color:var(--accent); }
   .cbox.checked { background:var(--accent); border-color:var(--accent-d); color:#fff; }
 
-  /* MAIN */
   .main { flex:1; padding:1.2rem 1.4rem; display:flex; flex-direction:column; gap:1rem; align-items:center; }
 
   .feedback {
@@ -83,74 +80,66 @@
     justify-content:center; flex-wrap:wrap;
   }
 
-  /* ═══════════════════════════════════
-     GRILLE OPERATION
-  ═══════════════════════════════════ */
+  /* GRILLE */
   .op-wrap {
     background:#fff; border:3px solid var(--border-d); border-radius:16px;
     padding:1.6rem 2rem; display:inline-flex; flex-direction:column;
-    align-items:flex-end; gap:0; box-shadow:0 4px 16px rgba(106,27,154,.12);
+    align-items:flex-end; box-shadow:0 4px 16px rgba(106,27,154,.12);
   }
-
   .op-row { display:flex; align-items:flex-end; gap:0; }
   .op-sep { width:100%; height:3px; background:var(--text); border-radius:2px; margin:8px 0; }
   .op-sym {
-    font-family:'Nunito',sans-serif; font-size:34px; font-weight:900;
-    color:var(--text); width:40px; text-align:center; padding-bottom:2px;
+    font-family:'Nunito',sans-serif; font-size:36px; font-weight:900;
+    color:var(--text); width:44px; text-align:center; padding-bottom:2px;
   }
 
-  /* Colonne = empilement vertical de zones */
-  .col {
-    display:flex; flex-direction:column; align-items:flex-end;
-    width:64px; position:relative;
-  }
+  .col { display:flex; flex-direction:column; align-items:center; width:68px; }
 
-  /* Zone chiffre principal avec petit 1 en bas à gauche */
+  /* Retenue addition HAUT — cercle */
+  .ret-add-wrap { height:34px; width:68px; display:flex; align-items:center; justify-content:center; }
+  .ret-add-empty { height:34px; width:68px; }
+  .ret-add {
+    width:30px; height:30px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Nunito',sans-serif; font-size:15px; font-weight:900;
+    cursor:pointer; transition:all .15s;
+    border:2px dashed var(--border); color:transparent;
+  }
+  .ret-add.active  { border:2px solid var(--accent); background:var(--accent-l); color:var(--accent); }
+  .ret-add.filled  { border:2.5px solid var(--ret); color:var(--ret); background:var(--ret-l); }
+  .ret-add.correct { border-color:var(--correct); background:var(--correct-l); color:var(--correct); }
+  .ret-add.wrong   { border-color:var(--wrong); background:var(--wrong-l); color:var(--wrong); }
+
+  /* Zone chiffre principal avec petit 1 bas-gauche (soustraction) */
   .digit-zone {
-    position:relative; width:64px; height:60px;
+    position:relative; width:68px; height:62px;
     display:flex; align-items:flex-end; justify-content:flex-end;
   }
   .digit-main {
-    font-family:'Nunito',sans-serif; font-size:38px; font-weight:900;
-    color:var(--text); line-height:1; padding-right:4px;
+    font-family:'Nunito',sans-serif; font-size:40px; font-weight:900;
+    color:var(--text); line-height:1; padding-right:6px;
   }
-  /* Petit 1 en bas à gauche du chiffre (retenue soustraction haut) */
+  /* Petit 1 bas-gauche du chiffre haut (soustraction) */
   .ret-sub-top {
-    position:absolute; bottom:2px; left:4px;
-    width:20px; height:20px; border-radius:4px;
+    position:absolute; bottom:3px; left:5px;
+    width:22px; height:22px; border-radius:4px;
     display:flex; align-items:center; justify-content:center;
     font-family:'Nunito',sans-serif; font-size:14px; font-weight:900;
     cursor:pointer; transition:all .15s;
     border:2px dashed var(--border); color:transparent;
   }
-  .ret-sub-top.active  { border:2px solid var(--accent); background:var(--accent-l); color:var(--accent); }
+  .ret-sub-top:hover { border-color:var(--accent); background:var(--accent-l); }
   .ret-sub-top.filled  { border:2px solid var(--ret); color:var(--ret); background:var(--ret-l); }
   .ret-sub-top.correct { border-color:var(--correct); background:var(--correct-l); color:var(--correct); }
   .ret-sub-top.wrong   { border-color:var(--wrong); background:var(--wrong-l); color:var(--wrong); }
 
-  /* Retenue addition haut (cercle au dessus) */
-  .ret-add-top {
-    width:28px; height:28px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Nunito',sans-serif; font-size:15px; font-weight:900;
-    cursor:pointer; transition:all .15s;
-    border:2px dashed var(--border); color:transparent;
-    align-self:center; margin-bottom:2px;
-  }
-  .ret-add-top-wrap { height:32px; display:flex; align-items:center; justify-content:center; width:64px; }
-  .ret-add-top.active  { border:2px solid var(--accent); background:var(--accent-l); color:var(--accent); }
-  .ret-add-top.filled  { border:2.5px solid var(--ret); color:var(--ret); background:var(--ret-l); }
-  .ret-add-top.correct { border-color:var(--correct); background:var(--correct-l); color:var(--correct); }
-  .ret-add-top.wrong   { border-color:var(--wrong); background:var(--wrong-l); color:var(--wrong); }
-  .ret-add-empty { height:32px; width:64px; }
-
   /* Case résultat */
   .result-cell {
-    width:60px; height:58px; border-radius:8px;
+    width:62px; height:60px; border-radius:8px;
     display:flex; align-items:center; justify-content:center;
-    font-family:'Nunito',sans-serif; font-size:38px; font-weight:900; color:var(--text);
+    font-family:'Nunito',sans-serif; font-size:40px; font-weight:900; color:var(--text);
     border:2px dashed var(--border-d); cursor:pointer; transition:all .15s;
-    background:var(--panel-bg); align-self:center;
+    background:var(--panel-bg);
   }
   .result-cell:hover { border-color:var(--accent); background:var(--accent-l); }
   .result-cell.active { border:3px solid var(--accent); background:var(--accent-l); box-shadow:0 0 0 3px rgba(106,27,154,.2); }
@@ -158,20 +147,19 @@
   .result-cell.correct { border-color:var(--correct)!important; background:var(--correct-l)!important; color:var(--correct); border-style:solid!important; }
   .result-cell.wrong   { border-color:var(--wrong)!important; background:var(--wrong-l)!important; color:var(--wrong); border-style:solid!important; }
 
-  /* +1 sous chiffre bas soustraction */
-  .ret-sub-bot-wrap { height:26px; width:64px; display:flex; align-items:center; justify-content:flex-start; padding-left:6px; }
+  /* +1 sous chiffre bas (soustraction) */
+  .ret-sub-bot-wrap { height:28px; width:68px; display:flex; align-items:center; justify-content:flex-start; padding-left:6px; }
   .ret-sub-bot {
-    display:flex; align-items:center; gap:1px;
-    font-family:'Nunito',sans-serif; font-size:13px; font-weight:900;
+    font-family:'Nunito',sans-serif; font-size:14px; font-weight:900;
     cursor:pointer; transition:all .15s;
     border:2px dashed var(--border); border-radius:5px;
-    padding:1px 5px; color:transparent;
+    padding:2px 6px; color:transparent; min-width:32px; text-align:center;
   }
-  .ret-sub-bot.active  { border:2px solid var(--accent); background:var(--accent-l); color:var(--accent); }
+  .ret-sub-bot:hover { border-color:var(--accent); background:var(--accent-l); }
   .ret-sub-bot.filled  { border:2px solid var(--ret); color:var(--ret); background:var(--ret-l); }
   .ret-sub-bot.correct { border-color:var(--correct); background:var(--correct-l); color:var(--correct); }
   .ret-sub-bot.wrong   { border-color:var(--wrong); background:var(--wrong-l); color:var(--wrong); }
-  .ret-bot-empty { height:26px; width:64px; }
+  .ret-bot-empty { height:28px; width:68px; }
 
   /* PAVÉ NUMÉRIQUE */
   .keypad-wrap { display:flex; flex-direction:column; align-items:center; gap:8px; }
@@ -193,7 +181,6 @@
   .key.del:hover { background:var(--wrong); color:#fff; }
   .key.zero { grid-column:span 2; }
 
-  /* CONTROLS */
   .controls { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; padding-bottom:.5rem; }
   .btn {
     font-family:'Nunito',sans-serif; font-size:13px; font-weight:800;
@@ -206,7 +193,6 @@
   .btn.check { background:#1565C0; border-color:#0D47A1; color:#fff; }
   .btn.check:hover { background:#0D47A1; }
 
-  /* PHASE POSER */
   .poser-instruction {
     font-family:'Nunito',sans-serif; font-size:14px; font-weight:700;
     color:var(--text-light); text-align:center; background:var(--panel-bg);
@@ -217,9 +203,9 @@
     color:var(--accent); text-align:center;
   }
   .pose-cell {
-    width:60px; height:58px; border-radius:8px;
+    width:62px; height:60px; border-radius:8px;
     display:flex; align-items:center; justify-content:center;
-    font-family:'Nunito',sans-serif; font-size:38px; font-weight:900; color:var(--text);
+    font-family:'Nunito',sans-serif; font-size:40px; font-weight:900; color:var(--text);
     border:2px dashed var(--border-d); cursor:pointer; transition:all .15s;
     background:var(--panel-bg);
   }
@@ -277,9 +263,9 @@
     </div>
   </div>
   <div class="controls">
-    <button class="btn check"   onclick="checkAll()">✔ Verifier</button>
-    <button class="btn"         onclick="resetRound()">↺ Reessayer</button>
-    <button class="btn primary" onclick="newGame()">→ Nouvel exercice</button>
+    <button class="btn check"   onclick="checkAll()">Verifier</button>
+    <button class="btn"         onclick="resetRound()">Reessayer</button>
+    <button class="btn primary" onclick="newGame()">Nouvel exercice</button>
   </div>
 </div>
 
@@ -312,9 +298,6 @@ let op,numA,numB,result,nCols;
 let cells=[], activeCell=null, locked=false;
 let phasePose=false, poseCells=[];
 
-// cells : {id, type, col, correct, value, active}
-// types : 'result' | 'ret-add-top' | 'ret-sub-top' | 'ret-sub-bot'
-
 // ═══════════════════════════════════════════
 //  GENERATION
 // ═══════════════════════════════════════════
@@ -322,69 +305,66 @@ function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
 function getDigits(n,c){const d=[];for(let i=0;i<c;i++){d.push(n%10);n=Math.floor(n/10);}return d;}
 
 function genAdd(){
-  const mn=nbChiffres===2?10:100, mx=nbChiffres===2?89:899;
+  const mn=nbChiffres===2?10:100,mx=nbChiffres===2?89:899;
   let a,b;
   for(let t=0;t<300;t++){
     a=rnd(mn,mx);b=rnd(mn,mx-(a-mn));
     if(!avecRetenue)break;
     const dA=getDigits(a,nbChiffres),dB=getDigits(b,nbChiffres);
-    let hasRet=false;
-    for(let c=0;c<nbChiffres-1;c++) if(dA[c]+dB[c]>=10){hasRet=true;break;}
-    if(hasRet)break;
+    let ok=false;
+    for(let c=0;c<nbChiffres-1;c++)if(dA[c]+dB[c]>=10){ok=true;break;}
+    if(ok)break;
   }
   return {a,b,res:a+b,op:'add'};
 }
 
 function genSub(){
-  const mn=nbChiffres===2?10:100, mx=nbChiffres===2?99:999;
+  const mn=nbChiffres===2?10:100,mx=nbChiffres===2?99:999;
   let a,b;
   for(let t=0;t<300;t++){
     a=rnd(mn,mx);b=rnd(Math.floor(mn/2),a-1);
     if(b<1)continue;
     if(!avecRetenue)break;
     const dA=getDigits(a,nbChiffres),dB=getDigits(b,nbChiffres);
-    let hasRet=false;
-    for(let c=0;c<nbChiffres-1;c++) if(dA[c]<dB[c]){hasRet=true;break;}
-    if(hasRet)break;
+    let ok=false;
+    for(let c=0;c<nbChiffres-1;c++)if(dA[c]<dB[c]){ok=true;break;}
+    if(ok)break;
   }
   return {a,b,res:a-b,op:'sub'};
 }
 
 // ═══════════════════════════════════════════
-//  CALCUL DES RETENUES
+//  CALCUL RETENUES
 // ═══════════════════════════════════════════
 function calcRetenuesAdd(){
-  // retTop[c] = retenue à afficher AU DESSUS de la colonne c
   const dA=getDigits(numA,nCols),dB=getDigits(numB,nCols);
-  const retTop=Array(nCols).fill(0);
+  const ret=Array(nCols).fill(0);
   let carry=0;
   for(let c=0;c<nCols;c++){
     const s=dA[c]+dB[c]+carry;
     carry=s>=10?1:0;
-    if(c<nCols-1)retTop[c+1]=carry;
+    if(c<nCols-1)ret[c+1]=carry;
   }
-  return retTop; // retTop[c]=1 si retenue portée sur colonne c
+  return ret;
 }
 
 function calcRetenuesSub(){
-  // Pour chaque colonne c :
-  //   needRet[c] = true si dA[c] < dB[c] → on affiche petit 1 gauche-bas du chiffre haut + "+1" sous chiffre bas colonne c+1
+  // needRet[c] = true si colonne c a besoin d'un emprunt
   const dA=getDigits(numA,nCols),dB=getDigits(numB,nCols);
-  const needRet=Array(nCols).fill(false);
-  // On simule la compensation
-  const aAdj=[...dA], bAdj=[...dB];
+  const need=Array(nCols).fill(false);
+  const aAdj=[...dA],bAdj=[...dB];
   for(let c=0;c<nCols-1;c++){
     if(aAdj[c]<bAdj[c]){
-      needRet[c]=true;
-      aAdj[c]+=10;  // +10 en haut
-      bAdj[c+1]+=1; // +1 en bas colonne suivante
+      need[c]=true;
+      aAdj[c]+=10;
+      bAdj[c+1]+=1;
     }
   }
-  return needRet;
+  return need;
 }
 
 // ═══════════════════════════════════════════
-//  INIT
+//  INIT GAME
 // ═══════════════════════════════════════════
 function newGame(){
   hideFeedback();locked=false;activeCell=null;phasePose=false;
@@ -396,7 +376,9 @@ function newGame(){
   buildKeypad();
 }
 
-// ── PHASE POSER ──────────────────────────
+// ═══════════════════════════════════════════
+//  PHASE POSER
+// ═══════════════════════════════════════════
 function initPose(){
   phasePose=true;poseCells=[];
   const dA=getDigits(numA,nCols),dB=getDigits(numB,nCols);
@@ -408,7 +390,7 @@ function initPose(){
 }
 
 function renderPose(){
-  const sym=op==='add'?'+':'−';
+  const sym=op==='add'?'+':'&minus;';
   const makeRow=(row)=>Array.from({length:nCols},(_,i)=>nCols-1-i).map(col=>{
     const c=poseCells.find(x=>x.col===col&&x.row===row);
     const idx=poseCells.indexOf(c);
@@ -418,17 +400,19 @@ function renderPose(){
     </div>`;
   }).join('');
 
+  const emptyRes=Array.from({length:nCols},()=>
+    `<div class="col"><div style="width:62px;height:60px;border:2px dashed var(--border);border-radius:8px;background:var(--panel-bg)"></div></div>`
+  ).join('');
+
   document.getElementById('game-zone').innerHTML=`
     <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
       <div class="poser-instruction">Pose cette operation dans la grille :</div>
-      <div class="poser-display">${numA} ${op==='add'?'+':'−'} ${numB}</div>
+      <div class="poser-display">${numA} ${op==='add'?'+':'&minus;'} ${numB}</div>
       <div class="op-wrap">
         <div class="op-row">${makeRow('A')}</div>
         <div class="op-row"><div class="op-sym">${sym}</div>${makeRow('B')}</div>
         <div class="op-sep"></div>
-        <div class="op-row">${Array.from({length:nCols},()=>`<div class="col">
-          <div style="width:60px;height:58px;border:2px dashed var(--border);border-radius:8px;background:var(--panel-bg)"></div>
-        </div>`).join('')}</div>
+        <div class="op-row">${emptyRes}</div>
       </div>
     </div>`;
 }
@@ -444,10 +428,12 @@ function checkPose(){
   if(poseCells.every(c=>c.value===c.correct)){
     showFeedback('Bien pose ! Maintenant calcule.','ok');
     setTimeout(()=>{hideFeedback();phasePose=false;initCalcul();},1200);
-  } else showFeedback('Verifie le placement des chiffres.','ko');
+  }else showFeedback('Verifie le placement des chiffres.','ko');
 }
 
-// ── PHASE CALCUL ─────────────────────────
+// ═══════════════════════════════════════════
+//  PHASE CALCUL
+// ═══════════════════════════════════════════
 function initCalcul(){
   phasePose=false;cells=[];locked=false;activeCell=null;
   const dR=getDigits(result,nCols);
@@ -456,23 +442,20 @@ function initCalcul(){
   if(op==='add'){
     const retTop=calcRetenuesAdd();
     for(let c=0;c<nCols;c++){
-      // Retenue addition au dessus (sauf colonne 0)
       if(avecRetenue&&c>0)
-        cells.push({id:id++,type:'ret-add-top',col:c,correct:retTop[c],value:null,active:false,needed:retTop[c]>0});
-      // Résultat
+        cells.push({id:id++,type:'ret-add-top',col:c,correct:retTop[c],value:null,active:false});
       cells.push({id:id++,type:'result',col:c,correct:dR[c],value:null,active:false});
     }
-  } else {
-    const needRet=calcRetenuesSub();
+  }else{
+    const need=calcRetenuesSub();
     for(let c=0;c<nCols;c++){
-      // Petit 1 bas-gauche du chiffre haut (colonne c a besoin de retenue)
-      if(avecRetenue&&needRet[c])
-        cells.push({id:id++,type:'ret-sub-top',col:c,correct:1,value:null,active:false,needed:true});
-      // Résultat
+      // Petit 1 bas-gauche chiffre haut si cette colonne emprunte
+      if(avecRetenue&&need[c])
+        cells.push({id:id++,type:'ret-sub-top',col:c,correct:1,value:null,active:false});
       cells.push({id:id++,type:'result',col:c,correct:dR[c],value:null,active:false});
-      // +1 sous chiffre bas colonne c (= retenue reçue par colonne c depuis colonne c-1)
-      if(avecRetenue&&c>0&&needRet[c-1])
-        cells.push({id:id++,type:'ret-sub-bot',col:c,correct:1,value:null,active:false,needed:true});
+      // +1 sous chiffre bas si colonne c reçoit la retenue de c-1
+      if(avecRetenue&&c>0&&need[c-1])
+        cells.push({id:id++,type:'ret-sub-bot',col:c,correct:1,value:null,active:false});
     }
   }
   renderCalcul();
@@ -480,66 +463,60 @@ function initCalcul(){
 
 function renderCalcul(){
   const dA=getDigits(numA,nCols),dB=getDigits(numB,nCols);
-  const sym=op==='add'?'+':'−';
+  const sym=op==='add'?'+':'&minus;';
 
-  // Construction colonne par colonne
-  const colsHtml=Array.from({length:nCols},(_,i)=>nCols-1-i).map(col=>{
+  // ── Ligne A (avec retenues add haut et/ou petit 1 bas-gauche soustraction)
+  const rowA=Array.from({length:nCols},(_,i)=>nCols-1-i).map(col=>{
     let html='<div class="col">';
-
     if(op==='add'){
-      // Retenue add haut
       const rAt=cells.find(x=>x.type==='ret-add-top'&&x.col===col);
       if(rAt){
         const idx=cells.indexOf(rAt);
-        let cls='ret-add-top';
-        if(locked) cls+=rAt.value===rAt.correct?' correct':' wrong';
-        else if(rAt.active) cls+=' active';
-        else if(rAt.value!==null) cls+=' filled';
-        else cls+=' empty';  // pointillé visible
-        html+=`<div class="ret-add-top-wrap"><div class="${cls}" onclick="activateCell(${idx})">${rAt.value!==null?rAt.value:''}</div></div>`;
-      } else {
+        let cls='ret-add';
+        if(locked)cls+=rAt.value===rAt.correct?' correct':' wrong';
+        else if(rAt.active)cls+=' active';
+        else if(rAt.value!==null)cls+=' filled';
+        html+=`<div class="ret-add-wrap"><div class="${cls}" onclick="activateCell(${idx})">${rAt.value!==null?rAt.value:''}</div></div>`;
+      }else{
         html+=`<div class="ret-add-empty"></div>`;
       }
-      // Chiffre A
       html+=`<div class="digit-zone"><span class="digit-main">${dA[col]}</span></div>`;
-
-    } else {
-      // Soustraction : chiffre A avec petit 1 en bas-gauche
+    }else{
+      // Soustraction : chiffre A avec petit 1 bas-gauche
       const rSt=cells.find(x=>x.type==='ret-sub-top'&&x.col===col);
-      let cls='ret-sub-top';
       if(rSt){
-        if(locked) cls+=rSt.value===rSt.correct?' correct':' wrong';
-        else if(rSt.active) cls+=' active';
-        else if(rSt.value!==null) cls+=' filled';
         const idx=cells.indexOf(rSt);
+        let cls='ret-sub-top';
+        if(locked)cls+=rSt.value===rSt.correct?' correct':' wrong';
+        else if(rSt.value!==null)cls+=' filled';
         html+=`<div class="digit-zone">
-          <div class="${cls}" onclick="activateCell(${idx})">${rSt.value!==null?rSt.value:''}</div>
+          <div class="${cls}" onclick="toggleRet(${idx})">${rSt.value!==null?rSt.value:''}</div>
           <span class="digit-main">${dA[col]}</span>
         </div>`;
-      } else {
+      }else{
         html+=`<div class="digit-zone"><span class="digit-main">${dA[col]}</span></div>`;
       }
     }
-
-    html+='</div>'; // fin col ligne A
+    html+='</div>';
     return html;
   }).join('');
 
-  // Ligne B avec +1 sous les chiffres (soustraction)
-  const colsBHtml=Array.from({length:nCols},(_,i)=>nCols-1-i).map(col=>{
+  // ── Ligne B avec +1 dessous (soustraction)
+  const rowB=Array.from({length:nCols},(_,i)=>nCols-1-i).map(col=>{
     let html='<div class="col">';
     html+=`<div class="digit-zone"><span class="digit-main">${dB[col]}</span></div>`;
-    // +1 sous chiffre B si retenue reçue
     if(op==='sub'){
       const rSb=cells.find(x=>x.type==='ret-sub-bot'&&x.col===col);
       if(rSb){
         const idx=cells.indexOf(rSb);
         let cls='ret-sub-bot';
-        if(locked) cls+=rSb.value===rSb.correct?' correct':' wrong';
-        else if(rSb.active) cls+=' active';
-        else if(rSb.value!==null) cls+=' filled';
-        html+=`<div class="ret-sub-bot-wrap"><div class="${cls}" onclick="activateCell(${idx})">+${rSb.value!==null?rSb.value:''}</div></div>`;
-      } else {
+        if(locked)cls+=rSb.value===rSb.correct?' correct':' wrong';
+        else if(rSb.value!==null)cls+=' filled';
+        // Affiche "+1" quand rempli, vide sinon (case cliquable = toggle)
+        html+=`<div class="ret-sub-bot-wrap">
+          <div class="${cls}" onclick="toggleRet(${idx})">${rSb.value!==null?'+1':''}</div>
+        </div>`;
+      }else{
         html+=`<div class="ret-bot-empty"></div>`;
       }
     }
@@ -547,30 +524,46 @@ function renderCalcul(){
     return html;
   }).join('');
 
-  // Ligne résultat
-  const colsResHtml=Array.from({length:nCols},(_,i)=>nCols-1-i).map(col=>{
+  // ── Ligne résultat
+  const rowRes=Array.from({length:nCols},(_,i)=>nCols-1-i).map(col=>{
     const cr=cells.find(x=>x.type==='result'&&x.col===col);
     const idx=cells.indexOf(cr);
     let cls='result-cell';
-    if(locked) cls+=cr.value===cr.correct?' correct':' wrong';
-    else if(cr.active) cls+=' active';
-    else if(cr.value!==null) cls+=' filled';
-    return `<div class="col"><div class="${cls}" onclick="activateCell(${idx})">${cr.value!==null?cr.value:''}</div></div>`;
+    if(locked)cls+=cr.value===cr.correct?' correct':' wrong';
+    else if(cr.active)cls+=' active';
+    else if(cr.value!==null)cls+=' filled';
+    return `<div class="col">
+      <div class="${cls}" onclick="activateCell(${idx})">${cr.value!==null?cr.value:''}</div>
+    </div>`;
   }).join('');
 
   document.getElementById('game-zone').innerHTML=`
     <div class="op-wrap">
-      <div class="op-row">${colsHtml}</div>
-      <div class="op-row"><div class="op-sym">${sym}</div>${colsBHtml}</div>
+      <div class="op-row">${rowA}</div>
+      <div class="op-row"><div class="op-sym">${sym}</div>${rowB}</div>
       <div class="op-sep"></div>
-      <div class="op-row">${colsResHtml}</div>
+      <div class="op-row">${rowRes}</div>
     </div>`;
 }
 
+// ═══════════════════════════════════════════
+//  INTERACTIONS CELLULES
+// ═══════════════════════════════════════════
 function activateCell(idx){
   if(locked)return;
   cells.forEach((c,i)=>c.active=i===idx);
   activeCell={type:'calc',idx};
+  renderCalcul();
+}
+
+// Toggle pour retenues soustraction (clic = met 1, reclic = efface)
+function toggleRet(idx){
+  if(locked)return;
+  const c=cells[idx];
+  c.value=c.value===1?null:1;
+  // Desactiver l'activeCell si c'etait une case resultat
+  activeCell=null;
+  cells.forEach(x=>x.active=false);
   renderCalcul();
 }
 
@@ -589,27 +582,24 @@ function buildKeypad(){
     <div class="key" onclick="pressKey(2)">2</div>
     <div class="key" onclick="pressKey(3)">3</div>
     <div class="key zero" onclick="pressKey(0)">0</div>
-    <div class="key del" onclick="pressKey('del')">⌫</div>`;
+    <div class="key del" onclick="pressKey('del')">&#x232B;</div>`;
 }
 
 function pressKey(k){
   if(locked)return;
+  // Mode pose
   if(phasePose&&activeCell&&activeCell.type==='pose'){
     const c=poseCells[activeCell.idx];
     if(k==='del')c.value=null;
     else{c.value=k;autoNextPose();}
     renderPose();return;
   }
+  // Mode calcul — uniquement pour les cases résultat
   if(!activeCell||activeCell.type!=='calc')return;
   const c=cells[activeCell.idx];
-  if(!c)return;
-  if(k==='del'){c.value=null;}
-  else{
-    // Retenues : seulement 1
-    if(c.type!=='result'&&k!==1&&k!==0){return;}
-    c.value=k;
-    if(c.type==='result')autoNextCalc();
-  }
+  if(!c||c.type!=='result')return;
+  if(k==='del')c.value=null;
+  else{c.value=k;autoNextCalc();}
   renderCalcul();
 }
 
@@ -641,9 +631,9 @@ function checkAll(){
     okRet=retCells.every(c=>c.value===c.correct);
   }
   total++;
-  if(okRes&&okRet){score++;showFeedback(`Bravo ! ${numA} ${op==='add'?'+':'-'} ${numB} = ${result}`,'ok');}
-  else if(okRes){score++;showFeedback(`Bon resultat ! Verifie les retenues (en rouge).`,'ok');}
-  else showFeedback(`Pas tout a fait — le resultat correct est ${result}.`,'ko');
+  if(okRes&&okRet){score++;showFeedback('Bravo ! '+numA+' '+(op==='add'?'+':'-')+' '+numB+' = '+result,'ok');}
+  else if(okRes){score++;showFeedback('Bon resultat ! Verifie les retenues (en rouge).','ok');}
+  else showFeedback('Pas tout a fait — le resultat correct est '+result+'.','ko');
   updateScore();renderCalcul();
 }
 
@@ -653,7 +643,7 @@ function resetRound(){
   else{cells.forEach(c=>{c.value=null;c.active=false;});renderCalcul();}
 }
 
-function updateScore(){document.getElementById('score-lbl').textContent=`Score : ${score} / ${total}`;}
+function updateScore(){document.getElementById('score-lbl').textContent='Score : '+score+' / '+total;}
 function showFeedback(m,t){const f=document.getElementById('feedback');f.textContent=m;f.className='feedback '+t;}
 function hideFeedback(){const f=document.getElementById('feedback');f.className='feedback';f.textContent='';}
 
