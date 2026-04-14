@@ -1,0 +1,636 @@
+
+<<<<<<< HEAD
+  /* HEADER */
+  .topbar {
+    background:var(--accent); padding:.9rem 1.4rem;
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:10px; border-bottom:4px solid var(--accent-d);
+  }
+  .game-title { font-family:'Nunito',sans-serif; font-size:20px; font-weight:900; color:#fff; }
+  .game-sub   { font-size:12px; color:var(--accent-l); font-weight:600; margin-top:2px; }
+  .score-pill {
+    font-family:'Nunito',sans-serif; font-size:15px; font-weight:800;
+    background:#fff; border:2px solid var(--accent-d);
+    border-radius:20px; padding:5px 18px; color:var(--accent);
+  }
+
+  /* CONFIG */
+  .config-panel {
+    background:var(--panel-bg); border-bottom:3px solid var(--border-d);
+    padding:.8rem 1.4rem; display:flex; flex-wrap:wrap; gap:1.2rem; align-items:flex-start;
+  }
+  .config-block { display:flex; flex-direction:column; gap:6px; }
+  .config-label {
+    font-family:'Nunito',sans-serif; font-size:11px; font-weight:800;
+    text-transform:uppercase; letter-spacing:.08em; color:var(--text-light);
+  }
+  .check-row { display:flex; flex-wrap:wrap; gap:6px; }
+  .cbox {
+    display:flex; align-items:center; gap:5px;
+    background:#fff; border:2px solid var(--border-d); border-radius:8px;
+    padding:5px 10px; cursor:pointer; transition:all .15s;
+    font-family:'Nunito',sans-serif; font-size:12px; font-weight:700; color:var(--text);
+    user-select:none;
+  }
+  .cbox:hover { border-color:var(--accent); }
+  .cbox.checked { background:var(--accent); border-color:var(--accent-d); color:#fff; }
+
+  /* MAIN */
+  .main { flex:1; padding:1.2rem 1.4rem; display:flex; flex-direction:column; gap:1rem; align-items:center; }
+
+  .feedback {
+    display:none; padding:10px 18px; border-radius:10px;
+    font-family:'Nunito',sans-serif; font-size:14px; font-weight:800;
+    text-align:center; border:2px solid transparent; width:100%; max-width:680px;
+  }
+  .feedback.ok { background:var(--correct-l); color:var(--correct); border-color:var(--correct); display:block; }
+  .feedback.ko { background:var(--wrong-l); color:var(--wrong); border-color:var(--wrong); display:block; }
+
+  .game-and-keypad {
+    display:flex; gap:2.5rem; align-items:center;
+    justify-content:center; flex-wrap:wrap;
+  }
+
+  /* ═══════════════════════════════════
+     GRILLE OPERATION
+  ═══════════════════════════════════ */
+  .op-wrap {
+    background:#fff; border:3px solid var(--border-d); border-radius:16px;
+    padding:1.6rem 2rem; display:inline-flex; flex-direction:column;
+    align-items:flex-end; gap:0; box-shadow:0 4px 16px rgba(106,27,154,.12);
+  }
+
+  .op-row { display:flex; align-items:flex-end; gap:0; }
+  .op-sep { width:100%; height:3px; background:var(--text); border-radius:2px; margin:8px 0; }
+  .op-sym {
+    font-family:'Nunito',sans-serif; font-size:34px; font-weight:900;
+    color:var(--text); width:40px; text-align:center; padding-bottom:2px;
+  }
+
+  /* Colonne = empilement vertical de zones */
+  .col {
+    display:flex; flex-direction:column; align-items:flex-end;
+    width:64px; position:relative;
+  }
+
+  /* Zone chiffre principal avec petit 1 en bas à gauche */
+  .digit-zone {
+    position:relative; width:64px; height:60px;
+    display:flex; align-items:flex-end; justify-content:flex-end;
+  }
+  .digit-main {
+    font-family:'Nunito',sans-serif; font-size:38px; font-weight:900;
+    color:var(--text); line-height:1; padding-right:4px;
+  }
+  /* Petit 1 en bas à gauche du chiffre (retenue soustraction haut) */
+  .ret-sub-top {
+    position:absolute; bottom:2px; left:4px;
+    width:20px; height:20px; border-radius:4px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Nunito',sans-serif; font-size:14px; font-weight:900;
+    cursor:pointer; transition:all .15s;
+    border:2px dashed var(--border); color:transparent;
+  }
+  .ret-sub-top.active  { border:2px solid var(--accent); background:var(--accent-l); color:var(--accent); }
+  .ret-sub-top.filled  { border:2px solid var(--ret); color:var(--ret); background:var(--ret-l); }
+  .ret-sub-top.correct { border-color:var(--correct); background:var(--correct-l); color:var(--correct); }
+  .ret-sub-top.wrong   { border-color:var(--wrong); background:var(--wrong-l); color:var(--wrong); }
+
+  /* Retenue addition haut (cercle au dessus) */
+  .ret-add-top {
+    width:28px; height:28px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Nunito',sans-serif; font-size:15px; font-weight:900;
+    cursor:pointer; transition:all .15s;
+    border:2px dashed var(--border); color:transparent;
+    align-self:center; margin-bottom:2px;
+  }
+  .ret-add-top-wrap { height:32px; display:flex; align-items:center; justify-content:center; width:64px; }
+  .ret-add-top.active  { border:2px solid var(--accent); background:var(--accent-l); color:var(--accent); }
+  .ret-add-top.filled  { border:2.5px solid var(--ret); color:var(--ret); background:var(--ret-l); }
+  .ret-add-top.correct { border-color:var(--correct); background:var(--correct-l); color:var(--correct); }
+  .ret-add-top.wrong   { border-color:var(--wrong); background:var(--wrong-l); color:var(--wrong); }
+  .ret-add-empty { height:32px; width:64px; }
+
+  /* Case résultat */
+  .result-cell {
+    width:60px; height:58px; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Nunito',sans-serif; font-size:38px; font-weight:900; color:var(--text);
+    border:2px dashed var(--border-d); cursor:pointer; transition:all .15s;
+    background:var(--panel-bg); align-self:center;
+  }
+  .result-cell:hover { border-color:var(--accent); background:var(--accent-l); }
+  .result-cell.active { border:3px solid var(--accent); background:var(--accent-l); box-shadow:0 0 0 3px rgba(106,27,154,.2); }
+  .result-cell.filled { border-style:solid; border-color:var(--border-d); background:var(--bg2); }
+  .result-cell.correct { border-color:var(--correct)!important; background:var(--correct-l)!important; color:var(--correct); border-style:solid!important; }
+  .result-cell.wrong   { border-color:var(--wrong)!important; background:var(--wrong-l)!important; color:var(--wrong); border-style:solid!important; }
+
+  /* +1 sous chiffre bas soustraction */
+  .ret-sub-bot-wrap { height:26px; width:64px; display:flex; align-items:center; justify-content:flex-start; padding-left:6px; }
+  .ret-sub-bot {
+    display:flex; align-items:center; gap:1px;
+    font-family:'Nunito',sans-serif; font-size:13px; font-weight:900;
+    cursor:pointer; transition:all .15s;
+    border:2px dashed var(--border); border-radius:5px;
+    padding:1px 5px; color:transparent;
+  }
+  .ret-sub-bot.active  { border:2px solid var(--accent); background:var(--accent-l); color:var(--accent); }
+  .ret-sub-bot.filled  { border:2px solid var(--ret); color:var(--ret); background:var(--ret-l); }
+  .ret-sub-bot.correct { border-color:var(--correct); background:var(--correct-l); color:var(--correct); }
+  .ret-sub-bot.wrong   { border-color:var(--wrong); background:var(--wrong-l); color:var(--wrong); }
+  .ret-bot-empty { height:26px; width:64px; }
+
+  /* PAVÉ NUMÉRIQUE */
+  .keypad-wrap { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .keypad-hint { font-family:'Nunito',sans-serif; font-size:12px; font-weight:700; color:var(--text-light); text-align:center; }
+  .keypad {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+    background:#fff; border:3px solid var(--border-d); border-radius:14px;
+    padding:12px; box-shadow:0 2px 8px rgba(0,0,0,.08);
+  }
+  .key {
+    font-family:'Nunito',sans-serif; font-size:22px; font-weight:900;
+    width:58px; height:58px; border-radius:10px;
+    border:2px solid var(--border-d); background:var(--panel-bg); color:var(--text);
+    cursor:pointer; transition:all .15s;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .key:hover { background:var(--accent-l); border-color:var(--accent); transform:scale(1.06); }
+  .key.del { background:var(--wrong-l); border-color:var(--wrong); color:var(--wrong); font-size:18px; }
+  .key.del:hover { background:var(--wrong); color:#fff; }
+  .key.zero { grid-column:span 2; }
+
+  /* CONTROLS */
+  .controls { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; padding-bottom:.5rem; }
+  .btn {
+    font-family:'Nunito',sans-serif; font-size:13px; font-weight:800;
+    padding:10px 22px; border-radius:10px; border:2px solid var(--border-d);
+    background:#fff; color:var(--text); cursor:pointer; transition:all .15s;
+  }
+  .btn:hover { background:var(--bg2); border-color:var(--accent); }
+  .btn.primary { background:var(--accent); border-color:var(--accent-d); color:#fff; }
+  .btn.primary:hover { background:var(--accent-d); }
+  .btn.check { background:#1565C0; border-color:#0D47A1; color:#fff; }
+  .btn.check:hover { background:#0D47A1; }
+
+  /* PHASE POSER */
+  .poser-instruction {
+    font-family:'Nunito',sans-serif; font-size:14px; font-weight:700;
+    color:var(--text-light); text-align:center; background:var(--panel-bg);
+    border:2px solid var(--border); border-radius:8px; padding:8px 16px; max-width:400px;
+  }
+  .poser-display {
+    font-family:'Nunito',sans-serif; font-size:30px; font-weight:900;
+    color:var(--accent); text-align:center;
+  }
+  .pose-cell {
+    width:60px; height:58px; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Nunito',sans-serif; font-size:38px; font-weight:900; color:var(--text);
+    border:2px dashed var(--border-d); cursor:pointer; transition:all .15s;
+    background:var(--panel-bg);
+  }
+  .pose-cell:hover { border-color:var(--accent); background:var(--accent-l); }
+  .pose-cell.active { border:3px solid var(--accent); background:var(--accent-l); box-shadow:0 0 0 3px rgba(106,27,154,.2); }
+  .pose-cell.filled { border-style:solid; border-color:var(--border-d); background:var(--bg2); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="game-title">Operations posées</div>
+    <div class="game-sub">Addition et soustraction avec retenues</div>
+  </div>
+  <span class="score-pill" id="score-lbl">Score : 0 / 0</span>
+</div>
+
+<div class="config-panel">
+  <div class="config-block">
+    <div class="config-label">Operation</div>
+    <div class="check-row">
+      <div class="cbox checked" id="cb-add" onclick="toggleOp('add',this)">Addition</div>
+      <div class="cbox checked" id="cb-sub" onclick="toggleOp('sub',this)">Soustraction</div>
+    </div>
+  </div>
+  <div class="config-block">
+    <div class="config-label">Nombres</div>
+    <div class="check-row">
+      <div class="cbox checked" id="cb-2c" onclick="toggleChiffres(2,this)">2 chiffres</div>
+      <div class="cbox"         id="cb-3c" onclick="toggleChiffres(3,this)">3 chiffres</div>
+    </div>
+  </div>
+  <div class="config-block">
+    <div class="config-label">Retenues</div>
+    <div class="check-row">
+      <div class="cbox checked" id="cb-ret" onclick="toggleCbox('ret',this)">Gerer les retenues</div>
+    </div>
+  </div>
+  <div class="config-block">
+    <div class="config-label">Poser l'operation</div>
+    <div class="check-row">
+      <div class="cbox" id="cb-poser" onclick="toggleCbox('poser',this)">Poser soi-meme</div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="feedback" id="feedback"></div>
+  <div class="game-and-keypad">
+    <div id="game-zone"></div>
+    <div class="keypad-wrap">
+      <div class="keypad-hint">Clique une case puis un chiffre</div>
+      <div class="keypad" id="keypad"></div>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="btn check"   onclick="checkAll()">✔ Verifier</button>
+    <button class="btn"         onclick="resetRound()">↺ Reessayer</button>
+    <button class="btn primary" onclick="newGame()">→ Nouvel exercice</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════
+let ops=['add','sub'], nbChiffres=2, avecRetenue=true, poserSoiMeme=false;
+let score=0, total=0;
+
+function toggleOp(o,el){
+  if(ops.includes(o)&&ops.length===1)return;
+  ops=ops.includes(o)?ops.filter(x=>x!==o):[...ops,o];
+  el.classList.toggle('checked',ops.includes(o));
+}
+function toggleChiffres(n,el){
+  nbChiffres=n;
+  document.getElementById('cb-2c').classList.toggle('checked',n===2);
+  document.getElementById('cb-3c').classList.toggle('checked',n===3);
+}
+function toggleCbox(key,el){
+  if(key==='ret'){avecRetenue=!avecRetenue;el.classList.toggle('checked',avecRetenue);}
+  if(key==='poser'){poserSoiMeme=!poserSoiMeme;el.classList.toggle('checked',poserSoiMeme);}
+}
+
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+let op,numA,numB,result,nCols;
+let cells=[], activeCell=null, locked=false;
+let phasePose=false, poseCells=[];
+
+// cells : {id, type, col, correct, value, active}
+// types : 'result' | 'ret-add-top' | 'ret-sub-top' | 'ret-sub-bot'
+
+// ═══════════════════════════════════════════
+//  GENERATION
+// ═══════════════════════════════════════════
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function getDigits(n,c){const d=[];for(let i=0;i<c;i++){d.push(n%10);n=Math.floor(n/10);}return d;}
+
+function genAdd(){
+  const mn=nbChiffres===2?10:100, mx=nbChiffres===2?89:899;
+  let a,b;
+  for(let t=0;t<300;t++){
+    a=rnd(mn,mx);b=rnd(mn,mx-(a-mn));
+    if(!avecRetenue)break;
+    const dA=getDigits(a,nbChiffres),dB=getDigits(b,nbChiffres);
+    let hasRet=false;
+    for(let c=0;c<nbChiffres-1;c++) if(dA[c]+dB[c]>=10){hasRet=true;break;}
+    if(hasRet)break;
+  }
+  return {a,b,res:a+b,op:'add'};
+}
+
+function genSub(){
+  const mn=nbChiffres===2?10:100, mx=nbChiffres===2?99:999;
+  let a,b;
+  for(let t=0;t<300;t++){
+    a=rnd(mn,mx);b=rnd(Math.floor(mn/2),a-1);
+    if(b<1)continue;
+    if(!avecRetenue)break;
+    const dA=getDigits(a,nbChiffres),dB=getDigits(b,nbChiffres);
+    let hasRet=false;
+    for(let c=0;c<nbChiffres-1;c++) if(dA[c]<dB[c]){hasRet=true;break;}
+    if(hasRet)break;
+  }
+  return {a,b,res:a-b,op:'sub'};
+}
+
+// ═══════════════════════════════════════════
+//  CALCUL DES RETENUES
+// ═══════════════════════════════════════════
+function calcRetenuesAdd(){
+  // retTop[c] = retenue à afficher AU DESSUS de la colonne c
+  const dA=getDigits(numA,nCols),dB=getDigits(numB,nCols);
+  const retTop=Array(nCols).fill(0);
+  let carry=0;
+  for(let c=0;c<nCols;c++){
+    const s=dA[c]+dB[c]+carry;
+    carry=s>=10?1:0;
+    if(c<nCols-1)retTop[c+1]=carry;
+  }
+  return retTop; // retTop[c]=1 si retenue portée sur colonne c
+}
+
+function calcRetenuesSub(){
+  // Pour chaque colonne c :
+  //   needRet[c] = true si dA[c] < dB[c] → on affiche petit 1 gauche-bas du chiffre haut + "+1" sous chiffre bas colonne c+1
+  const dA=getDigits(numA,nCols),dB=getDigits(numB,nCols);
+  const needRet=Array(nCols).fill(false);
+  // On simule la compensation
+  const aAdj=[...dA], bAdj=[...dB];
+  for(let c=0;c<nCols-1;c++){
+    if(aAdj[c]<bAdj[c]){
+      needRet[c]=true;
+      aAdj[c]+=10;  // +10 en haut
+      bAdj[c+1]+=1; // +1 en bas colonne suivante
+    }
+  }
+  return needRet;
+}
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+function newGame(){
+  hideFeedback();locked=false;activeCell=null;phasePose=false;
+  const chosenOp=ops[Math.floor(Math.random()*ops.length)];
+  const ex=chosenOp==='add'?genAdd():genSub();
+  op=ex.op;numA=ex.a;numB=ex.b;result=ex.res;nCols=nbChiffres;
+  if(poserSoiMeme)initPose();
+  else initCalcul();
+  buildKeypad();
+}
+
+// ── PHASE POSER ──────────────────────────
+function initPose(){
+  phasePose=true;poseCells=[];
+  const dA=getDigits(numA,nCols),dB=getDigits(numB,nCols);
+  for(let c=nCols-1;c>=0;c--){
+    poseCells.push({col:c,row:'A',correct:dA[c],value:null,active:false});
+    poseCells.push({col:c,row:'B',correct:dB[c],value:null,active:false});
+  }
+  renderPose();
+}
+
+function renderPose(){
+  const sym=op==='add'?'+':'−';
+  const makeRow=(row)=>Array.from({length:nCols},(_,i)=>nCols-1-i).map(col=>{
+    const c=poseCells.find(x=>x.col===col&&x.row===row);
+    const idx=poseCells.indexOf(c);
+    return `<div class="col">
+      <div class="pose-cell${c.active?' active':''}${c.value!==null?' filled':''}"
+        onclick="activePoseCell(${idx})">${c.value!==null?c.value:''}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('game-zone').innerHTML=`
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div class="poser-instruction">Pose cette operation dans la grille :</div>
+      <div class="poser-display">${numA} ${op==='add'?'+':'−'} ${numB}</div>
+      <div class="op-wrap">
+        <div class="op-row">${makeRow('A')}</div>
+        <div class="op-row"><div class="op-sym">${sym}</div>${makeRow('B')}</div>
+        <div class="op-sep"></div>
+        <div class="op-row">${Array.from({length:nCols},()=>`<div class="col">
+          <div style="width:60px;height:58px;border:2px dashed var(--border);border-radius:8px;background:var(--panel-bg)"></div>
+        </div>`).join('')}</div>
+      </div>
+    </div>`;
+}
+
+function activePoseCell(idx){
+  poseCells.forEach((c,i)=>c.active=i===idx);
+  activeCell={type:'pose',idx};
+  renderPose();
+}
+
+function checkPose(){
+  if(!poseCells.every(c=>c.value!==null)){showFeedback('Complete toutes les cases !','ko');return;}
+  if(poseCells.every(c=>c.value===c.correct)){
+    showFeedback('Bien pose ! Maintenant calcule.','ok');
+    setTimeout(()=>{hideFeedback();phasePose=false;initCalcul();},1200);
+  } else showFeedback('Verifie le placement des chiffres.','ko');
+}
+
+// ── PHASE CALCUL ─────────────────────────
+function initCalcul(){
+  phasePose=false;cells=[];locked=false;activeCell=null;
+  const dR=getDigits(result,nCols);
+  let id=0;
+
+  if(op==='add'){
+    const retTop=calcRetenuesAdd();
+    for(let c=0;c<nCols;c++){
+      // Retenue addition au dessus (sauf colonne 0)
+      if(avecRetenue&&c>0)
+        cells.push({id:id++,type:'ret-add-top',col:c,correct:retTop[c],value:null,active:false,needed:retTop[c]>0});
+      // Résultat
+      cells.push({id:id++,type:'result',col:c,correct:dR[c],value:null,active:false});
+    }
+  } else {
+    const needRet=calcRetenuesSub();
+    for(let c=0;c<nCols;c++){
+      // Petit 1 bas-gauche du chiffre haut (colonne c a besoin de retenue)
+      if(avecRetenue&&needRet[c])
+        cells.push({id:id++,type:'ret-sub-top',col:c,correct:1,value:null,active:false,needed:true});
+      // Résultat
+      cells.push({id:id++,type:'result',col:c,correct:dR[c],value:null,active:false});
+      // +1 sous chiffre bas colonne c (= retenue reçue par colonne c depuis colonne c-1)
+      if(avecRetenue&&c>0&&needRet[c-1])
+        cells.push({id:id++,type:'ret-sub-bot',col:c,correct:1,value:null,active:false,needed:true});
+    }
+  }
+  renderCalcul();
+}
+
+function renderCalcul(){
+  const dA=getDigits(numA,nCols),dB=getDigits(numB,nCols);
+  const sym=op==='add'?'+':'−';
+
+  // Construction colonne par colonne
+  const colsHtml=Array.from({length:nCols},(_,i)=>nCols-1-i).map(col=>{
+    let html='<div class="col">';
+
+    if(op==='add'){
+      // Retenue add haut
+      const rAt=cells.find(x=>x.type==='ret-add-top'&&x.col===col);
+      if(rAt){
+        const idx=cells.indexOf(rAt);
+        let cls='ret-add-top';
+        if(locked) cls+=rAt.value===rAt.correct?' correct':' wrong';
+        else if(rAt.active) cls+=' active';
+        else if(rAt.value!==null) cls+=' filled';
+        else cls+=' empty';  // pointillé visible
+        html+=`<div class="ret-add-top-wrap"><div class="${cls}" onclick="activateCell(${idx})">${rAt.value!==null?rAt.value:''}</div></div>`;
+      } else {
+        html+=`<div class="ret-add-empty"></div>`;
+      }
+      // Chiffre A
+      html+=`<div class="digit-zone"><span class="digit-main">${dA[col]}</span></div>`;
+
+    } else {
+      // Soustraction : chiffre A avec petit 1 en bas-gauche
+      const rSt=cells.find(x=>x.type==='ret-sub-top'&&x.col===col);
+      let cls='ret-sub-top';
+      if(rSt){
+        if(locked) cls+=rSt.value===rSt.correct?' correct':' wrong';
+        else if(rSt.active) cls+=' active';
+        else if(rSt.value!==null) cls+=' filled';
+        const idx=cells.indexOf(rSt);
+        html+=`<div class="digit-zone">
+          <div class="${cls}" onclick="activateCell(${idx})">${rSt.value!==null?rSt.value:''}</div>
+          <span class="digit-main">${dA[col]}</span>
+        </div>`;
+      } else {
+        html+=`<div class="digit-zone"><span class="digit-main">${dA[col]}</span></div>`;
+      }
+    }
+
+    html+='</div>'; // fin col ligne A
+    return html;
+  }).join('');
+
+  // Ligne B avec +1 sous les chiffres (soustraction)
+  const colsBHtml=Array.from({length:nCols},(_,i)=>nCols-1-i).map(col=>{
+    let html='<div class="col">';
+    html+=`<div class="digit-zone"><span class="digit-main">${dB[col]}</span></div>`;
+    // +1 sous chiffre B si retenue reçue
+    if(op==='sub'){
+      const rSb=cells.find(x=>x.type==='ret-sub-bot'&&x.col===col);
+      if(rSb){
+        const idx=cells.indexOf(rSb);
+        let cls='ret-sub-bot';
+        if(locked) cls+=rSb.value===rSb.correct?' correct':' wrong';
+        else if(rSb.active) cls+=' active';
+        else if(rSb.value!==null) cls+=' filled';
+        html+=`<div class="ret-sub-bot-wrap"><div class="${cls}" onclick="activateCell(${idx})">+${rSb.value!==null?rSb.value:''}</div></div>`;
+      } else {
+        html+=`<div class="ret-bot-empty"></div>`;
+      }
+    }
+    html+='</div>';
+    return html;
+  }).join('');
+
+  // Ligne résultat
+  const colsResHtml=Array.from({length:nCols},(_,i)=>nCols-1-i).map(col=>{
+    const cr=cells.find(x=>x.type==='result'&&x.col===col);
+    const idx=cells.indexOf(cr);
+    let cls='result-cell';
+    if(locked) cls+=cr.value===cr.correct?' correct':' wrong';
+    else if(cr.active) cls+=' active';
+    else if(cr.value!==null) cls+=' filled';
+    return `<div class="col"><div class="${cls}" onclick="activateCell(${idx})">${cr.value!==null?cr.value:''}</div></div>`;
+  }).join('');
+
+  document.getElementById('game-zone').innerHTML=`
+    <div class="op-wrap">
+      <div class="op-row">${colsHtml}</div>
+      <div class="op-row"><div class="op-sym">${sym}</div>${colsBHtml}</div>
+      <div class="op-sep"></div>
+      <div class="op-row">${colsResHtml}</div>
+    </div>`;
+}
+
+function activateCell(idx){
+  if(locked)return;
+  cells.forEach((c,i)=>c.active=i===idx);
+  activeCell={type:'calc',idx};
+  renderCalcul();
+}
+
+// ═══════════════════════════════════════════
+//  PAVÉ NUMÉRIQUE
+// ═══════════════════════════════════════════
+function buildKeypad(){
+  document.getElementById('keypad').innerHTML=`
+    <div class="key" onclick="pressKey(7)">7</div>
+    <div class="key" onclick="pressKey(8)">8</div>
+    <div class="key" onclick="pressKey(9)">9</div>
+    <div class="key" onclick="pressKey(4)">4</div>
+    <div class="key" onclick="pressKey(5)">5</div>
+    <div class="key" onclick="pressKey(6)">6</div>
+    <div class="key" onclick="pressKey(1)">1</div>
+    <div class="key" onclick="pressKey(2)">2</div>
+    <div class="key" onclick="pressKey(3)">3</div>
+    <div class="key zero" onclick="pressKey(0)">0</div>
+    <div class="key del" onclick="pressKey('del')">⌫</div>`;
+}
+
+function pressKey(k){
+  if(locked)return;
+  if(phasePose&&activeCell&&activeCell.type==='pose'){
+    const c=poseCells[activeCell.idx];
+    if(k==='del')c.value=null;
+    else{c.value=k;autoNextPose();}
+    renderPose();return;
+  }
+  if(!activeCell||activeCell.type!=='calc')return;
+  const c=cells[activeCell.idx];
+  if(!c)return;
+  if(k==='del'){c.value=null;}
+  else{
+    // Retenues : seulement 1
+    if(c.type!=='result'&&k!==1&&k!==0){return;}
+    c.value=k;
+    if(c.type==='result')autoNextCalc();
+  }
+  renderCalcul();
+}
+
+function autoNextPose(){
+  const idx=activeCell.idx;
+  const next=poseCells.findIndex((c,i)=>i>idx&&c.value===null);
+  if(next!==-1){poseCells.forEach((c,i)=>c.active=i===next);activeCell.idx=next;}
+}
+function autoNextCalc(){
+  const idx=activeCell.idx;
+  const next=cells.findIndex((c,i)=>i>idx&&c.type==='result'&&c.value===null);
+  if(next!==-1){cells.forEach((c,i)=>c.active=i===next);activeCell.idx=next;}
+}
+
+// ═══════════════════════════════════════════
+//  CHECK
+// ═══════════════════════════════════════════
+function checkAll(){
+  if(phasePose){checkPose();return;}
+  if(locked)return;
+  const resCells=cells.filter(c=>c.type==='result');
+  if(resCells.some(c=>c.value===null)){showFeedback('Complete toutes les cases du resultat !','ko');return;}
+  locked=true;
+  const okRes=resCells.every(c=>c.value===c.correct);
+  let okRet=true;
+  if(avecRetenue){
+    const retCells=cells.filter(c=>c.type!=='result');
+    retCells.forEach(c=>{if(c.value===null)c.value=0;});
+    okRet=retCells.every(c=>c.value===c.correct);
+  }
+  total++;
+  if(okRes&&okRet){score++;showFeedback(`Bravo ! ${numA} ${op==='add'?'+':'-'} ${numB} = ${result}`,'ok');}
+  else if(okRes){score++;showFeedback(`Bon resultat ! Verifie les retenues (en rouge).`,'ok');}
+  else showFeedback(`Pas tout a fait — le resultat correct est ${result}.`,'ko');
+  updateScore();renderCalcul();
+}
+
+function resetRound(){
+  locked=false;activeCell=null;hideFeedback();
+  if(poserSoiMeme)initPose();
+  else{cells.forEach(c=>{c.value=null;c.active=false;});renderCalcul();}
+}
+
+function updateScore(){document.getElementById('score-lbl').textContent=`Score : ${score} / ${total}`;}
+function showFeedback(m,t){const f=document.getElementById('feedback');f.textContent=m;f.className='feedback '+t;}
+function hideFeedback(){const f=document.getElementById('feedback');f.className='feedback';f.textContent='';}
+
+// ═══════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════
+newGame();
+</script>
+</body>
+</html>
+=======
+>>>>>>> ca7fd84e760137ff8c54a7a7ec67fc647a1802ee
