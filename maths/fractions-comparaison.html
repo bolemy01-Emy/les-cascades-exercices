@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fractions — Comparaison — Les Cascades</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #EDE7F6;
+    --bg2:       #D1C4E9;
+    --panel-bg:  #F3E5F5;
+    --accent:    #6A1B9A;
+    --accent-d:  #4A148C;
+    --accent-l:  #E1BEE7;
+    --text:      #1A0E00;
+    --text-light:#7A5C20;
+    --border:    #CE93D8;
+    --border-d:  #9C27B0;
+    --white:     #FFFFFF;
+    --correct:   #1B5E20;
+    --correct-l: #C8E6C9;
+    --wrong:     #B71C1C;
+    --wrong-l:   #FFCDD2;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family:'Nunito Sans',sans-serif;
+    background:var(--bg); color:var(--text);
+    min-height:100vh; display:flex; flex-direction:column;
+  }
+
+  /* HEADER */
+  .topbar {
+    background:var(--accent); padding:.9rem 1.4rem;
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:10px; border-bottom:4px solid var(--accent-d);
+  }
+  .game-title { font-family:'Nunito',sans-serif; font-size:20px; font-weight:900; color:#fff; }
+  .game-sub   { font-size:12px; color:var(--accent-l); font-weight:600; margin-top:2px; }
+  .score-pill {
+    font-family:'Nunito',sans-serif; font-size:15px; font-weight:800;
+    background:#fff; border:2px solid var(--accent-d);
+    border-radius:20px; padding:5px 18px; color:var(--accent);
+  }
+
+  /* CONFIG */
+  .config-panel {
+    background:var(--panel-bg); border-bottom:3px solid var(--border-d);
+    padding:.8rem 1.4rem; display:flex; flex-wrap:wrap; gap:1.4rem; align-items:flex-start;
+  }
+  .config-block { display:flex; flex-direction:column; gap:7px; }
+  .config-label {
+    font-family:'Nunito',sans-serif; font-size:11px; font-weight:800;
+    text-transform:uppercase; letter-spacing:.08em; color:var(--text-light);
+  }
+  .check-row { display:flex; flex-wrap:wrap; gap:6px; }
+  .cbox {
+    display:flex; align-items:center; gap:5px;
+    background:#fff; border:2px solid var(--border-d); border-radius:8px;
+    padding:5px 10px; cursor:pointer; transition:all .15s;
+    font-family:'Nunito',sans-serif; font-size:12px; font-weight:700; color:var(--text);
+    user-select:none;
+  }
+  .cbox:hover { border-color:var(--accent); }
+  .cbox.checked { background:var(--accent); border-color:var(--accent-d); color:#fff; }
+
+  .mode-row { display:flex; gap:6px; }
+  .mode-btn {
+    font-family:'Nunito',sans-serif; font-size:12px; font-weight:800;
+    padding:6px 14px; border:2px solid var(--border-d); border-radius:8px;
+    background:#fff; color:var(--text-light); cursor:pointer; transition:all .15s;
+  }
+  .mode-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .mode-btn.active { background:var(--accent); border-color:var(--accent-d); color:#fff; }
+
+  .nb-row { display:flex; gap:6px; }
+  .nb-btn {
+    font-family:'Nunito',sans-serif; font-size:13px; font-weight:800;
+    width:36px; height:36px; border-radius:8px;
+    border:2px solid var(--border-d); background:#fff; color:var(--text);
+    cursor:pointer; transition:all .15s;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .nb-btn:hover { border-color:var(--accent); }
+  .nb-btn.active { background:var(--accent); border-color:var(--accent-d); color:#fff; }
+
+  /* MAIN */
+  .main { flex:1; padding:1rem 1.4rem; display:flex; flex-direction:column; gap:.9rem; }
+
+  .feedback {
+    display:none; padding:10px 18px; border-radius:10px;
+    font-family:'Nunito',sans-serif; font-size:14px; font-weight:800;
+    text-align:center; border:2px solid transparent;
+  }
+  .feedback.ok { background:var(--correct-l); color:var(--correct); border-color:var(--correct); display:block; }
+  .feedback.ko { background:var(--wrong-l); color:var(--wrong); border-color:var(--wrong); display:block; }
+
+  .instruction {
+    text-align:center; font-family:'Nunito',sans-serif; font-size:13px; font-weight:700;
+    color:var(--text-light); background:var(--panel-bg);
+    border:2px solid var(--border); border-radius:8px; padding:7px 14px;
+  }
+
+  /* AIDE */
+  .aide-panel {
+    display:none; background:#FFF8E1; border:2px solid #F9A825;
+    border-radius:12px; padding:12px 16px;
+    font-family:'Nunito',sans-serif; font-size:13px; font-weight:700; color:#5D4037;
+    max-width:560px; margin:0 auto; text-align:center;
+  }
+  .aide-panel.show { display:block; }
+  .aide-level { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#F9A825; margin-bottom:6px; }
+  .aide-figure { margin:10px auto 4px; display:flex; justify-content:center; flex-direction:column; align-items:center; gap:6px; }
+
+  /* ══════════════════════════════
+     MODE A — SYMBOLE < = >
+  ══════════════════════════════ */
+  .symbole-zone {
+    display:flex; align-items:center; justify-content:center;
+    gap:20px; flex-wrap:wrap;
+  }
+
+  .frac-card-sym {
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    background:#fff; border:3px solid var(--border-d); border-radius:14px;
+    padding:14px 12px; width:150px;
+  }
+  .card-bande {
+    width:126px; height:44px; overflow:hidden;
+    border:1.5px solid var(--border); border-radius:6px;
+    background:var(--panel-bg);
+  }
+  .frac-write {
+    display:flex; flex-direction:column; align-items:center;
+  }
+  .frac-write .fn {
+    font-family:'Nunito',sans-serif; font-size:24px; font-weight:900; color:var(--text);
+    border-bottom:3px solid var(--text); line-height:1.2; padding:0 10px 2px; text-align:center;
+  }
+  .frac-write .fd {
+    font-family:'Nunito',sans-serif; font-size:24px; font-weight:900; color:var(--text);
+    line-height:1.2; padding:2px 10px 0; text-align:center;
+  }
+
+  .sym-btns {
+    display:flex; flex-direction:column; gap:10px; align-items:center;
+  }
+  .sym-btn {
+    font-family:'Nunito',sans-serif; font-size:22px; font-weight:900;
+    width:58px; height:58px; border-radius:12px;
+    border:3px solid var(--border-d); background:#fff; color:var(--text);
+    cursor:pointer; transition:all .15s;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .sym-btn:hover { background:var(--accent-l); border-color:var(--accent); transform:scale(1.08); }
+  .sym-btn.correct { background:var(--correct-l); border-color:var(--correct); color:var(--correct); pointer-events:none; }
+  .sym-btn.wrong   { background:var(--wrong-l);   border-color:var(--wrong);   color:var(--wrong); }
+
+  /* ══════════════════════════════
+     MODE B — ORDONNER
+  ══════════════════════════════ */
+  .ordre-zone { display:flex; flex-direction:column; gap:16px; align-items:center; }
+
+  .fracs-bank {
+    display:flex; gap:12px; flex-wrap:wrap; justify-content:center;
+    padding:12px; background:#fff; border:3px solid var(--border-d);
+    border-radius:14px; min-height:80px; align-items:center;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+  }
+
+  .frac-chip {
+    display:flex; flex-direction:column; align-items:center;
+    background:var(--bg2); border:3px solid var(--border-d); border-radius:12px;
+    padding:8px 10px; cursor:pointer; transition:all .15s; user-select:none;
+    min-width:70px;
+  }
+  .frac-chip:hover { border-color:var(--accent); background:var(--accent-l); transform:scale(1.05); }
+  .frac-chip.selected {
+    border-color:var(--accent); background:var(--accent);
+    box-shadow:0 0 0 4px rgba(106,27,154,.25); transform:scale(1.08);
+  }
+  .frac-chip.selected .cn, .frac-chip.selected .cd { color:#fff; border-color:#fff; }
+  .frac-chip.placed { opacity:.2; pointer-events:none; }
+  .cn {
+    font-family:'Nunito',sans-serif; font-size:20px; font-weight:900; color:var(--text);
+    border-bottom:3px solid var(--text); line-height:1.2; padding:0 6px 1px; text-align:center;
+  }
+  .cd {
+    font-family:'Nunito',sans-serif; font-size:20px; font-weight:900; color:var(--text);
+    line-height:1.2; padding:1px 6px 0; text-align:center;
+  }
+
+  .slots-row {
+    display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; justify-content:center;
+  }
+  .slot-wrap { display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .slot-label {
+    font-family:'Nunito',sans-serif; font-size:11px; font-weight:800;
+    color:var(--text-light); text-transform:uppercase; letter-spacing:.05em;
+  }
+  .dropslot {
+    width:90px; min-height:70px; border:3px dashed var(--border-d);
+    border-radius:12px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:all .18s; background:var(--panel-bg);
+  }
+  .dropslot:hover { border-color:var(--accent); background:var(--accent-l); }
+  .dropslot.filled { border-style:solid; border-color:var(--border-d); background:var(--bg2); }
+  .dropslot.correct { border-color:var(--correct); background:var(--correct-l); border-style:solid; }
+  .dropslot.wrong   { border-color:var(--wrong);   background:var(--wrong-l);   border-style:solid; }
+  .slot-hint { font-size:11px; color:#9C7AB0; font-weight:600; }
+  .slot-placed { display:flex; flex-direction:column; align-items:center; }
+  .slot-placed .sn {
+    font-family:'Nunito',sans-serif; font-size:18px; font-weight:900; color:var(--text);
+    border-bottom:3px solid var(--text); line-height:1.2; padding:0 6px 1px; text-align:center;
+  }
+  .slot-placed .sd {
+    font-family:'Nunito',sans-serif; font-size:18px; font-weight:900; color:var(--text);
+    line-height:1.2; padding:1px 6px 0; text-align:center;
+  }
+
+  .arrow-label {
+    font-family:'Nunito',sans-serif; font-size:22px; color:var(--text-light); align-self:center;
+  }
+
+  /* CONTROLS */
+  .controls { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; padding-bottom:.5rem; }
+  .btn {
+    font-family:'Nunito',sans-serif; font-size:13px; font-weight:800;
+    padding:10px 22px; border-radius:10px; border:2px solid var(--border-d);
+    background:#fff; color:var(--text); cursor:pointer; transition:all .15s;
+  }
+  .btn:hover { background:var(--bg2); border-color:var(--accent); }
+  .btn.primary { background:var(--accent); border-color:var(--accent-d); color:#fff; }
+  .btn.primary:hover { background:var(--accent-d); }
+  .btn.check { background:#1565C0; border-color:#0D47A1; color:#fff; }
+  .btn.check:hover { background:#0D47A1; }
+  .btn.aide { background:#FFF8E1; border-color:#F9A825; color:#5D4037; }
+  .btn.aide:hover { background:#FFF3CD; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="game-title">Comparer des fractions</div>
+    <div class="game-sub">Utilise &lt; = &gt; ou ordonne les fractions</div>
+  </div>
+  <span class="score-pill" id="score-lbl">Score : 0 / 0</span>
+</div>
+
+<div class="config-panel">
+
+  <!-- Mode -->
+  <div class="config-block">
+    <div class="config-label">Mode</div>
+    <div class="mode-row">
+      <button class="mode-btn active" onclick="setMode('symbole',this)">Symbole &lt; = &gt;</button>
+      <button class="mode-btn"        onclick="setMode('ordre',this)">Ordonner</button>
+    </div>
+  </div>
+
+  <!-- Cas -->
+  <div class="config-block">
+    <div class="config-label">Types de comparaison</div>
+    <div class="check-row" id="cas-row"></div>
+  </div>
+
+  <!-- Nb fractions (mode ordre) -->
+  <div class="config-block" id="nb-block">
+    <div class="config-label">Nb de fractions (ordre)</div>
+    <div class="nb-row">
+      <button class="nb-btn"        onclick="setNb(3,this)">3</button>
+      <button class="nb-btn active" onclick="setNb(4,this)">4</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="main">
+  <div class="feedback"  id="feedback"></div>
+  <div class="aide-panel" id="aide-panel">
+    <div class="aide-level" id="aide-level"></div>
+    <div class="aide-text"  id="aide-text"></div>
+    <div class="aide-figure" id="aide-figure"></div>
+  </div>
+  <div class="instruction" id="instruction"></div>
+
+  <!-- ZONE DE JEU -->
+  <div id="game-zone"></div>
+
+  <div class="controls">
+    <button class="btn aide" id="btn-aide" onclick="showAide()">💡 Aide</button>
+    <button class="btn check" id="btn-verif" onclick="checkAnswer()" style="display:none">✔ Verifier</button>
+    <button class="btn" onclick="resetRound()">Reessayer</button>
+    <button class="btn primary" onclick="newGame()">Nouvel exercice</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  POOLS PAR CAS
+// ═══════════════════════════════════════════
+const CAS = [
+  {
+    id: 'meme-den',
+    label: 'Meme denominateur',
+    hint1: 'Ces deux fractions ont le meme denominateur.',
+    hint3: 'Meme denominateur → compare les numerateurs. Le plus grand numerateur = la plus grande fraction.',
+    pairs: [
+      [{n:1,d:4},{n:3,d:4}], [{n:2,d:5},{n:4,d:5}], [{n:1,d:6},{n:5,d:6}],
+      [{n:3,d:8},{n:7,d:8}], [{n:2,d:6},{n:5,d:6}], [{n:1,d:3},{n:2,d:3}],
+      [{n:3,d:10},{n:7,d:10}], [{n:4,d:12},{n:9,d:12}], [{n:2,d:8},{n:6,d:8}],
+      [{n:1,d:5},{n:3,d:5}], [{n:5,d:8},{n:7,d:8}], [{n:3,d:12},{n:8,d:12}],
+    ]
+  },
+  {
+    id: 'meme-num',
+    label: 'Meme numerateur',
+    hint1: 'Ces deux fractions ont le meme numerateur.',
+    hint3: 'Meme numerateur → compare les denominateurs. Le plus petit denominateur = la plus grande fraction (les parts sont plus grandes).',
+    pairs: [
+      [{n:1,d:3},{n:1,d:6}], [{n:1,d:4},{n:1,d:8}], [{n:1,d:2},{n:1,d:5}],
+      [{n:2,d:3},{n:2,d:6}], [{n:3,d:4},{n:3,d:8}], [{n:1,d:3},{n:1,d:12}],
+      [{n:2,d:5},{n:2,d:10}], [{n:3,d:6},{n:3,d:12}], [{n:1,d:4},{n:1,d:12}],
+      [{n:2,d:4},{n:2,d:8}], [{n:1,d:6},{n:1,d:12}], [{n:3,d:4},{n:3,d:12}],
+    ]
+  },
+  {
+    id: 'multiple',
+    label: 'Denominateur multiple',
+    hint1: 'Un denominateur est le double (ou le triple) de l\'autre.',
+    hint3: 'Quand un denominateur est multiple de l\'autre, on peut convertir l\'une des fractions pour les comparer facilement.',
+    pairs: [
+      [{n:1,d:2},{n:3,d:4}], [{n:1,d:3},{n:5,d:6}], [{n:2,d:3},{n:5,d:6}],
+      [{n:1,d:4},{n:3,d:8}], [{n:3,d:4},{n:7,d:8}], [{n:1,d:2},{n:5,d:8}],
+      [{n:2,d:3},{n:7,d:12}], [{n:1,d:4},{n:5,d:12}], [{n:5,d:6},{n:11,d:12}],
+      [{n:1,d:3},{n:3,d:12}], [{n:3,d:4},{n:9,d:12}], [{n:1,d:2},{n:7,d:12}],
+    ]
+  },
+];
+
+const FILL='#6A1B9A', EMPTY='#F3E5F5', STR='#4A148C';
+
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+let mode = 'symbole';
+let activeCas = ['meme-den','meme-num'];
+let nbFracs = 4;
+let score = 0, total = 0;
+let aideLevel = 0;
+
+// Mode symbole
+let symFracA = null, symFracB = null, symCas = null, symAnswer = null, symLocked = false;
+
+// Mode ordre
+let ordreCards = [];  // [{n,d,val}]
+let ordreSlots = [];  // [{n,d,val} ou null]
+let ordreSelected = null;
+let ordreLocked = false;
+
+// ═══════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════
+function buildCasPanel() {
+  document.getElementById('cas-row').innerHTML = CAS.map(c => {
+    const on = activeCas.includes(c.id);
+    return `<div class="cbox${on?' checked':''}" onclick="toggleCas('${c.id}',this)">${c.label}</div>`;
+  }).join('');
+}
+function toggleCas(id, el) {
+  activeCas = activeCas.includes(id)
+    ? activeCas.filter(x => x !== id)
+    : [...activeCas, id];
+  el.classList.toggle('checked', activeCas.includes(id));
+}
+function setMode(m, el) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('nb-block').style.display = m === 'ordre' ? '' : 'none';
+  newGame();
+}
+function setNb(n, el) {
+  nbFracs = n;
+  document.querySelectorAll('.nb-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════
+function shuffle(a) { return [...a].sort(() => Math.random() - .5); }
+function fracVal(f) { return f.n / f.d; }
+function fracStr(f) { return `${f.n}/${f.d}`; }
+function getActiveCas() { return CAS.filter(c => activeCas.includes(c.id)); }
+
+// ═══════════════════════════════════════════
+//  GAME INIT
+// ═══════════════════════════════════════════
+function newGame() {
+  hideFeedback(); hideAide(); aideLevel = 0;
+
+  const available = getActiveCas();
+  if (!available.length) {
+    showFeedback('Coche au moins un type de comparaison !', 'ko'); return;
+  }
+
+  if (mode === 'symbole') initSymbole(available);
+  else initOrdre(available);
+}
+
+// ── MODE SYMBOLE ──────────────────────────
+function initSymbole(available) {
+  symLocked = false;
+  const cas = shuffle(available)[0];
+  const pair = shuffle(cas.pairs)[0];
+  // Melanger l'ordre A/B
+  const [a, b] = Math.random() > .5 ? [pair[0], pair[1]] : [pair[1], pair[0]];
+  symFracA = a; symFracB = b; symCas = cas;
+  symAnswer = fracVal(a) < fracVal(b) ? '<' : fracVal(a) > fracVal(b) ? '>' : '=';
+
+  document.getElementById('instruction').textContent =
+    'Appuie sur le bon symbole pour comparer ces deux fractions';
+  document.getElementById('btn-verif').style.display = 'none';
+  document.getElementById('btn-aide').style.display = 'inline-flex';
+
+  document.getElementById('game-zone').innerHTML = `
+    <div class="symbole-zone">
+      <div class="frac-card-sym">
+        <div class="card-bande">${drawBande(a.n, a.d, 126, 44)}</div>
+        <div class="frac-write"><span class="fn">${a.n}</span><span class="fd">${a.d}</span></div>
+      </div>
+      <div class="sym-btns">
+        <button class="sym-btn" onclick="clickSym('<')">&lt;</button>
+        <button class="sym-btn" onclick="clickSym('=')">=</button>
+        <button class="sym-btn" onclick="clickSym('>')">&gt;</button>
+      </div>
+      <div class="frac-card-sym">
+        <div class="card-bande">${drawBande(b.n, b.d, 126, 44)}</div>
+        <div class="frac-write"><span class="fn">${b.n}</span><span class="fd">${b.d}</span></div>
+      </div>
+    </div>`;
+}
+
+function clickSym(sym) {
+  if (symLocked) return;
+  symLocked = true;
+  const btns = document.querySelectorAll('.sym-btn');
+  const symbols = ['<','=','>'];
+  btns.forEach((btn, i) => {
+    if (symbols[i] === symAnswer) btn.classList.add('correct');
+    else if (symbols[i] === sym && sym !== symAnswer) btn.classList.add('wrong');
+  });
+  const ok = sym === symAnswer;
+  if (ok) { score++; showFeedback(`Exact ! ${fracStr(symFracA)} ${symAnswer} ${fracStr(symFracB)}`, 'ok'); }
+  else     { showFeedback(`Non — ${fracStr(symFracA)} ${symAnswer} ${fracStr(symFracB)}`, 'ko'); }
+  total++; updateScore();
+}
+
+// ── MODE ORDRE ────────────────────────────
+function initOrdre(available) {
+  ordreLocked = false;
+  ordreSelected = null;
+
+  // Piocher des fractions dans differents cas
+  const pool = [];
+  available.forEach(cas => {
+    cas.pairs.forEach(pair => { pool.push(pair[0]); pool.push(pair[1]); });
+  });
+
+  // Eviter doublons et fractions egales
+  const seen = new Set();
+  const unique = shuffle(pool).filter(f => {
+    const k = fracStr(f);
+    if (seen.has(k)) return false;
+    seen.add(k); return true;
+  });
+
+  // Prendre nbFracs fractions toutes differentes en valeur
+  const chosen = [];
+  const vals = new Set();
+  for (const f of unique) {
+    const v = fracVal(f).toFixed(4);
+    if (!vals.has(v)) { vals.add(v); chosen.push(f); }
+    if (chosen.length === nbFracs) break;
+  }
+
+  ordreCards = shuffle(chosen).map(f => ({...f, val:fracVal(f)}));
+  ordreSlots = Array(chosen.length).fill(null);
+
+  document.getElementById('instruction').textContent =
+    'Range ces fractions de la plus petite a la plus grande — appuie sur une fraction puis sur une case';
+  document.getElementById('btn-verif').style.display = 'inline-flex';
+  document.getElementById('btn-aide').style.display = 'none';
+
+  renderOrdre();
+}
+
+function renderOrdre() {
+  // Banque
+  const bankHTML = ordreCards.map((f, i) => {
+    const placed = ordreSlots.some(s => s && s.n===f.n && s.d===f.d);
+    const sel = ordreSelected === i;
+    return `<div class="frac-chip${placed?' placed':''}${sel?' selected':''}" onclick="selectChip(${i})">
+      <span class="cn">${f.n}</span><span class="cd">${f.d}</span>
+    </div>`;
+  }).join('');
+
+  // Slots
+  const slotsHTML = ordreSlots.map((s, i) => {
+    let cls = 'dropslot';
+    if (s) cls += ' filled';
+    if (ordreLocked && s) {
+      const sorted = [...ordreCards].sort((a,b) => fracVal(a)-fracVal(b));
+      cls += fracVal(s)===fracVal(sorted[i]) ? ' correct' : ' wrong';
+    }
+    const inner = s
+      ? `<div class="slot-placed"><span class="sn">${s.n}</span><span class="sd">${s.d}</span></div>`
+      : `<span class="slot-hint">?</span>`;
+    return `<div class="slot-wrap">
+      <div class="slot-label">${i===0?'Plus petite':i===ordreSlots.length-1?'Plus grande':''}</div>
+      <div class="${cls}" id="slot_${i}" onclick="clickSlot(${i})">${inner}</div>
+    </div>`;
+  }).join(`<div class="arrow-label">→</div>`);
+
+  document.getElementById('game-zone').innerHTML = `
+    <div class="ordre-zone">
+      <div class="fracs-bank">${bankHTML}</div>
+      <div class="slots-row">${slotsHTML}</div>
+    </div>`;
+}
+
+function selectChip(i) {
+  if (ordreLocked) return;
+  ordreSelected = ordreSelected === i ? null : i;
+  renderOrdre();
+}
+
+function clickSlot(i) {
+  if (ordreLocked) return;
+  if (ordreSelected !== null) {
+    const f = ordreCards[ordreSelected];
+    // Si slot deja rempli, remettre l'ancienne fraction disponible
+    ordreSlots[i] = {n:f.n, d:f.d, val:fracVal(f)};
+    ordreSelected = null;
+    renderOrdre(); return;
+  }
+  // Pas de selection — recuperer la fraction du slot
+  if (ordreSlots[i]) {
+    ordreSlots[i] = null;
+    renderOrdre();
+  }
+}
+
+function checkAnswer() {
+  if (mode !== 'ordre') return;
+  if (ordreSlots.some(s => !s)) { showFeedback('Place toutes les fractions avant de verifier !','ko'); return; }
+  ordreLocked = true;
+  const sorted = [...ordreCards].sort((a,b) => fracVal(a)-fracVal(b));
+  const ok = ordreSlots.every((s,i) => Math.abs(fracVal(s)-fracVal(sorted[i]))<.0001);
+  total++;
+  if (ok) {
+    score++;
+    showFeedback('Bravo ! Les fractions sont bien ordonnees de la plus petite a la plus grande !','ok');
+  } else {
+    const correction = sorted.map(f=>fracStr(f)).join(' < ');
+    showFeedback(`Pas tout a fait. L'ordre correct etait : ${correction}`,'ko');
+  }
+  updateScore(); renderOrdre();
+}
+
+function resetRound() {
+  if (mode==='symbole') { symLocked=false; initSymbole(getActiveCas()); }
+  else {
+    ordreSlots = Array(ordreCards.length).fill(null);
+    ordreSelected = null; ordreLocked = false;
+    renderOrdre();
+  }
+  hideFeedback(); hideAide(); aideLevel=0;
+}
+
+// ═══════════════════════════════════════════
+//  AIDE (mode symbole uniquement)
+// ═══════════════════════════════════════════
+function showAide() {
+  if (mode !== 'symbole' || symLocked) return;
+  aideLevel = Math.min(aideLevel+1, 3);
+  const panel = document.getElementById('aide-panel');
+  panel.classList.add('show');
+  document.getElementById('aide-figure').innerHTML = '';
+
+  if (aideLevel===1) {
+    document.getElementById('aide-level').textContent = 'Indice 1 / 3';
+    document.getElementById('aide-text').innerHTML = symCas.hint1;
+  }
+  if (aideLevel===2) {
+    document.getElementById('aide-level').textContent = 'Indice 2 / 3 — Compare les bandes';
+    document.getElementById('aide-text').innerHTML =
+      `<strong>${fracStr(symFracA)}</strong> et <strong>${fracStr(symFracB)}</strong> sur des bandes de meme taille :`;
+    const fig = document.getElementById('aide-figure');
+    fig.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-family:Nunito,sans-serif;font-size:13px;font-weight:800;width:32px;text-align:right">${fracStr(symFracA)}</span>
+          ${drawBande(symFracA.n, symFracA.d, 260, 32)}
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-family:Nunito,sans-serif;font-size:13px;font-weight:800;width:32px;text-align:right">${fracStr(symFracB)}</span>
+          ${drawBande(symFracB.n, symFracB.d, 260, 32)}
+        </div>
+      </div>`;
+  }
+  if (aideLevel===3) {
+    document.getElementById('aide-level').textContent = 'Indice 3 / 3 — La regle';
+    document.getElementById('aide-text').innerHTML = symCas.hint3;
+  }
+  // Label bouton
+  const next = Math.min(aideLevel+1,3);
+  document.getElementById('btn-aide').innerHTML =
+    aideLevel<3 ? `💡 Aide (${next}/3)` : '💡 Aide';
+}
+
+function hideAide() {
+  document.getElementById('aide-panel').classList.remove('show');
+  document.getElementById('aide-figure').innerHTML='';
+  document.getElementById('btn-aide').innerHTML='💡 Aide';
+}
+
+// ═══════════════════════════════════════════
+//  DRAW
+// ═══════════════════════════════════════════
+function drawBande(n, d, W, H) {
+  const pw=W/d; let r='';
+  for (let i=0;i<d;i++)
+    r+=`<rect x="${(i*pw).toFixed(2)}" y="0" width="${(pw-.5).toFixed(2)}" height="${H}"
+      fill="${i<n?FILL:EMPTY}" stroke="${STR}" stroke-width="1.3"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">${r}</svg>`;
+}
+
+// ═══════════════════════════════════════════
+//  FEEDBACK
+// ═══════════════════════════════════════════
+function showFeedback(m,t){const f=document.getElementById('feedback');f.textContent=m;f.className='feedback '+t;}
+function hideFeedback(){const f=document.getElementById('feedback');f.className='feedback';f.textContent='';}
+function updateScore(){document.getElementById('score-lbl').textContent=`Score : ${score} / ${total}`;}
+
+// ═══════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════
+buildCasPanel();
+document.getElementById('nb-block').style.display='none';
+newGame();
+</script>
+</body>
+</html>
