@@ -7,24 +7,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg:        #FDF08A;
-    --bg2:       #FAE84A;
-    --panel-bg:  #FFF8C0;
-    --accent:    #E8750A;
-    --accent-d:  #C25E00;
-    --accent-l:  #FFE0B2;
-    --text:      #1A0E00;
-    --text-light:#7A5C20;
-    --border:    #E8C000;
-    --border-d:  #C8A000;
-    --white:     #FFFFFF;
-    --correct:   #1B5E20;
-    --correct-l: #C8E6C9;
+	--bg:        #EDE7F6;   /* lavande très clair — fond */
+	--bg2:       #D1C4E9;   /* lavande moyen */
+	--panel-bg:  #F3E5F5;   /* violet très pâle */
+	--accent:    #6A1B9A;   /* violet soutenu — boutons */
+	--accent-d:  #4A148C;   /* violet foncé */
+	--accent-l:  #E1BEE7;   /* violet clair */
+	--border:    #CE93D8;   /* lavande bordures */
+	--border-d:  #9C27B0;   /* violet bordures foncées */
     --wrong:     #B71C1C;
     --wrong-l:   #FFCDD2;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     font-family: 'Nunito Sans', sans-serif;
     background: var(--bg);
@@ -34,15 +28,12 @@
     flex-direction: column;
   }
 
-  /* ── HEADER ── */
+  /* HEADER */
   .topbar {
     background: var(--accent);
     padding: .9rem 1.4rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px;
     border-bottom: 4px solid var(--accent-d);
   }
   .game-title { font-family:'Nunito',sans-serif; font-size:20px; font-weight:900; color:#fff; }
@@ -53,21 +44,20 @@
     border-radius:20px; padding:5px 18px; color:var(--accent);
   }
 
-  /* ── CONFIG ── */
+  /* CONFIG PANEL */
   .config-panel {
     background: var(--panel-bg);
     border-bottom: 3px solid var(--border-d);
     padding: .8rem 1.4rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.2rem;
-    align-items: flex-start;
+    display: flex; flex-wrap: wrap; gap: 1.4rem; align-items: flex-start;
   }
-  .config-block { display:flex; flex-direction:column; gap:6px; }
+  .config-block { display:flex; flex-direction:column; gap:7px; }
   .config-label {
     font-family:'Nunito',sans-serif; font-size:11px; font-weight:800;
     text-transform:uppercase; letter-spacing:.08em; color:var(--text-light);
   }
+
+  /* Checkboxes formes */
   .check-row { display:flex; flex-wrap:wrap; gap:6px; }
   .cbox {
     display:flex; align-items:center; gap:5px;
@@ -79,15 +69,31 @@
   .cbox:hover { border-color:var(--accent); }
   .cbox.checked { background:var(--accent); border-color:var(--accent-d); color:#fff; }
 
-  .levels { display:flex; gap:6px; flex-wrap:wrap; }
-  .lbtn {
-    font-family:'Nunito',sans-serif; font-size:12px; font-weight:800;
-    padding:6px 14px; border:2px solid var(--border-d); border-radius:20px;
-    background:#fff; color:var(--text-light); cursor:pointer; transition:all .15s;
+  /* Min/Max */
+  .minmax-row { display:flex; align-items:center; gap:8px; }
+  .minmax-row label {
+    font-family:'Nunito',sans-serif; font-size:12px; font-weight:700; color:var(--text-light);
   }
-  .lbtn:hover { border-color:var(--accent); color:var(--accent); }
-  .lbtn.active { background:var(--accent); border-color:var(--accent-d); color:#fff; }
+  .minmax-row input[type=number] {
+    width:52px; height:34px; border:2px solid var(--border-d); border-radius:8px;
+    background:#fff; font-family:'Nunito',sans-serif; font-size:14px; font-weight:800;
+    color:var(--text); text-align:center; padding:0 4px;
+  }
+  .minmax-row input[type=number]:focus { outline:none; border-color:var(--accent); }
 
+  /* Unitaires toggle */
+  .toggle-row { display:flex; align-items:center; gap:8px; }
+  .toggle-box {
+    display:flex; align-items:center; gap:6px;
+    background:#fff; border:2px solid var(--border-d); border-radius:8px;
+    padding:6px 12px; cursor:pointer; transition:all .15s;
+    font-family:'Nunito',sans-serif; font-size:12px; font-weight:700; color:var(--text);
+    user-select:none;
+  }
+  .toggle-box:hover { border-color:var(--accent); }
+  .toggle-box.checked { background:var(--accent); border-color:var(--accent-d); color:#fff; }
+
+  /* Nb figures */
   .nb-row { display:flex; gap:6px; }
   .nb-btn {
     font-family:'Nunito',sans-serif; font-size:13px; font-weight:800;
@@ -99,7 +105,7 @@
   .nb-btn:hover { border-color:var(--accent); }
   .nb-btn.active { background:var(--accent); border-color:var(--accent-d); color:#fff; }
 
-  /* ── MAIN ── */
+  /* MAIN */
   .main { flex:1; padding:1rem 1.4rem; display:flex; flex-direction:column; gap:.8rem; }
 
   .feedback {
@@ -111,7 +117,7 @@
   .feedback.ko { background:var(--wrong-l);   color:var(--wrong);   border-color:var(--wrong);   display:block; }
 
   .config-error {
-    display:none; text-align:center;
+    display:none; text-align:center; padding:10px;
     font-family:'Nunito',sans-serif; font-size:14px; font-weight:800; color:var(--wrong);
   }
 
@@ -121,7 +127,7 @@
     border:2px solid var(--border); border-radius:8px; padding:7px 14px;
   }
 
-  /* ── BANK ── */
+  /* BANK */
   .bank {
     display:flex; gap:10px; flex-wrap:wrap; justify-content:center;
     padding:1rem; background:#fff; border:3px solid var(--border-d);
@@ -139,7 +145,8 @@
     border-color:var(--accent); background:var(--accent);
     box-shadow:0 0 0 4px rgba(232,117,10,.3); transform:scale(1.1);
   }
-  .chip.selected .cnum, .chip.selected .cden { color:#fff; border-color:#fff; }
+  .chip.selected .cnum,
+  .chip.selected .cden { color:#fff; border-color:#fff; }
   .chip.used { opacity:.18; pointer-events:none; }
   .cnum {
     font-family:'Nunito',sans-serif; font-size:19px; font-weight:900; color:var(--text);
@@ -151,7 +158,7 @@
     line-height:1.2; width:100%; text-align:center; padding:1px 6px 0;
   }
 
-  /* ── FIGURES ── */
+  /* FIGURES */
   .figures-row {
     display:flex; gap:20px; flex-wrap:wrap; justify-content:center; align-items:flex-end;
   }
@@ -160,13 +167,15 @@
     width:124px; height:124px;
     display:flex; align-items:center; justify-content:center;
     background:#fff; border:2px solid var(--border-d); border-radius:12px;
-    padding:4px; box-shadow:0 2px 6px rgba(0,0,0,.08);
+    padding:4px; box-shadow:0 2px 6px rgba(0,0,0,.08); overflow:hidden;
   }
-  .fig-svg-wrap svg { width:116px; height:116px; display:block; overflow:visible; }
+  .fig-svg-wrap svg { width:116px; height:116px; display:block; overflow:hidden; }
   .fig-label {
     font-family:'Nunito',sans-serif; font-size:11px; font-weight:800;
     color:var(--text-light); text-transform:uppercase; letter-spacing:.06em;
   }
+
+  /* DROP ZONE */
   .dropzone {
     width:124px; min-height:54px; border:3px dashed var(--border-d);
     border-radius:10px; display:flex; align-items:center; justify-content:center;
@@ -187,7 +196,7 @@
     color:var(--text); padding:1px 8px 0;
   }
 
-  /* ── BUTTONS ── */
+  /* BUTTONS */
   .controls { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; padding-bottom:.5rem; }
   .btn {
     font-family:'Nunito',sans-serif; font-size:13px; font-weight:800;
@@ -206,24 +215,39 @@
 <div class="topbar">
   <div>
     <div class="game-title">Fractions visuelles</div>
-    <div class="game-sub">Associe chaque fraction à sa figure</div>
+    <div class="game-sub">Associe chaque fraction a sa figure</div>
   </div>
   <span class="score-pill" id="score-lbl">Score : 0 / 0</span>
 </div>
 
 <div class="config-panel">
-  <div class="config-block">
-    <div class="config-label">Niveau</div>
-    <div class="levels">
-      <button class="lbtn active" onclick="setLevel('decouverte',this)">Découverte</button>
-      <button class="lbtn"        onclick="setLevel('standard',this)">Standard</button>
-      <button class="lbtn"        onclick="setLevel('enrichi',this)">Enrichi</button>
-    </div>
-  </div>
+
+  <!-- Formes -->
   <div class="config-block">
     <div class="config-label">Formes actives</div>
     <div class="check-row" id="shapes-row"></div>
   </div>
+
+  <!-- Min/Max denominateur -->
+  <div class="config-block">
+    <div class="config-label">Denominateur</div>
+    <div class="minmax-row">
+      <label>Min</label>
+      <input type="number" id="dmin" value="2" min="2" max="9" onchange="onConfigChange()">
+      <label>Max</label>
+      <input type="number" id="dmax" value="4" min="2" max="9" onchange="onConfigChange()">
+    </div>
+  </div>
+
+  <!-- Unitaires seulement -->
+  <div class="config-block">
+    <div class="config-label">Type de fractions</div>
+    <div class="toggle-box checked" id="toggle-unit" onclick="toggleUnit(this)">
+      Unitaires seulement (1/d)
+    </div>
+  </div>
+
+  <!-- Nb figures -->
   <div class="config-block">
     <div class="config-label">Nb de figures</div>
     <div class="nb-row">
@@ -232,53 +256,47 @@
       <button class="nb-btn"        onclick="setNb(4,this)">4</button>
     </div>
   </div>
+
 </div>
 
 <div class="main">
   <div class="feedback"     id="feedback"></div>
-  <div class="config-error" id="config-error">⚠ Coche au moins une forme pour jouer !</div>
-  <div class="instruction">Appuie sur une fraction → puis sur la figure qui lui correspond</div>
+  <div class="config-error" id="config-error"></div>
+  <div class="instruction">Appuie sur une fraction puis sur la figure qui lui correspond</div>
   <div class="bank"         id="bank"></div>
   <div class="figures-row"  id="figures"></div>
   <div class="controls">
-    <button class="btn check"   onclick="checkAll()">✔ Vérifier</button>
-    <button class="btn"         onclick="resetRound()">↺ Réessayer</button>
-    <button class="btn primary" onclick="newGame()">→ Nouvel exercice</button>
+    <button class="btn check"   onclick="checkAll()">Verifier</button>
+    <button class="btn"         onclick="resetRound()">Reessayer</button>
+    <button class="btn primary" onclick="newGame()">Nouvel exercice</button>
   </div>
 </div>
 
 <script>
-// ─── DATA ─────────────────────────────────────────────
-const POOL = {
-  decouverte: [{n:1,d:2},{n:1,d:4},{n:1,d:3}],
-  standard:   [{n:1,d:2},{n:1,d:3},{n:1,d:4},{n:1,d:5},{n:1,d:6},{n:1,d:8}],
-  enrichi:    [{n:3,d:4},{n:2,d:3},{n:3,d:8},{n:2,d:5},{n:3,d:10}]
-};
+// ─── FORMES ───────────────────────────────────────────
 const ALL_SHAPES = [
-  {id:'disque',      label:'Disque',        levels:['decouverte','standard','enrichi']},
-  {id:'bande',       label:'Bande',         levels:['decouverte','standard','enrichi']},
-  {id:'rectangle',   label:'Rectangle',     levels:['standard','enrichi']},
-  {id:'carre',       label:'Carré',         levels:['standard','enrichi']},
-  {id:'doublebande', label:'Double bande',  levels:['enrichi']},
-  {id:'graduee',     label:'Ligne graduée', levels:['enrichi']},
+  { id:'disque',    label:'Disque' },
+  { id:'bande',     label:'Bande' },
+  { id:'rectangle', label:'Rectangle' },
+  { id:'carre',     label:'Carre' },
+  { id:'graduee',   label:'Ligne graduee' },
 ];
 const SHAPE_LABELS = {
   disque:'Disque', bande:'Bande', rectangle:'Rectangle',
-  carre:'Carré', doublebande:'Double bande', graduee:'Ligne graduée'
+  carre:'Carre', graduee:'Ligne graduee'
 };
 
-// SVG colors
 const FILL='#E8750A', EMPTY='#FFF8C0', STR='#7A3E00';
 
 // ─── STATE ────────────────────────────────────────────
-let level='decouverte', nbFigures=3;
-let activeShapes=[];
-let exercise=[], score=0, total=0, selected=null;
+let activeShapes = ['disque','bande','rectangle','carre','graduee'];
+let unitairesOnly = true;
+let nbFigures = 3;
+let exercise = [], score = 0, total = 0, selected = null;
 
-// ─── CONFIG ───────────────────────────────────────────
+// ─── INIT ─────────────────────────────────────────────
 function buildShapesPanel() {
-  const available = ALL_SHAPES.filter(s=>s.levels.includes(level));
-  document.getElementById('shapes-row').innerHTML = available.map(s=>{
+  document.getElementById('shapes-row').innerHTML = ALL_SHAPES.map(s => {
     const on = activeShapes.includes(s.id);
     return `<div class="cbox${on?' checked':''}" onclick="toggleShape('${s.id}',this)">${s.label}</div>`;
   }).join('');
@@ -286,79 +304,122 @@ function buildShapesPanel() {
 
 function toggleShape(id, el) {
   activeShapes = activeShapes.includes(id)
-    ? activeShapes.filter(x=>x!==id)
+    ? activeShapes.filter(x => x !== id)
     : [...activeShapes, id];
   el.classList.toggle('checked', activeShapes.includes(id));
 }
 
+function toggleUnit(el) {
+  unitairesOnly = !unitairesOnly;
+  el.classList.toggle('checked', unitairesOnly);
+  el.textContent = unitairesOnly ? 'Unitaires seulement (1/d)' : 'Toutes les fractions (n/d)';
+}
+
 function setNb(n, el) {
-  nbFigures=n;
-  document.querySelectorAll('.nb-btn').forEach(b=>b.classList.remove('active'));
+  nbFigures = n;
+  document.querySelectorAll('.nb-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
 }
 
-function setLevel(l, el) {
-  level=l;
-  document.querySelectorAll('.lbtn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  activeShapes = ALL_SHAPES.filter(s=>s.levels.includes(l)).map(s=>s.id);
-  buildShapesPanel();
-  score=0; total=0; updateScore();
-  newGame();
+function onConfigChange() {
+  // validation min/max
+  let dmin = parseInt(document.getElementById('dmin').value) || 2;
+  let dmax = parseInt(document.getElementById('dmax').value) || 4;
+  dmin = Math.max(2, Math.min(9, dmin));
+  dmax = Math.max(dmin, Math.min(9, dmax));
+  document.getElementById('dmin').value = dmin;
+  document.getElementById('dmax').value = dmax;
+}
+
+// ─── POOL DYNAMIQUE ───────────────────────────────────
+function buildPool() {
+  const dmin = parseInt(document.getElementById('dmin').value) || 2;
+  const dmax = parseInt(document.getElementById('dmax').value) || 4;
+  const pool = [];
+  for (let d = dmin; d <= dmax; d++) {
+    if (unitairesOnly) {
+      pool.push({ n:1, d });
+    } else {
+      for (let n = 1; n < d; n++) {
+        pool.push({ n, d });
+      }
+    }
+  }
+  return pool;
+}
+
+// ─── COMPATIBILITE FORME / FRACTION ──────────────────
+function isCompat(shape, frac) {
+  if (shape === 'carre')   return frac.d === 4 || frac.d === 9;
+  if (shape === 'graduee') return frac.d <= 6;
+  return true;
 }
 
 // ─── GAME ─────────────────────────────────────────────
-function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
+function shuffle(a) { return [...a].sort(() => Math.random() - .5); }
 
 function newGame() {
-  hideFeedback(); selected=null;
-  const available = activeShapes.filter(id=>ALL_SHAPES.find(x=>x.id===id)?.levels.includes(level));
-  if (!available.length) {
-    document.getElementById('config-error').style.display='block';
-    document.getElementById('bank').innerHTML='';
-    document.getElementById('figures').innerHTML='';
+  hideFeedback(); selected = null;
+
+  const pool = buildPool();
+  const available = activeShapes.filter(s => ALL_SHAPES.find(x => x.id === s));
+
+  // Verifier qu'on a assez de fractions
+  if (pool.length === 0) {
+    showError('Aucune fraction disponible avec ces reglages. Ajuste le denominateur.');
+    document.getElementById('bank').innerHTML = '';
+    document.getElementById('figures').innerHTML = '';
     return;
   }
-  document.getElementById('config-error').style.display='none';
-  const count=Math.min(nbFigures, POOL[level].length);
-  const fracs=shuffle(POOL[level]).slice(0,count);
-  exercise = fracs.map(f=>{
-    const compat=available.filter(s=>!(s==='doublebande'&&f.d%2!==0));
-    const shape=shuffle(compat.length?compat:available)[0];
-    return {frac:f, shape, answered:null, locked:false};
+  if (available.length === 0) {
+    showError('Coche au moins une forme pour jouer !');
+    document.getElementById('bank').innerHTML = '';
+    document.getElementById('figures').innerHTML = '';
+    return;
+  }
+  hideError();
+
+  const count = Math.min(nbFigures, pool.length);
+  const fracs = shuffle(pool).slice(0, count);
+
+  exercise = fracs.map(f => {
+    const compat = available.filter(s => isCompat(s, f));
+    const shape = shuffle(compat.length ? compat : available)[0];
+    return { frac:f, shape, answered:null, locked:false };
   });
-  renderBank(); renderFigures();
+
+  renderBank();
+  renderFigures();
 }
 
 function resetRound() {
-  exercise.forEach(e=>{e.answered=null;e.locked=false;});
-  selected=null; hideFeedback(); renderBank(); renderFigures();
+  exercise.forEach(e => { e.answered = null; e.locked = false; });
+  selected = null; hideFeedback(); renderBank(); renderFigures();
 }
 
 // ─── RENDER ───────────────────────────────────────────
 function renderBank() {
-  const fracs=shuffle(exercise.map(e=>e.frac));
-  document.getElementById('bank').innerHTML=fracs.map(frac=>{
-    const used=exercise.some(e=>e.answered&&e.answered.n===frac.n&&e.answered.d===frac.d);
-    const sel=selected&&selected.n===frac.n&&selected.d===frac.d;
-    return `<div class="chip${used?' used':''}${sel?' selected':''}"
-      onclick="selectChip(${frac.n},${frac.d})">
+  const fracs = shuffle(exercise.map(e => e.frac));
+  document.getElementById('bank').innerHTML = fracs.map(frac => {
+    const used = exercise.some(e => e.answered && e.answered.n === frac.n && e.answered.d === frac.d);
+    const sel  = selected && selected.n === frac.n && selected.d === frac.d;
+    return `<div class="chip${used?' used':''}${sel?' selected':''}" onclick="selectChip(${frac.n},${frac.d})">
       <span class="cnum">${frac.n}</span><span class="cden">${frac.d}</span>
     </div>`;
   }).join('');
 }
 
 function renderFigures() {
-  document.getElementById('figures').innerHTML=exercise.map((e,i)=>{
-    const ans=e.answered;
-    let dz='dropzone';
-    if(ans) dz+=' filled';
-    if(e.locked&&ans) dz+=(ans.n===e.frac.n&&ans.d===e.frac.d)?' correct':' wrong';
-    const inner=ans
-      ?`<div class="placed"><span class="pnum">${ans.n}</span><span class="pden">${ans.d}</span></div>`
-      :`<span class="dz-hint">déposer ici</span>`;
+  document.getElementById('figures').innerHTML = exercise.map((e, i) => {
+    const ans = e.answered;
+    let dz = 'dropzone';
+    if (ans) dz += ' filled';
+    if (e.locked && ans) dz += (ans.n===e.frac.n && ans.d===e.frac.d) ? ' correct' : ' wrong';
+    const inner = ans
+      ? `<div class="placed"><span class="pnum">${ans.n}</span><span class="pden">${ans.d}</span></div>`
+      : `<span class="dz-hint">deposer ici</span>`;
     return `<div class="fig-slot">
-      <div class="fig-svg-wrap">${drawShape(e.shape,e.frac)}</div>
+      <div class="fig-svg-wrap">${drawShape(e.shape, e.frac)}</div>
       <div class="fig-label">${SHAPE_LABELS[e.shape]}</div>
       <div class="${dz}" id="zone_${i}" onclick="clickZone(${i})">${inner}</div>
     </div>`;
@@ -366,122 +427,120 @@ function renderFigures() {
 }
 
 // ─── CLIC-CLIC ────────────────────────────────────────
-function selectChip(n,d) {
-  if(selected&&selected.n===n&&selected.d===d){selected=null;renderBank();return;}
-  selected={n,d}; renderBank();
+function selectChip(n, d) {
+  if (selected && selected.n===n && selected.d===d) { selected=null; renderBank(); return; }
+  selected = {n, d}; renderBank();
 }
+
 function clickZone(zi) {
-  const z=exercise[zi]; if(z.locked)return;
-  if(selected){
-    z.answered={n:selected.n,d:selected.d};
-    selected=null; hideFeedback(); renderBank(); renderFigures(); return;
+  const z = exercise[zi]; if (z.locked) return;
+  if (selected) {
+    z.answered = {n:selected.n, d:selected.d};
+    selected = null; hideFeedback(); renderBank(); renderFigures(); return;
   }
-  if(z.answered){
-    selected={n:z.answered.n,d:z.answered.d};
-    z.answered=null; renderBank(); renderFigures();
+  if (z.answered) {
+    selected = {n:z.answered.n, d:z.answered.d};
+    z.answered = null; renderBank(); renderFigures();
   }
 }
 
 // ─── CHECK ────────────────────────────────────────────
 function checkAll() {
-  if(!exercise.every(e=>e.answered)){showFeedback('Place une fraction sur chaque figure avant de vérifier !','ko');return;}
-  let ok=0;
-  exercise.forEach(e=>{e.locked=true;if(e.answered.n===e.frac.n&&e.answered.d===e.frac.d)ok++;});
+  if (!exercise.every(e => e.answered)) {
+    showFeedback('Place une fraction sur chaque figure avant de verifier !', 'ko'); return;
+  }
+  let ok = 0;
+  exercise.forEach(e => {
+    e.locked = true;
+    if (e.answered.n===e.frac.n && e.answered.d===e.frac.d) ok++;
+  });
   total++;
-  if(ok===exercise.length){score++;showFeedback('Excellent ! Toutes les fractions sont bien placées ! 🎉','ok');}
-  else showFeedback(`${ok} / ${exercise.length} bonne(s) réponse(s). Les cases en rouge sont à corriger.`,'ko');
+  if (ok===exercise.length) { score++; showFeedback('Excellent ! Toutes les fractions sont bien placees !', 'ok'); }
+  else showFeedback(`${ok} / ${exercise.length} bonne(s) reponse(s). Les cases en rouge sont a corriger.`, 'ko');
   updateScore(); renderFigures();
 }
-function updateScore(){document.getElementById('score-lbl').textContent=`Score : ${score} / ${total}`;}
-function showFeedback(m,t){const f=document.getElementById('feedback');f.textContent=m;f.className='feedback '+t;}
-function hideFeedback(){const f=document.getElementById('feedback');f.className='feedback';f.textContent='';}
 
-// ─── DRAW ─────────────────────────────────────────────
-function drawShape(shape,frac) {
-  const {n,d}=frac;
+function updateScore() { document.getElementById('score-lbl').textContent = `Score : ${score} / ${total}`; }
+function showFeedback(m,t) { const f=document.getElementById('feedback'); f.textContent=m; f.className='feedback '+t; }
+function hideFeedback()    { const f=document.getElementById('feedback'); f.className='feedback'; f.textContent=''; }
+function showError(m)  { const e=document.getElementById('config-error'); e.textContent=m; e.style.display='block'; }
+function hideError()   { document.getElementById('config-error').style.display='none'; }
 
-  if(shape==='disque'){
-    // viewBox 120×120, centre 60,60, rayon 54 — bien dans la boîte
-    const cx=60,cy=60,r=54;
+// ─── DRAW SHAPES ──────────────────────────────────────
+function drawShape(shape, frac) {
+  const {n, d} = frac;
+
+  // DISQUE
+  if (shape==='disque') {
+    const cx=60, cy=60, r=48;
     let p='';
-    for(let i=0;i<d;i++){
-      const a1=(i/d)*2*Math.PI-Math.PI/2;
-      const a2=((i+1)/d)*2*Math.PI-Math.PI/2;
-      const x1=(cx+r*Math.cos(a1)).toFixed(2),y1=(cy+r*Math.sin(a1)).toFixed(2);
-      const x2=(cx+r*Math.cos(a2)).toFixed(2),y2=(cy+r*Math.sin(a2)).toFixed(2);
-      p+=`<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${d>1?1:0} 1 ${x2},${y2} Z"
-        fill="${i<n?FILL:EMPTY}" stroke="${STR}" stroke-width="1.8"/>`;
+    for (let i=0; i<d; i++) {
+      const a1=(i/d)*2*Math.PI - Math.PI/2;
+      const a2=((i+1)/d)*2*Math.PI - Math.PI/2;
+      const x1=(cx+r*Math.cos(a1)).toFixed(2), y1=(cy+r*Math.sin(a1)).toFixed(2);
+      const x2=(cx+r*Math.cos(a2)).toFixed(2), y2=(cy+r*Math.sin(a2)).toFixed(2);
+      p += `<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${d>1?1:0} 1 ${x2},${y2} Z"
+        fill="${i<n?FILL:EMPTY}" stroke="${STR}" stroke-width="1.5"/>`;
     }
     return `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="${cx}" cy="${cy}" r="${r}" fill="${EMPTY}" stroke="${STR}" stroke-width="1.8"/>
-      ${p}</svg>`;
+      <defs><clipPath id="dc"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath></defs>
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="${EMPTY}" stroke="${STR}" stroke-width="2"/>
+      <g clip-path="url(#dc)">${p}</g>
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${STR}" stroke-width="2"/>
+    </svg>`;
   }
 
-  if(shape==='bande'){
-    const W=100,H=38,ox=6,oy=41,pw=W/d;
+  // BANDE
+  if (shape==='bande') {
+    const W=100, H=38, ox=6, oy=41, pw=W/d;
     let r='';
-    for(let i=0;i<d;i++)
-      r+=`<rect x="${(ox+i*pw).toFixed(2)}" y="${oy}" width="${(pw-.6).toFixed(2)}" height="${H}"
+    for (let i=0; i<d; i++)
+      r += `<rect x="${(ox+i*pw).toFixed(2)}" y="${oy}" width="${(pw-.6).toFixed(2)}" height="${H}"
         fill="${i<n?FILL:EMPTY}" stroke="${STR}" stroke-width="1.5"/>`;
     return `<svg viewBox="0 0 112 120" xmlns="http://www.w3.org/2000/svg">${r}</svg>`;
   }
 
-  if(shape==='rectangle'){
+  // RECTANGLE
+  if (shape==='rectangle') {
     const cols=d<=4?d:Math.ceil(d/2), rows=d<=4?1:2;
-    const W=100,H=rows===2?54:38,pw=W/cols,ph=H/rows;
-    const ox=6,oy=rows===2?33:41;
+    const W=100, H=rows===2?54:38, pw=W/cols, ph=H/rows;
+    const ox=6, oy=rows===2?33:41;
     let r='';
-    for(let i=0;i<d;i++){
-      const col=i%cols,row=Math.floor(i/cols);
-      r+=`<rect x="${(ox+col*pw).toFixed(2)}" y="${(oy+row*ph).toFixed(2)}"
+    for (let i=0; i<d; i++) {
+      const col=i%cols, row=Math.floor(i/cols);
+      r += `<rect x="${(ox+col*pw).toFixed(2)}" y="${(oy+row*ph).toFixed(2)}"
         width="${(pw-.6).toFixed(2)}" height="${(ph-.6).toFixed(2)}"
         fill="${i<n?FILL:EMPTY}" stroke="${STR}" stroke-width="1.5"/>`;
     }
     return `<svg viewBox="0 0 112 120" xmlns="http://www.w3.org/2000/svg">${r}</svg>`;
   }
 
-  if(shape==='carre'){
-    const side=Math.ceil(Math.sqrt(d));
-    const size=96,pw=size/side,ox=8,oy=12;
+  // CARRE (uniquement d=4 -> grille 2x2, d=9 -> grille 3x3)
+  if (shape==='carre') {
+    const side = d===4 ? 2 : 3;
+    const size=96, pw=size/side, ox=8, oy=8;
     let r='';
-    for(let i=0;i<d;i++){
-      const col=i%side,row=Math.floor(i/side);
-      r+=`<rect x="${(ox+col*pw).toFixed(2)}" y="${(oy+row*pw).toFixed(2)}"
-        width="${(pw-.6).toFixed(2)}" height="${(pw-.6).toFixed(2)}"
-        fill="${i<n?FILL:EMPTY}" stroke="${STR}" stroke-width="1.5"/>`;
+    for (let i=0; i<d; i++) {
+      const col=i%side, row=Math.floor(i/side);
+      r += `<rect x="${(ox+col*pw).toFixed(2)}" y="${(oy+row*pw).toFixed(2)}"
+        width="${(pw-.8).toFixed(2)}" height="${(pw-.8).toFixed(2)}"
+        fill="${i<n?FILL:EMPTY}" stroke="${STR}" stroke-width="1.8"/>`;
     }
-    return `<svg viewBox="0 0 112 120" xmlns="http://www.w3.org/2000/svg">${r}</svg>`;
+    return `<svg viewBox="0 0 112 112" xmlns="http://www.w3.org/2000/svg">${r}</svg>`;
   }
 
-  if(shape==='doublebande'){
-    const cols=d/2,W=100,H=22,ox=6,gap=8,oy1=26,oy2=oy1+H+gap,pw=W/cols;
-    let r='';
-    for(let i=0;i<cols;i++)
-      r+=`<rect x="${(ox+i*pw).toFixed(2)}" y="${oy1}" width="${(pw-.6).toFixed(2)}" height="${H}"
-        fill="${i<n?FILL:EMPTY}" stroke="${STR}" stroke-width="1.5"/>`;
-    for(let i=0;i<cols;i++){
-      const gi=cols+i;
-      r+=`<rect x="${(ox+i*pw).toFixed(2)}" y="${oy2}" width="${(pw-.6).toFixed(2)}" height="${H}"
-        fill="${gi<n?FILL:EMPTY}" stroke="${STR}" stroke-width="1.5"/>`;
-    }
-    return `<svg viewBox="0 0 112 120" xmlns="http://www.w3.org/2000/svg">
-      ${r}
-      <text x="56" y="96" text-anchor="middle" font-size="11" fill="${STR}"
-        font-family="Nunito,sans-serif" font-weight="800">${n}/${d}</text>
-    </svg>`;
-  }
-
-  if(shape==='graduee'){
-    const maxVal=3,ox=8,ex=104,y=58,len=ex-ox;
+  // LIGNE GRADUEE (d <= 6, axe 0->3)
+  if (shape==='graduee') {
+    const maxVal=3, ox=8, ex=104, y=56, len=ex-ox;
     const step=len/(d*maxVal);
     let ticks='';
-    for(let i=0;i<=d*maxVal;i++){
+    for (let i=0; i<=d*maxVal; i++) {
       const x=(ox+i*step).toFixed(1);
       const isInt=i%d===0, th=isInt?9:5;
-      ticks+=`<line x1="${x}" y1="${(y-th).toFixed(1)}" x2="${x}" y2="${(y+th).toFixed(1)}"
+      ticks += `<line x1="${x}" y1="${(y-th).toFixed(1)}" x2="${x}" y2="${(y+th).toFixed(1)}"
         stroke="${STR}" stroke-width="${isInt?2:1.2}"/>`;
-      if(isInt)
-        ticks+=`<text x="${x}" y="${(y+20).toFixed(1)}" text-anchor="middle"
+      if (isInt)
+        ticks += `<text x="${x}" y="${(y+20).toFixed(1)}" text-anchor="middle"
           font-size="9" fill="${STR}" font-family="Nunito,sans-serif" font-weight="800">${i/d}</text>`;
     }
     const cx=(ox+n*step).toFixed(1);
@@ -497,7 +556,6 @@ function drawShape(shape,frac) {
 }
 
 // ─── BOOT ─────────────────────────────────────────────
-activeShapes = ALL_SHAPES.filter(s=>s.levels.includes(level)).map(s=>s.id);
 buildShapesPanel();
 newGame();
 </script>
