@@ -7,14 +7,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-	--bg:        #EDE7F6;   /* lavande très clair — fond */
-	--bg2:       #D1C4E9;   /* lavande moyen */
-	--panel-bg:  #F3E5F5;   /* violet très pâle */
-	--accent:    #6A1B9A;   /* violet soutenu — boutons */
-	--accent-d:  #4A148C;   /* violet foncé */
-	--accent-l:  #E1BEE7;   /* violet clair */
-	--border:    #CE93D8;   /* lavande bordures */
-	--border-d:  #9C27B0;   /* violet bordures foncées */
+    --bg:        #FDF08A;
+    --bg2:       #FAE84A;
+    --panel-bg:  #FFF8C0;
+    --accent:    #E8750A;
+    --accent-d:  #C25E00;
+    --accent-l:  #FFE0B2;
+    --text:      #1A0E00;
+    --text-light:#7A5C20;
+    --border:    #E8C000;
+    --border-d:  #C8A000;
+    --white:     #FFFFFF;
+    --correct:   #1B5E20;
+    --correct-l: #C8E6C9;
     --wrong:     #B71C1C;
     --wrong-l:   #FFCDD2;
   }
@@ -215,7 +220,7 @@
 <div class="topbar">
   <div>
     <div class="game-title">Fractions visuelles</div>
-    <div class="game-sub">Associe chaque fraction a sa figure</div>
+    <div class="game-sub">Associe chaque fraction à sa figure</div>
   </div>
   <span class="score-pill" id="score-lbl">Score : 0 / 0</span>
 </div>
@@ -230,7 +235,7 @@
 
   <!-- Min/Max denominateur -->
   <div class="config-block">
-    <div class="config-label">Denominateur</div>
+    <div class="config-label">Dénominateur</div>
     <div class="minmax-row">
       <label>Min</label>
       <input type="number" id="dmin" value="2" min="2" max="9" onchange="onConfigChange()">
@@ -266,7 +271,7 @@
   <div class="bank"         id="bank"></div>
   <div class="figures-row"  id="figures"></div>
   <div class="controls">
-    <button class="btn check"   onclick="checkAll()">Verifier</button>
+    <button class="btn check"   onclick="checkAll()">Vérifier</button>
     <button class="btn"         onclick="resetRound()">Reessayer</button>
     <button class="btn primary" onclick="newGame()">Nouvel exercice</button>
   </div>
@@ -279,17 +284,17 @@ const ALL_SHAPES = [
   { id:'bande',     label:'Bande' },
   { id:'rectangle', label:'Rectangle' },
   { id:'carre',     label:'Carre' },
-  { id:'graduee',   label:'Ligne graduee' },
+  { id:'graduee',   label:'Ligne graduée' },
 ];
 const SHAPE_LABELS = {
   disque:'Disque', bande:'Bande', rectangle:'Rectangle',
-  carre:'Carre', graduee:'Ligne graduee'
+  carre:'Carre', graduee:'Ligne graduée'
 };
 
 const FILL='#E8750A', EMPTY='#FFF8C0', STR='#7A3E00';
 
 // ─── STATE ────────────────────────────────────────────
-let activeShapes = ['disque','bande','rectangle','carre','graduee'];
+let activeShapes = ['disque','bande','rectangle','carre','graduée'];
 let unitairesOnly = true;
 let nbFigures = 3;
 let exercise = [], score = 0, total = 0, selected = null;
@@ -366,7 +371,7 @@ function newGame() {
 
   // Verifier qu'on a assez de fractions
   if (pool.length === 0) {
-    showError('Aucune fraction disponible avec ces reglages. Ajuste le denominateur.');
+    showError('Aucune fraction disponible avec ces réglages. Ajuste le dénominateur.');
     document.getElementById('bank').innerHTML = '';
     document.getElementById('figures').innerHTML = '';
     return;
@@ -447,7 +452,7 @@ function clickZone(zi) {
 // ─── CHECK ────────────────────────────────────────────
 function checkAll() {
   if (!exercise.every(e => e.answered)) {
-    showFeedback('Place une fraction sur chaque figure avant de verifier !', 'ko'); return;
+    showFeedback('Place une fraction sur chaque figure avant de vérifier !', 'ko'); return;
   }
   let ok = 0;
   exercise.forEach(e => {
@@ -455,7 +460,7 @@ function checkAll() {
     if (e.answered.n===e.frac.n && e.answered.d===e.frac.d) ok++;
   });
   total++;
-  if (ok===exercise.length) { score++; showFeedback('Excellent ! Toutes les fractions sont bien placees !', 'ok'); }
+  if (ok===exercise.length) { score++; showFeedback('Excellent ! Toutes les fractions sont bien placées !', 'ok'); }
   else showFeedback(`${ok} / ${exercise.length} bonne(s) reponse(s). Les cases en rouge sont a corriger.`, 'ko');
   updateScore(); renderFigures();
 }
@@ -539,7 +544,7 @@ function drawShape(shape, frac) {
       const isInt=i%d===0, th=isInt?9:5;
       ticks += `<line x1="${x}" y1="${(y-th).toFixed(1)}" x2="${x}" y2="${(y+th).toFixed(1)}"
         stroke="${STR}" stroke-width="${isInt?2:1.2}"/>`;
-      if (isInt)
+      if (isInt)y;
         ticks += `<text x="${x}" y="${(y+20).toFixed(1)}" text-anchor="middle"
           font-size="9" fill="${STR}" font-family="Nunito,sans-serif" font-weight="800">${i/d}</text>`;
     }

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conjugaison - Les Cascades</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#EDE7F6;--bg2:#D1C4E9;--panel-bg:#F3E5F5;--accent:#6A1B9A;--accent-d:#4A148C;--accent-l:#E1BEE7;--text:#1A0E00;--text-light:#7A5C20;--border:#CE93D8;--border-d:#9C27B0;--correct:#1B5E20;--correct-l:#C8E6C9;--wrong:#B71C1C;--wrong-l:#FFCDD2;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+  .topbar{background:var(--accent);padding:.9rem 1.4rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;border-bottom:4px solid var(--accent-d);}
+  .game-title{font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;color:#fff;}
+  .game-sub{font-size:12px;color:var(--accent-l);font-weight:600;margin-top:2px;}
+  .score-pill{font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;background:#fff;border:2px solid var(--accent-d);border-radius:20px;padding:5px 18px;color:var(--accent);}
+  .config-panel{background:var(--panel-bg);border-bottom:3px solid var(--border-d);padding:.8rem 1.4rem;display:flex;flex-wrap:wrap;gap:1.2rem;align-items:flex-start;}
+  .config-block{display:flex;flex-direction:column;gap:6px;}
+  .config-label{font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--text-light);}
+  .check-row{display:flex;flex-wrap:wrap;gap:5px;}
+  .cbox{display:flex;align-items:center;gap:4px;background:#fff;border:2px solid var(--border-d);border-radius:8px;padding:4px 9px;cursor:pointer;transition:all .15s;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:var(--text);user-select:none;}
+  .cbox:hover{border-color:var(--accent);}
+  .cbox.checked{background:var(--accent);border-color:var(--accent-d);color:#fff;}
+  .main{flex:1;padding:1.2rem 1.4rem;display:flex;flex-direction:column;gap:1rem;align-items:center;}
+  .feedback{display:none;padding:10px 18px;border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;text-align:center;border:2px solid transparent;width:100%;max-width:600px;}
+  .feedback.ok{background:var(--correct-l);color:var(--correct);border-color:var(--correct);display:block;}
+  .feedback.ko{background:var(--wrong-l);color:var(--wrong);border-color:var(--wrong);display:block;}
+  .question-box{background:#fff;border:3px solid var(--border-d);border-radius:16px;padding:1.6rem 2rem;display:flex;flex-direction:column;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(106,27,154,.12);min-width:320px;max-width:520px;width:100%;}
+  .badge-temps{font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:var(--accent);background:var(--accent-l);border:1px solid var(--border);border-radius:6px;padding:3px 12px;}
+  .badge-verbe{font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;color:var(--text-light);text-align:center;}
+  .conj-pronoun{font-family:'Nunito',sans-serif;font-size:36px;font-weight:900;color:var(--accent);}
+  .conj-verb{font-family:'Nunito',sans-serif;font-size:36px;font-weight:900;color:var(--text);}
+  .saisie-cell{min-width:180px;height:62px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;font-size:32px;font-weight:900;color:var(--text);border:2px dashed var(--border-d);cursor:pointer;transition:all .18s;background:var(--panel-bg);padding:0 12px;}
+  .saisie-cell:hover{border-color:var(--accent);background:var(--accent-l);}
+  .saisie-cell.active{border:3px solid var(--accent);background:var(--accent-l);box-shadow:0 0 0 3px rgba(106,27,154,.2);}
+  .saisie-cell.filled{border-style:solid;border-color:var(--border-d);background:var(--bg2);}
+  .saisie-cell.correct{border-color:var(--correct)!important;background:var(--correct-l)!important;color:var(--correct);border-style:solid!important;}
+  .saisie-cell.wrong{border-color:var(--wrong)!important;background:var(--wrong-l)!important;color:var(--wrong);border-style:solid!important;}
+  .choices{display:flex;flex-direction:column;gap:9px;width:100%;}
+  .choice-btn{font-family:'Nunito',sans-serif;font-size:22px;font-weight:800;padding:11px 16px;border-radius:12px;border:2px solid var(--border-d);background:var(--panel-bg);color:var(--text);cursor:pointer;transition:all .15s;text-align:center;}
+  .choice-btn:hover{border-color:var(--accent);background:var(--accent-l);transform:scale(1.02);}
+  .choice-btn.correct{border-color:var(--correct);background:var(--correct-l);color:var(--correct);pointer-events:none;}
+  .choice-btn.wrong{border-color:var(--wrong);background:var(--wrong-l);color:var(--wrong);pointer-events:none;}
+  .choice-btn.neutral{pointer-events:none;opacity:.5;}
+  .keyboard-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;background:#fff;border:3px solid var(--border-d);border-radius:14px;padding:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);max-width:520px;width:100%;}
+  .kb-row{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;}
+  .kb-key{font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;min-width:38px;height:42px;border-radius:8px;border:2px solid var(--border-d);background:var(--panel-bg);color:var(--text);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;padding:0 6px;}
+  .kb-key:hover{background:var(--accent-l);border-color:var(--accent);}
+  .kb-key.del{background:var(--wrong-l);border-color:var(--wrong);color:var(--wrong);}
+  .kb-key.del:hover{background:var(--wrong);color:#fff;}
+  .kb-key.ok{background:var(--correct-l);border-color:var(--correct);color:var(--correct);font-size:13px;padding:0 14px;}
+  .kb-key.ok:hover{background:var(--correct);color:#fff;}
+  .kb-key.space{padding:0 16px;font-size:12px;}
+  .controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
+  .btn{font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:10px 22px;border-radius:10px;border:2px solid var(--border-d);background:#fff;color:var(--text);cursor:pointer;transition:all .15s;}
+  .btn:hover{background:var(--bg2);border-color:var(--accent);}
+  .btn.primary{background:var(--accent);border-color:var(--accent-d);color:#fff;}
+  .btn.primary:hover{background:var(--accent-d);}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div><div class="game-title">Conjugaison</div><div class="game-sub">Du CP au CM2</div></div>
+  <span class="score-pill" id="score-lbl">Score : 0 / 0</span>
+</div>
+<div class="config-panel">
+  <div class="config-block"><div class="config-label">Niveau</div><div class="check-row" id="niveau-row"></div></div>
+  <div class="config-block"><div class="config-label">Temps</div><div class="check-row" id="temps-row"></div></div>
+  <div class="config-block"><div class="config-label">Verbes</div><div class="check-row" id="verbes-row"></div></div>
+  <div class="config-block"><div class="config-label">Mode</div><div class="check-row" id="mode-row"></div></div>
+</div>
+<div class="main">
+  <div class="feedback" id="feedback"></div>
+  <div id="game-zone"></div>
+  <div id="keyboard-zone"></div>
+  <div class="controls">
+    <button class="btn" onclick="newGame()">Autre</button>
+    <button class="btn primary" onclick="newGame()">Suivant</button>
+  </div>
+</div>
+<script>
+const NIVEAUX=[{id:'cp',label:'CP'},{id:'ce1',label:'CE1'},{id:'ce2',label:'CE2'},{id:'cm1',label:'CM1'},{id:'cm2',label:'CM2'}];
+const ALL_TEMPS=[
+  {id:'present',label:'Présent',niv:['cp','ce1','ce2','cm1','cm2']},
+  {id:'futur',label:'Futur',niv:['ce1','ce2','cm1','cm2']},
+  {id:'pcomp',label:'Passé composé',niv:['ce1','ce2','cm1','cm2']},
+  {id:'imparfait',label:'Imparfait',niv:['ce2','cm1','cm2']},
+  {id:'condpres',label:'Conditionnel',niv:['cm1','cm2']},
+  {id:'subjpres',label:'Subjonctif',niv:['cm1','cm2']},
+  {id:'pqpf',label:'Plus-que-parfait',niv:['cm2']},
+  {id:'futant',label:'Futur antérieur',niv:['cm2']},
+];
+const TEMPS_LABELS={present:'présent',futur:'futur',imparfait:'imparfait',pcomp:'passé composé',condpres:'conditionnel',subjpres:'subjonctif',pqpf:'plus-que-parfait',futant:'futur antérieur'};
+const PRONOMS=['je','tu','il','nous','vous','ils'];
+const PLAB={je:'je',tu:'tu',il:'il / elle',nous:'nous',vous:'vous',ils:'ils / elles'};
+function pLabel(pronom,forme){if(pronom==='je'&&forme&&/^[aeéèêiîoôuùûhyàä]/i.test(forme))return "j'";return PLAB[pronom];}
+const VERBES_GR1=['chanter','aimer','jouer','manger','donner','porter','regarder','parler','marcher','sauter','ecouter','trouver'];
+const VERBES_GR2=['finir','grandir','choisir','obeir','reussir','rougir'];
+const VERBES_IRREG=['être','avoir','aller','faire','dire','partir','pouvoir','prendre','venir','voir'];
+
+const CONJ={
+  'être':{present:{je:'suis',tu:'es',il:'est',nous:'sommes',vous:'êtes',ils:'sont'},futur:{je:'serai',tu:'seras',il:'sera',nous:'serons',vous:'serez',ils:'seront'},imparfait:{je:'étais',tu:'étais',il:'était',nous:'étions',vous:'étiez',ils:'étaient'},pcomp:{je:'ai été',tu:'as été',il:'a été',nous:'avons été',vous:'avez été',ils:'ont été'},condpres:{je:'serais',tu:'serais',il:'serait',nous:'serions',vous:'seriez',ils:'seraient'},subjpres:{je:'sois',tu:'sois',il:'soit',nous:'soyons',vous:'soyez',ils:'soient'},pqpf:{je:'avais été',tu:'avais été',il:'avait été',nous:'avions été',vous:'aviez été',ils:'avaient été'},futant:{je:'aurai été',tu:'auras été',il:'aura été',nous:'aurons été',vous:'aurez été',ils:'auront été'}},
+  'avoir':{present:{je:'ai',tu:'as',il:'a',nous:'avons',vous:'avez',ils:'ont'},futur:{je:'aurai',tu:'auras',il:'aura',nous:'aurons',vous:'aurez',ils:'auront'},imparfait:{je:'avais',tu:'avais',il:'avait',nous:'avions',vous:'aviez',ils:'avaient'},pcomp:{je:'ai eu',tu:'as eu',il:'a eu',nous:'avons eu',vous:'avez eu',ils:'ont eu'},condpres:{je:'aurais',tu:'aurais',il:'aurait',nous:'aurions',vous:'auriez',ils:'auraient'},subjpres:{je:'aie',tu:'aies',il:'ait',nous:'ayons',vous:'ayez',ils:'aient'},pqpf:{je:'avais eu',tu:'avais eu',il:'avait eu',nous:'avions eu',vous:'aviez eu',ils:'avaient eu'},futant:{je:'aurai eu',tu:'auras eu',il:'aura eu',nous:'aurons eu',vous:'aurez eu',ils:'auront eu'}},
+  'aller':{present:{je:'vais',tu:'vas',il:'va',nous:'allons',vous:'allez',ils:'vont'},futur:{je:'irai',tu:'iras',il:'ira',nous:'irons',vous:'irez',ils:'iront'},imparfait:{je:'allais',tu:'allais',il:'allait',nous:'allions',vous:'alliez',ils:'allaient'},pcomp:{je:'suis allé',tu:'es allé',il:'est allé',nous:'sommes allés',vous:'êtes allés',ils:'sont allés'},condpres:{je:'irais',tu:'irais',il:'irait',nous:'irions',vous:'iriez',ils:'iriez'},subjpres:{je:'aille',tu:'ailles',il:'aille',nous:'allions',vous:'alliez',ils:'aillent'},pqpf:{je:'étais allé',tu:'étais allé',il:'était allé',nous:'étions allés',vous:'étiez allés',ils:'étaient allés'},futant:{je:'serai allé',tu:'seras allé',il:'sera allé',nous:'serons allés',vous:'serez allés',ils:'seront allés'}},
+  'faire':{present:{je:'fais',tu:'fais',il:'fait',nous:'faisons',vous:'faites',ils:'font'},futur:{je:'ferai',tu:'feras',il:'fera',nous:'ferons',vous:'ferez',ils:'feront'},imparfait:{je:'faisais',tu:'faisais',il:'faisait',nous:'faisions',vous:'faisiez',ils:'faisaient'},pcomp:{je:'ai fait',tu:'as fait',il:'a fait',nous:'avons fait',vous:'avez fait',ils:'ont fait'},condpres:{je:'ferais',tu:'ferais',il:'ferait',nous:'ferions',vous:'feriez',ils:'feriez'},subjpres:{je:'fasse',tu:'fasses',il:'fasse',nous:'fassions',vous:'fassiez',ils:'fassent'},pqpf:{je:'avais fait',tu:'avais fait',il:'avait fait',nous:'avions fait',vous:'aviez fait',ils:'avaient fait'},futant:{je:'aurai fait',tu:'auras fait',il:'aura fait',nous:'aurons fait',vous:'aurez fait',ils:'auront fait'}},
+  'dire':{present:{je:'dis',tu:'dis',il:'dit',nous:'disons',vous:'dites',ils:'disent'},futur:{je:'dirai',tu:'diras',il:'dira',nous:'dirons',vous:'direz',ils:'diront'},imparfait:{je:'disais',tu:'disais',il:'disait',nous:'disions',vous:'disiez',ils:'disaient'},pcomp:{je:'ai dit',tu:'as dit',il:'a dit',nous:'avons dit',vous:'avez dit',ils:'ont dit'},condpres:{je:'dirais',tu:'dirais',il:'dirait',nous:'dirions',vous:'diriez',ils:'diraient'},subjpres:{je:'dise',tu:'dises',il:'dise',nous:'disions',vous:'disiez',ils:'disent'},pqpf:{je:'avais dit',tu:'avais dit',il:'avait dit',nous:'avions dit',vous:'aviez dit',ils:'avaient dit'},futant:{je:'aurai dit',tu:'auras dit',il:'aura dit',nous:'aurons dit',vous:'aurez dit',ils:'auront dit'}},
+  'partir':{present:{je:'pars',tu:'pars',il:'part',nous:'partons',vous:'partez',ils:'partent'},futur:{je:'partirai',tu:'partiras',il:'partira',nous:'partirons',vous:'partirez',ils:'partiront'},imparfait:{je:'partais',tu:'partais',il:'partait',nous:'partions',vous:'partiez',ils:'partaient'},pcomp:{je:'suis parti',tu:'es parti',il:'est parti',nous:'sommes partis',vous:'êtes partis',ils:'sont partis'},condpres:{je:'partirais',tu:'partirais',il:'partirait',nous:'partirions',vous:'partiriez',ils:'partiraient'},subjpres:{je:'parte',tu:'partes',il:'parte',nous:'partions',vous:'partiez',ils:'partent'},pqpf:{je:'étais parti',tu:'étais parti',il:'était parti',nous:'étions partis',vous:'étiez partis',ils:'étaient partis'},futant:{je:'serai parti',tu:'seras parti',il:'sera parti',nous:'serons partis',vous:'serez partis',ils:'seront partis'}},
+  'pouvoir':{present:{je:'peux',tu:'peux',il:'peut',nous:'pouvons',vous:'pouvez',ils:'peuvent'},futur:{je:'pourrai',tu:'pourras',il:'pourra',nous:'pourrons',vous:'pourrez',ils:'pourront'},imparfait:{je:'pouvais',tu:'pouvais',il:'pouvait',nous:'pouvions',vous:'pouviez',ils:'pouvaient'},pcomp:{je:'ai pu',tu:'as pu',il:'a pu',nous:'avons pu',vous:'avez pu',ils:'ont pu'},condpres:{je:'pourrais',tu:'pourrais',il:'pourrait',nous:'pourrions',vous:'pourriez',ils:'pourraient'},subjpres:{je:'puisse',tu:'puisses',il:'puisse',nous:'puissions',vous:'puissiez',ils:'puissent'},pqpf:{je:'avais pu',tu:'avais pu',il:'avait pu',nous:'avions pu',vous:'aviez pu',ils:'avaient pu'},futant:{je:'aurai pu',tu:'auras pu',il:'aura pu',nous:'aurons pu',vous:'aurez pu',ils:'auront pu'}},
+  'prendre':{present:{je:'prends',tu:'prends',il:'prend',nous:'prenons',vous:'prenez',ils:'prennent'},futur:{je:'prendrai',tu:'prendras',il:'prendra',nous:'prendrons',vous:'prendrez',ils:'prendront'},imparfait:{je:'prenais',tu:'prenais',il:'prenait',nous:'prenions',vous:'preniez',ils:'prenaient'},pcomp:{je:'ai pris',tu:'as pris',il:'a pris',nous:'avons pris',vous:'avez pris',ils:'ont pris'},condpres:{je:'prendrais',tu:'prendrais',il:'prendrait',nous:'prendrions',vous:'prendriez',ils:'prendraient'},subjpres:{je:'prenne',tu:'prennes',il:'prenne',nous:'prenions',vous:'preniez',ils:'prennent'},pqpf:{je:'avais pris',tu:'avais pris',il:'avait pris',nous:'avions pris',vous:'aviez pris',ils:'avaient pris'},futant:{je:'aurai pris',tu:'auras pris',il:'aura pris',nous:'aurons pris',vous:'aurez pris',ils:'auront pris'}},
+  'venir':{present:{je:'viens',tu:'viens',il:'vient',nous:'venons',vous:'venez',ils:'viennent'},futur:{je:'viendrai',tu:'viendras',il:'viendra',nous:'viendrons',vous:'viendrez',ils:'viendront'},imparfait:{je:'venais',tu:'venais',il:'venait',nous:'venions',vous:'veniez',ils:'venaient'},pcomp:{je:'suis venu',tu:'es venu',il:'est venu',nous:'sommes venus',vous:'êtes venus',ils:'sont venus'},condpres:{je:'viendrais',tu:'viendrais',il:'viendrait',nous:'viendrions',vous:'viendriez',ils:'viendraient'},subjpres:{je:'vienne',tu:'viennes',il:'vienne',nous:'venions',vous:'veniez',ils:'viennent'},pqpf:{je:'étais venu',tu:'étais venu',il:'était venu',nous:'étions venus',vous:'étiez venus',ils:'étaient venus'},futant:{je:'serai venu',tu:'seras venu',il:'sera venu',nous:'serons venus',vous:'serez venus',ils:'seront venus'}},
+  'voir':{present:{je:'vois',tu:'vois',il:'voit',nous:'voyons',vous:'voyez',ils:'voient'},futur:{je:'verrai',tu:'verras',il:'verra',nous:'verrons',vous:'verrez',ils:'verront'},imparfait:{je:'voyais',tu:'voyais',il:'voyait',nous:'voyions',vous:'voyiez',ils:'voyaient'},pcomp:{je:'ai vu',tu:'as vu',il:'a vu',nous:'avons vu',vous:'avez vu',ils:'ont vu'},condpres:{je:'verrais',tu:'verrais',il:'verrait',nous:'verrions',vous:'verriez',ils:'verraient'},subjpres:{je:'voie',tu:'voies',il:'voie',nous:'voyions',vous:'voyiez',ils:'voient'},pqpf:{je:'avais vu',tu:'avais vu',il:'avait vu',nous:'avions vu',vous:'aviez vu',ils:'avaient vu'},futant:{je:'aurai vu',tu:'auras vu',il:'aura vu',nous:'aurons vu',vous:'aurez vu',ils:'auront vu'}},
+};
+
+function conjGr1(v,t){const r=v.slice(0,-2);const f=v.slice(0,-1);const tb={present:{je:r+'e',tu:r+'es',il:r+'e',nous:r+'ons',vous:r+'ez',ils:r+'ent'},futur:{je:f+'rai',tu:f+'ras',il:f+'ra',nous:f+'rons',vous:f+'rez',ils:f+'ront'},imparfait:{je:r+'ais',tu:r+'ais',il:r+'ait',nous:r+'ions',vous:r+'iez',ils:r+'aient'},pcomp:{je:'ai '+r+'é',tu:'as '+r+'é',il:'a '+r+'é',nous:'avons '+r+'é',vous:'avez '+r+'é',ils:'ont '+r+'é'},condpres:{je:f+'rais',tu:f+'rais',il:f+'rait',nous:f+'rions',vous:f+'riez',ils:f+'raient'},subjpres:{je:r+'e',tu:r+'es',il:r+'e',nous:r+'ions',vous:r+'iez',ils:r+'ent'},pqpf:{je:'avais '+r+'é',tu:'avais '+r+'é',il:'avait '+r+'é',nous:'avions '+r+'é',vous:'aviez '+r+'é',ils:'avaient '+r+'é'},futant:{je:'aurai '+r+'é',tu:'auras '+r+'é',il:'aura '+r+'é',nous:'aurons '+r+'é',vous:'aurez '+r+'é',ils:'auront '+r+'é'}};return tb[t]||tb.present;}
+function conjGr2(v,t){const r=v.slice(0,-2);const tb={present:{je:r+'is',tu:r+'is',il:r+'it',nous:r+'issons',vous:r+'issez',ils:r+'issent'},futur:{je:v+'ai',tu:v+'as',il:v+'a',nous:v+'ons',vous:v+'ez',ils:v+'ont'},imparfait:{je:r+'issais',tu:r+'issais',il:r+'issait',nous:r+'issions',vous:r+'issiez',ils:r+'issaient'},pcomp:{je:'ai '+r+'i',tu:'as '+r+'i',il:'a '+r+'i',nous:'avons '+r+'i',vous:'avez '+r+'i',ils:'ont '+r+'i'},condpres:{je:v+'ais',tu:v+'ais',il:v+'ait',nous:v+'ions',vous:v+'iez',ils:v+'aient'},subjpres:{je:r+'isse',tu:r+'isses',il:r+'isse',nous:r+'issions',vous:r+'issiez',ils:r+'issent'},pqpf:{je:'avais '+r+'i',tu:'avais '+r+'i',il:'avait '+r+'i',nous:'avions '+r+'i',vous:'aviez '+r+'i',ils:'avaient '+r+'i'},futant:{je:'aurai '+r+'i',tu:'auras '+r+'i',il:'aura '+r+'i',nous:'aurons '+r+'i',vous:'aurez '+r+'i',ils:'auront '+r+'i'}};return tb[t]||tb.present;}
+function getConj(v,t){if(CONJ[v])return CONJ[v][t]||CONJ[v].present;if(VERBES_GR2.includes(v))return conjGr2(v,t);return conjGr1(v,t);}
+
+const MODES_EX=[{id:'choix',label:'Choix multiple'},{id:'conjuguer',label:'Conjuguer'},{id:'idtemps',label:'Identifier le temps'},{id:'infinitif',label:'Trouver l infinitif'}];
+let activeNiveaux=['ce2'],activeTemps=['present','imparfait'],activeVerbes=['gr1','irreg'],activeModes=['choix','conjuguer'];
+let score=0,total=0,currentQ=null,locked=false,answer='',inputActive=false;
+
+function buildConfig(){
+  document.getElementById('niveau-row').innerHTML=NIVEAUX.map(n=>`<div class="cbox${activeNiveaux.includes(n.id)?' checked':''}" onclick="setNiveau('${n.id}',this)">${n.label}</div>`).join('');
+  buildTempsRow();
+  [{id:'gr1',label:'1er groupe'},{id:'gr2',label:'2e groupe'},{id:'irreg',label:'Irreguliers'}].forEach(v=>{});
+  document.getElementById('verbes-row').innerHTML=[{id:'gr1',label:'1er groupe'},{id:'gr2',label:'2e groupe'},{id:'irreg',label:'Irreguliers'}].map(v=>`<div class="cbox${activeVerbes.includes(v.id)?' checked':''}" onclick="toggleCfg('verbes','${v.id}',this)">${v.label}</div>`).join('');
+  document.getElementById('mode-row').innerHTML=MODES_EX.map(m=>`<div class="cbox${activeModes.includes(m.id)?' checked':''}" onclick="toggleCfg('modes','${m.id}',this)">${m.label}</div>`).join('');
+}
+function buildTempsRow(){const niv=activeNiveaux[0];const avail=ALL_TEMPS.filter(t=>t.niv.includes(niv));activeTemps=activeTemps.filter(t=>avail.find(a=>a.id===t));if(!activeTemps.length)activeTemps=[avail[0].id];document.getElementById('temps-row').innerHTML=avail.map(t=>`<div class="cbox${activeTemps.includes(t.id)?' checked':''}" onclick="toggleCfg('temps','${t.id}',this)">${t.label}</div>`).join('');}
+function setNiveau(id,el){activeNiveaux=[id];document.querySelectorAll('#niveau-row .cbox').forEach(b=>b.classList.remove('checked'));el.classList.add('checked');buildTempsRow();}
+function toggleCfg(type,id,el){const map={temps:activeTemps,verbes:activeVerbes,modes:activeModes};const arr=map[type];if(arr.includes(id)&&arr.length===1)return;const i=arr.indexOf(id);if(i>=0)arr.splice(i,1);else arr.push(id);el.classList.toggle('checked',arr.includes(id));}
+
+function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function getVerbPool(){const p=[];if(activeVerbes.includes('gr1'))p.push(...VERBES_GR1);if(activeVerbes.includes('gr2'))p.push(...VERBES_GR2);if(activeVerbes.includes('irreg'))p.push(...VERBES_IRREG);return p.length?p:VERBES_GR1;}
+
+function newGame(){
+  hideFeedback();locked=false;answer='';inputActive=false;
+  document.getElementById('keyboard-zone').innerHTML='';
+  const mode=pick(activeModes),temps=pick(activeTemps),verbe=pick(getVerbPool()),pronom=pick(PRONOMS);
+  const forme=getConj(verbe,temps)[pronom];
+  currentQ={mode,temps,verbe,pronom,forme};
+  renderGame();
+}
+
+function renderGame(){
+  const q=currentQ,pLbl=pLabel(q.pronom,q.forme);let html='';
+  if(q.mode==='choix'){
+    const dist=genDist(q),choices=shuffle([q.forme,...dist]);
+    html=`<div class="question-box"><div class="badge-temps">${TEMPS_LABELS[q.temps]}</div><div class="badge-verbe">Verbe : <strong>${q.verbe}</strong></div><div style="display:flex;align-items:center;gap:10px;justify-content:center"><span class="conj-pronoun">${pLbl}</span><span style="font-size:24px;color:var(--text-light)">→</span></div><div class="choices">${choices.map(c=>{const ok=locked&&c===q.forme,ko=locked&&c!==q.forme&&c===answer,neutral=locked&&!ok&&!ko;return '<div class="choice-btn'+(ok?' correct':'')+(ko?' wrong':'')+(neutral?' neutral':'')+'" onclick="clickChoice(this,'+JSON.stringify(c)+','+JSON.stringify(q.forme)+')">'+pLbl+' '+c+'</div>';}).join('')}</div></div>`;
+    document.getElementById('game-zone').innerHTML=html;
+  }
+  else if(q.mode==='conjuguer'){
+    let cls='saisie-cell';
+    if(locked)cls+=answer.toLowerCase()===q.forme.toLowerCase()?' correct':' wrong';
+    else if(inputActive)cls+=' active';else if(answer)cls+=' filled';
+    html=`<div class="question-box"><div class="badge-temps">${TEMPS_LABELS[q.temps]}</div><div class="badge-verbe">Conjugue : <strong>${q.verbe}</strong></div><div style="display:flex;align-items:center;gap:12px;justify-content:center"><span class="conj-pronoun">${pLbl}</span><div class="${cls}" onclick="activateKb()">${answer||'...'}</div></div></div>`;
+    document.getElementById('game-zone').innerHTML=html;
+    if(!locked)buildKb();
+  }
+  else if(q.mode==='idtemps'){
+    const niv=activeNiveaux[0],avail=ALL_TEMPS.filter(t=>t.niv.includes(niv));
+    let choices=shuffle(avail).slice(0,4);
+    if(!choices.find(t=>t.id===q.temps))choices[0]=ALL_TEMPS.find(t=>t.id===q.temps);
+    choices=shuffle(choices);
+    html=`<div class="question-box"><div class="badge-verbe">Quel est le temps de ce verbe ?</div><div style="display:flex;align-items:center;gap:10px;justify-content:center"><span class="conj-pronoun">${pLbl}</span><span class="conj-verb">${q.forme}</span></div><div class="badge-verbe">(${q.verbe})</div><div class="choices">${choices.map(t=>{const ok=locked&&t.id===q.temps,ko=locked&&t.id!==q.temps&&t.id===answer,neutral=locked&&!ok&&!ko;return '<div class="choice-btn'+(ok?' correct':'')+(ko?' wrong':'')+(neutral?' neutral':'')+'" onclick="clickTemps('+JSON.stringify(t.id)+','+JSON.stringify(q.temps)+')">'+t.label+'</div>';}).join('')}</div></div>`;
+    document.getElementById('game-zone').innerHTML=html;
+  }
+  else if(q.mode==='infinitif'){
+    const pool=getVerbPool();let choices=shuffle([q.verbe,...pool.filter(v=>v!==q.verbe)]).slice(0,4);
+    if(!choices.includes(q.verbe))choices[0]=q.verbe;choices=shuffle(choices);
+    html=`<div class="question-box"><div class="badge-verbe">Quel est l'infinitif ?</div><div style="display:flex;align-items:center;gap:10px;justify-content:center"><span class="conj-pronoun">${pLbl}</span><span class="conj-verb">${q.forme}</span></div><div class="badge-temps">${TEMPS_LABELS[q.temps]}</div><div class="choices">${choices.map(v=>{const ok=locked&&v===q.verbe,ko=locked&&v!==q.verbe&&v===answer,neutral=locked&&!ok&&!ko;return '<div class="choice-btn'+(ok?' correct':'')+(ko?' wrong':'')+(neutral?' neutral':'')+'" onclick="clickInf('+JSON.stringify(v)+','+JSON.stringify(q.verbe)+')">'+v+'</div>';}).join('')}</div></div>`;
+    document.getElementById('game-zone').innerHTML=html;
+  }
+}
+
+function genDist(q){const res=[];const autresP=PRONOMS.filter(p=>p!==q.pronom);res.push(getConj(q.verbe,q.temps)[pick(autresP)]);const autresT=activeTemps.filter(t=>t!==q.temps);if(autresT.length)res.push(getConj(q.verbe,pick(autresT))[q.pronom]);const autresV=getVerbPool().filter(v=>v!==q.verbe);if(autresV.length)res.push(getConj(pick(autresV),q.temps)[q.pronom]);return shuffle(res.filter(r=>r&&r!==q.forme)).slice(0,2);}
+
+function clickChoice(el,chosen,correct){if(locked)return;locked=true;answer=chosen;total++;if(chosen===correct){score++;showFeedback('Bravo ! '+pLabel(currentQ.pronom,chosen)+' '+chosen,'ok');}else showFeedback('Non - la bonne reponse : '+pLabel(currentQ.pronom,correct)+' '+correct,'ko');updateScore();renderGame();}
+function clickTemps(chosen,correct){if(locked)return;locked=true;answer=chosen;total++;const lbl=ALL_TEMPS.find(t=>t.id===correct)?.label||correct;if(chosen===correct){score++;showFeedback('Bravo ! C est bien le '+lbl,'ok');}else showFeedback('Non - c est le '+lbl,'ko');updateScore();renderGame();}
+function clickInf(chosen,correct){if(locked)return;locked=true;answer=chosen;total++;if(chosen===correct){score++;showFeedback('Bravo ! L infinitif est '+correct,'ok');}else showFeedback('Non - l infinitif est '+correct,'ko');updateScore();renderGame();}
+function activateKb(){if(locked)return;inputActive=true;renderGame();}
+function validerSaisie(){if(locked||!answer)return;locked=true;total++;const ok=answer.toLowerCase().trim()===currentQ.forme.toLowerCase().trim();if(ok){score++;showFeedback('Bravo ! '+pLabel(currentQ.pronom,currentQ.forme)+' '+currentQ.forme,'ok');}else showFeedback('Non - la reponse : '+pLabel(currentQ.pronom,currentQ.forme)+' '+currentQ.forme,'ko');updateScore();document.getElementById('keyboard-zone').innerHTML='';renderGame();}
+
+const KB_ROWS=[['a','b','c','d','e','f','g','h','i','j'],['k','l','m','n','o','p','q','r','s','t'],['u','v','w','x','y','z','é','è','ê','à','ù','î','ô','ç']];
+function buildKb(){
+  const wrap=document.createElement('div');wrap.className='keyboard-wrap';
+  KB_ROWS.forEach(row=>{const r=document.createElement('div');r.className='kb-row';row.forEach(k=>{const b=document.createElement('div');b.className='kb-key';b.textContent=k;b.addEventListener('click',()=>kbPress(k));r.appendChild(b);});wrap.appendChild(r);});
+  const last=document.createElement('div');last.className='kb-row';
+  const sp=document.createElement('div');sp.className='kb-key space';sp.textContent='espace';sp.addEventListener('click',()=>kbPress(' '));
+  const del=document.createElement('div');del.className='kb-key del';del.innerHTML='&#x232B;';del.addEventListener('click',()=>kbPress('del'));
+  const ok=document.createElement('div');ok.className='kb-key ok';ok.textContent='OK';ok.addEventListener('click',validerSaisie);
+  last.appendChild(sp);last.appendChild(del);last.appendChild(ok);wrap.appendChild(last);
+  const zone=document.getElementById('keyboard-zone');zone.innerHTML='';zone.appendChild(wrap);
+}
+function kbPress(k){if(locked)return;if(k==='del')answer=answer.slice(0,-1);else answer+=k;inputActive=true;renderGame();}
+function showFeedback(m,t){const f=document.getElementById('feedback');f.textContent=m;f.className='feedback '+t;}
+function hideFeedback(){const f=document.getElementById('feedback');f.className='feedback';f.textContent='';}
+function updateScore(){document.getElementById('score-lbl').textContent='Score : '+score+' / '+total;}
+buildConfig();newGame();
+</script>
+</body>
+</html>

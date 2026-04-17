@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conversions — Les Cascades</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#EDE7F6;--bg2:#D1C4E9;--panel-bg:#F3E5F5;--accent:#6A1B9A;--accent-d:#4A148C;--accent-l:#E1BEE7;--text:#1A0E00;--text-light:#7A5C20;--border:#CE93D8;--border-d:#9C27B0;--white:#FFFFFF;--correct:#1B5E20;--correct-l:#C8E6C9;--wrong:#B71C1C;--wrong-l:#FFCDD2;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+  .topbar{background:var(--accent);padding:.9rem 1.4rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;border-bottom:4px solid var(--accent-d);}
+  .game-title{font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;color:#fff;}
+  .game-sub{font-size:12px;color:var(--accent-l);font-weight:600;margin-top:2px;}
+  .score-pill{font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;background:#fff;border:2px solid var(--accent-d);border-radius:20px;padding:5px 18px;color:var(--accent);}
+  .config-panel{background:var(--panel-bg);border-bottom:3px solid var(--border-d);padding:.8rem 1.4rem;display:flex;flex-wrap:wrap;gap:1.2rem;align-items:flex-start;}
+  .config-block{display:flex;flex-direction:column;gap:6px;}
+  .config-label{font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--text-light);}
+  .check-row{display:flex;flex-wrap:wrap;gap:5px;}
+  .cbox{display:flex;align-items:center;gap:4px;background:#fff;border:2px solid var(--border-d);border-radius:8px;padding:4px 9px;cursor:pointer;transition:all .15s;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:var(--text);user-select:none;}
+  .cbox:hover{border-color:var(--accent);}
+  .cbox.checked{background:var(--accent);border-color:var(--accent-d);color:#fff;}
+  .main{flex:1;padding:1.2rem 1.4rem;display:flex;flex-direction:column;gap:1rem;align-items:center;}
+  .feedback{display:none;padding:10px 18px;border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;text-align:center;border:2px solid transparent;width:100%;max-width:600px;}
+  .feedback.ok{background:var(--correct-l);color:var(--correct);border-color:var(--correct);display:block;}
+  .feedback.ko{background:var(--wrong-l);color:var(--wrong);border-color:var(--wrong);display:block;}
+  .feedback.info{background:var(--accent-l);color:var(--accent);border-color:var(--accent);display:block;}
+  .game-and-keypad{display:flex;gap:2rem;align-items:center;justify-content:center;flex-wrap:wrap;}
+  .question-box{background:#fff;border:3px solid var(--border-d);border-radius:16px;padding:1.6rem 2rem;display:flex;flex-direction:column;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(106,27,154,.12);min-width:300px;}
+  .enonce{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;font-family:'Nunito',sans-serif;}
+  .enonce-val{font-size:40px;font-weight:900;color:var(--text);}
+  .enonce-unit{font-size:22px;font-weight:700;color:var(--accent);}
+  .enonce-eq{font-size:32px;font-weight:900;color:var(--text);}
+  .answer-cell{min-width:90px;height:66px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;font-size:36px;font-weight:900;color:var(--text);border:2px dashed var(--border-d);cursor:pointer;transition:all .18s;background:var(--panel-bg);padding:0 10px;}
+  .answer-cell:hover{border-color:var(--accent);background:var(--accent-l);}
+  .answer-cell.active{border:3px solid var(--accent);background:var(--accent-l);box-shadow:0 0 0 3px rgba(106,27,154,.2);}
+  .answer-cell.filled{border-style:solid;border-color:var(--border-d);background:var(--bg2);}
+  .answer-cell.correct{border-color:var(--correct)!important;background:var(--correct-l)!important;color:var(--correct);border-style:solid!important;}
+  .answer-cell.wrong{border-color:var(--wrong)!important;background:var(--wrong-l)!important;color:var(--wrong);border-style:solid!important;}
+  .aide-zone{display:none;background:#FFF8E1;border:2px solid #F9A825;border-radius:12px;padding:12px 16px;text-align:center;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#5D4037;max-width:460px;width:100%;}
+  .aide-zone.show{display:block;}
+  .aide-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#F9A825;margin-bottom:8px;}
+  .keypad-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;}
+  .keypad-hint{font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:var(--text-light);text-align:center;}
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:#fff;border:3px solid var(--border-d);border-radius:14px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+  .key{font-family:'Nunito',sans-serif;font-size:22px;font-weight:900;width:58px;height:58px;border-radius:10px;border:2px solid var(--border-d);background:var(--panel-bg);color:var(--text);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;}
+  .key:hover{background:var(--accent-l);border-color:var(--accent);transform:scale(1.06);}
+  .key.del{background:var(--wrong-l);border-color:var(--wrong);color:var(--wrong);font-size:18px;}
+  .key.del:hover{background:var(--wrong);color:#fff;}
+  .key.zero{grid-column:span 2;}
+  .key.ok{background:var(--correct-l);border-color:var(--correct);color:var(--correct);font-size:16px;font-weight:800;}
+  .key.ok:hover{background:var(--correct);color:#fff;}
+  .controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
+  .btn{font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:10px 22px;border-radius:10px;border:2px solid var(--border-d);background:#fff;color:var(--text);cursor:pointer;transition:all .15s;}
+  .btn:hover{background:var(--bg2);border-color:var(--accent);}
+  .btn.primary{background:var(--accent);border-color:var(--accent-d);color:#fff;}
+  .btn.primary:hover{background:var(--accent-d);}
+  .btn.aide-btn{background:#FFF8E1;border-color:#F9A825;color:#5D4037;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div><div class="game-title">Conversions</div><div class="game-sub">Longueurs, masses et contenances</div></div>
+  <span class="score-pill" id="score-lbl">Score : 0 / 0</span>
+</div>
+<div class="config-panel">
+  <div class="config-block">
+    <div class="config-label">Grandeur</div>
+    <div class="check-row" id="grandeur-row"></div>
+  </div>
+  <div class="config-block">
+    <div class="config-label">Sens</div>
+    <div class="check-row" id="sens-row"></div>
+  </div>
+  <div class="config-block">
+    <div class="config-label">Difficulté</div>
+    <div class="check-row" id="diff-row"></div>
+  </div>
+  <div class="config-block">
+    <div class="config-label">Format</div>
+    <div class="check-row" id="format-row"></div>
+  </div>
+</div>
+<div class="main">
+  <div class="feedback" id="feedback"></div>
+  <div class="game-and-keypad">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div id="game-zone"></div>
+      <div class="aide-zone" id="aide-zone">
+        <div class="aide-title">💡 Aide — Relations entre unités</div>
+        <div id="aide-content"></div>
+      </div>
+    </div>
+    <div class="keypad-wrap">
+      <div class="keypad-hint">Clique une case puis un chiffre</div>
+      <div class="keypad" id="keypad"></div>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="btn aide-btn" onclick="showAide()">💡 Aide</button>
+    <button class="btn" onclick="newGame()">↺ Reessayer</button>
+    <button class="btn primary" onclick="newGame()">→ Nouvel exercice</button>
+  </div>
+</div>
+<script>
+// CONFIG
+const GRANDEURS=[{id:'long',label:'Longueurs'},{id:'masse',label:'Masses'},{id:'cont',label:'Contenances'}];
+const SENS=[{id:'gd',label:'Grande → petite'},{id:'dg',label:'Petite → grande'},{id:'both',label:'Les deux'}];
+const DIFFS=[{id:'x10',label:'× 10 / × 100'},{id:'x1000',label:'× 1000'}];
+const FORMATS=[{id:'simple',label:'1 trou'},{id:'double',label:'2 trous'}];
+
+let activeGrandeurs=['long','masse'];
+let activeSens=['both'];
+let activeDiffs=['x10'];
+let activeFormats=['simple'];
+let score=0,total=0;
+
+// Relations unites
+const UNITS={
+  long:{
+    x10:[
+      {from:'cm',to:'mm',factor:10,ex:'3 cm = ___ mm',pool:()=>({val:rnd(1,20),unit:'cm',target:'mm',f:10})},
+      {from:'dm',to:'cm',factor:10,ex:'5 dm = ___ cm',pool:()=>({val:rnd(1,15),unit:'dm',target:'cm',f:10})},
+      {from:'m',to:'dm',factor:10,ex:'4 m = ___ dm',pool:()=>({val:rnd(1,20),unit:'m',target:'dm',f:10})},
+      {from:'m',to:'cm',factor:100,ex:'2 m = ___ cm',pool:()=>({val:rnd(1,20),unit:'m',target:'cm',f:100})},
+    ],
+    x1000:[
+      {from:'km',to:'m',factor:1000,ex:'3 km = ___ m',pool:()=>({val:rnd(1,20),unit:'km',target:'m',f:1000})},
+    ]
+  },
+  masse:{
+    x10:[
+      {from:'kg',to:'g',factor:1000,ex:'2 kg = ___ g',pool:()=>({val:rnd(1,10),unit:'kg',target:'g',f:1000})},
+    ],
+    x1000:[
+      {from:'kg',to:'g',factor:1000,ex:'5 kg = ___ g',pool:()=>({val:rnd(1,20),unit:'kg',target:'g',f:1000})},
+    ]
+  },
+  cont:{
+    x10:[
+      {from:'L',to:'dL',factor:10,ex:'3 L = ___ dL',pool:()=>({val:rnd(1,20),unit:'L',target:'dL',f:10})},
+      {from:'L',to:'cL',factor:100,ex:'2 L = ___ cL',pool:()=>({val:rnd(1,20),unit:'L',target:'cL',f:100})},
+      {from:'L',to:'mL',factor:1000,ex:'1 L = ___ mL',pool:()=>({val:rnd(1,10),unit:'L',target:'mL',f:1000})},
+    ],
+    x1000:[
+      {from:'L',to:'mL',factor:1000,ex:'5 L = ___ mL',pool:()=>({val:rnd(1,20),unit:'L',target:'mL',f:1000})},
+    ]
+  }
+};
+
+function buildConfig(){
+  document.getElementById('grandeur-row').innerHTML=GRANDEURS.map(g=>
+    `<div class="cbox${activeGrandeurs.includes(g.id)?' checked':''}" onclick="toggleArr('grandeurs','${g.id}',this)">${g.label}</div>`).join('');
+  document.getElementById('sens-row').innerHTML=SENS.map(s=>
+    `<div class="cbox${activeSens.includes(s.id)?' checked':''}" onclick="setOne('sens','${s.id}',this)">${s.label}</div>`).join('');
+  document.getElementById('diff-row').innerHTML=DIFFS.map(d=>
+    `<div class="cbox${activeDiffs.includes(d.id)?' checked':''}" onclick="toggleArr('diffs','${d.id}',this)">${d.label}</div>`).join('');
+  document.getElementById('format-row').innerHTML=FORMATS.map(f=>
+    `<div class="cbox${activeFormats.includes(f.id)?' checked':''}" onclick="setOne('formats','${f.id}',this)">${f.label}</div>`).join('');
+}
+
+function toggleArr(type,id,el){
+  const map={grandeurs:activeGrandeurs,diffs:activeDiffs};
+  const arr=map[type];
+  if(arr.includes(id)&&arr.length===1)return;
+  const idx=arr.indexOf(id);
+  if(idx>=0)arr.splice(idx,1);else arr.push(id);
+  el.classList.toggle('checked',arr.includes(id));
+}
+function setOne(type,id,el){
+  if(type==='sens')activeSens=[id];
+  if(type==='formats')activeFormats=[id];
+  document.querySelectorAll(`#${type}-row .cbox`).forEach(b=>b.classList.remove('checked'));
+  el.classList.add('checked');
+}
+
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
+
+let currentQ=null,locked=false,activeSlot=null,answers={};
+
+function newGame(){
+  hideFeedback();hideAide();locked=false;activeSlot=null;answers={a1:null,a2:null};
+
+  // Choisir grandeur et difficulte
+  const g=shuffle(activeGrandeurs)[0];
+  const diff=shuffle(activeDiffs)[0];
+  const pool=UNITS[g][diff]||UNITS[g]['x10'];
+  const rel=shuffle(pool)[0];
+  const base=rel.pool();
+
+  // Sens
+  const sensChoice=activeSens[0];
+  let gd=true;
+  if(sensChoice==='both')gd=Math.random()>.5;
+  else if(sensChoice==='dg')gd=false;
+
+  // Double trou
+  const isDouble=activeFormats[0]==='double';
+
+  if(gd){
+    // Grande → petite : val en grande unite, reponse en petite
+    const ans1=base.val*base.f;
+    if(isDouble){
+      // val × factor = a1 × 10 + a2 (ex: 3m = __ dm __ cm)
+      currentQ={grandeur:g,diff,rel,gd,base,isDouble,
+        enonce:`${base.val} ${base.unit} = ___ ${base.target}`,
+        slots:['a1'],corrects:{a1:ans1}};
+    }else{
+      currentQ={grandeur:g,diff,rel,gd,base,isDouble,
+        enonce:`${base.val} ${base.unit} = ___ ${base.target}`,
+        slots:['a1'],corrects:{a1:ans1}};
+    }
+  }else{
+    // Petite → grande
+    const smallVal=base.val*base.f;
+    currentQ={grandeur:g,diff,rel,gd,base,isDouble,
+      enonce:`${smallVal} ${base.target} = ___ ${base.unit}`,
+      slots:['a1'],corrects:{a1:base.val}};
+  }
+  renderGame();
+}
+
+function renderGame(){
+  const q=currentQ;if(!q)return;
+  const parts=q.enonce.split('___');
+  let slotsHtml='';
+  q.slots.forEach((key,i)=>{
+    const v=answers[key];
+    let cls='answer-cell';
+    if(locked)cls+=Number(v)===q.corrects[key]?' correct':' wrong';
+    else if(activeSlot===key)cls+=' active';
+    else if(v!==null)cls+=' filled';
+    slotsHtml+=`<span class="enonce-val" style="font-size:30px">${parts[i]?parts[i].replace(q.base.unit,'<span class="enonce-unit">'+q.base.unit+'</span>').replace(q.base.target,'<span class="enonce-unit">'+q.base.target+'</span>'):''}` +
+      `</span><div class="${cls}" onclick="activateSlot('${key}')">${v!==null?v:''}</div>`;
+  });
+  const lastPart=parts[parts.length-1]||'';
+  const lastHtml=`<span class="enonce-val" style="font-size:30px">${lastPart.replace(q.base.unit,'<span class="enonce-unit">'+q.base.unit+'</span>').replace(q.base.target,'<span class="enonce-unit">'+q.base.target+'</span>')}</span>`;
+
+  document.getElementById('game-zone').innerHTML=`
+    <div class="question-box">
+      <div class="enonce">${slotsHtml}${lastHtml}</div>
+    </div>`;
+}
+
+function activateSlot(key){if(locked)return;activeSlot=key;renderGame();}
+
+function pressKey(k){
+  if(locked||!activeSlot)return;
+  const cur=answers[activeSlot];
+  if(k==='del')answers[activeSlot]=cur!==null&&String(cur).length>1?parseInt(String(cur).slice(0,-1)):null;
+  else answers[activeSlot]=cur!==null?parseInt(String(cur)+k):parseInt(String(k));
+  renderGame();
+}
+
+function valider(){
+  if(locked)return;
+  const q=currentQ;
+  const allFilled=q.slots.every(k=>answers[k]!==null);
+  if(!allFilled){showFeedback('Complete toutes les cases !','info');return;}
+  locked=true;total++;
+  const ok=q.slots.every(k=>Number(answers[k])===q.corrects[k]);
+  if(ok){score++;showFeedback('Bravo ! Bonne conversion !','ok');}
+  else{
+    const corr=q.slots.map(k=>q.corrects[k]).join(' et ');
+    showFeedback('Pas tout a fait — reponse : '+corr,'ko');
+  }
+  updateScore();renderGame();
+}
+
+function showAide(){
+  const q=currentQ;if(!q)return;
+  document.getElementById('aide-zone').classList.add('show');
+  const rel=q.rel;
+  const factor=rel.factor;
+  document.getElementById('aide-content').innerHTML=`
+    <div style="line-height:2;font-size:14px">
+      1 ${rel.from} = <strong>${factor} ${rel.to}</strong><br>
+      Pour convertir : <strong>× ${factor}</strong><br>
+      ${q.base.val} ${rel.from} = ${q.base.val} × ${factor} = <strong>${q.base.val*factor} ${rel.to}</strong>
+    </div>`;
+}
+function hideAide(){document.getElementById('aide-zone').classList.remove('show');}
+function buildKeypad(){
+  document.getElementById('keypad').innerHTML=`
+    <div class="key" onclick="pressKey(7)">7</div><div class="key" onclick="pressKey(8)">8</div><div class="key" onclick="pressKey(9)">9</div>
+    <div class="key" onclick="pressKey(4)">4</div><div class="key" onclick="pressKey(5)">5</div><div class="key" onclick="pressKey(6)">6</div>
+    <div class="key" onclick="pressKey(1)">1</div><div class="key" onclick="pressKey(2)">2</div><div class="key" onclick="pressKey(3)">3</div>
+    <div class="key zero" onclick="pressKey(0)">0</div><div class="key del" onclick="pressKey('del')">&#x232B;</div>
+    <div class="key ok" onclick="valider()">OK</div>`;
+}
+function showFeedback(m,t){const f=document.getElementById('feedback');f.textContent=m;f.className='feedback '+t;}
+function hideFeedback(){const f=document.getElementById('feedback');f.className='feedback';f.textContent='';}
+function updateScore(){document.getElementById('score-lbl').textContent='Score : '+score+' / '+total;}
+buildConfig();buildKeypad();newGame();
+</script>
+</body>
+</html>

@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Durees — Les Cascades</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#EDE7F6; --bg2:#D1C4E9; --panel-bg:#F3E5F5;
+    --accent:#6A1B9A; --accent-d:#4A148C; --accent-l:#E1BEE7;
+    --text:#1A0E00; --text-light:#7A5C20;
+    --border:#CE93D8; --border-d:#9C27B0; --white:#FFFFFF;
+    --correct:#1B5E20; --correct-l:#C8E6C9;
+    --wrong:#B71C1C; --wrong-l:#FFCDD2;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+
+  .topbar{background:var(--accent);padding:.9rem 1.4rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;border-bottom:4px solid var(--accent-d);}
+  .game-title{font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;color:#fff;}
+  .game-sub{font-size:12px;color:var(--accent-l);font-weight:600;margin-top:2px;}
+  .score-pill{font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;background:#fff;border:2px solid var(--accent-d);border-radius:20px;padding:5px 18px;color:var(--accent);}
+
+  .config-panel{background:var(--panel-bg);border-bottom:3px solid var(--border-d);padding:.8rem 1.4rem;display:flex;flex-wrap:wrap;gap:1.2rem;align-items:flex-start;}
+  .config-block{display:flex;flex-direction:column;gap:6px;}
+  .config-label{font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--text-light);}
+  .check-row{display:flex;flex-wrap:wrap;gap:5px;}
+  .cbox{display:flex;align-items:center;gap:4px;background:#fff;border:2px solid var(--border-d);border-radius:8px;padding:4px 9px;cursor:pointer;transition:all .15s;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:var(--text);user-select:none;}
+  .cbox:hover{border-color:var(--accent);}
+  .cbox.checked{background:var(--accent);border-color:var(--accent-d);color:#fff;}
+  .nb-row{display:flex;gap:5px;}
+  .nb-btn{font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;padding:5px 10px;border-radius:8px;border:2px solid var(--border-d);background:#fff;color:var(--text);cursor:pointer;transition:all .15s;}
+  .nb-btn:hover{border-color:var(--accent);}
+  .nb-btn.active{background:var(--accent);border-color:var(--accent-d);color:#fff;}
+
+  .main{flex:1;padding:1.2rem 1.4rem;display:flex;flex-direction:column;gap:1rem;align-items:center;}
+
+  .feedback{display:none;padding:10px 18px;border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;text-align:center;border:2px solid transparent;width:100%;max-width:600px;}
+  .feedback.ok{background:var(--correct-l);color:var(--correct);border-color:var(--correct);display:block;}
+  .feedback.ko{background:var(--wrong-l);color:var(--wrong);border-color:var(--wrong);display:block;}
+  .feedback.info{background:var(--accent-l);color:var(--accent);border-color:var(--accent);display:block;}
+
+  .game-and-keypad{display:flex;gap:2rem;align-items:center;justify-content:center;flex-wrap:wrap;}
+
+  /* HORLOGE */
+  .clock-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;}
+  .clock-svg-wrap{background:#fff;border:3px solid var(--border-d);border-radius:50%;padding:8px;box-shadow:0 4px 16px rgba(106,27,154,.15);}
+  .clock-label{font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--text-light);text-align:center;max-width:220px;}
+
+  /* ZONE QUESTION */
+  .question-box{background:#fff;border:3px solid var(--border-d);border-radius:16px;padding:1.4rem 2rem;display:flex;flex-direction:column;align-items:center;gap:14px;box-shadow:0 4px 16px rgba(106,27,154,.12);min-width:280px;max-width:380px;}
+  .question-text{font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;color:var(--text);text-align:center;line-height:1.5;}
+  .question-sub{font-size:12px;color:var(--text-light);font-weight:600;text-align:center;}
+
+  /* Saisie heure HH:MM */
+  .time-input{display:flex;align-items:center;gap:8px;}
+  .time-part{display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .time-label{font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);}
+  .time-cell{width:72px;height:68px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;font-size:36px;font-weight:900;color:var(--text);border:2px dashed var(--border-d);cursor:pointer;transition:all .18s;background:var(--panel-bg);}
+  .time-cell:hover{border-color:var(--accent);background:var(--accent-l);}
+  .time-cell.active{border:3px solid var(--accent);background:var(--accent-l);box-shadow:0 0 0 3px rgba(106,27,154,.2);}
+  .time-cell.filled{border-style:solid;border-color:var(--border-d);background:var(--bg2);}
+  .time-cell.correct{border-color:var(--correct)!important;background:var(--correct-l)!important;color:var(--correct);border-style:solid!important;}
+  .time-cell.wrong{border-color:var(--wrong)!important;background:var(--wrong-l)!important;color:var(--wrong);border-style:solid!important;}
+  .time-sep{font-family:'Nunito',sans-serif;font-size:40px;font-weight:900;color:var(--text);margin-top:18px;}
+
+  /* Saisie duree en minutes */
+  .dur-input{display:flex;align-items:center;gap:6px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:700;color:var(--text);}
+  .dur-cell{min-width:80px;height:60px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;font-size:30px;font-weight:900;color:var(--text);border:2px dashed var(--border-d);cursor:pointer;transition:all .18s;background:var(--panel-bg);padding:0 8px;}
+  .dur-cell:hover{border-color:var(--accent);background:var(--accent-l);}
+  .dur-cell.active{border:3px solid var(--accent);background:var(--accent-l);box-shadow:0 0 0 3px rgba(106,27,154,.2);}
+  .dur-cell.filled{border-style:solid;border-color:var(--border-d);background:var(--bg2);}
+  .dur-cell.correct{border-color:var(--correct)!important;background:var(--correct-l)!important;color:var(--correct);border-style:solid!important;}
+  .dur-cell.wrong{border-color:var(--wrong)!important;background:var(--wrong-l)!important;color:var(--wrong);border-style:solid!important;}
+
+  /* PAVÉ */
+  .keypad-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;}
+  .keypad-hint{font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:var(--text-light);text-align:center;}
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:#fff;border:3px solid var(--border-d);border-radius:14px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+  .key{font-family:'Nunito',sans-serif;font-size:22px;font-weight:900;width:58px;height:58px;border-radius:10px;border:2px solid var(--border-d);background:var(--panel-bg);color:var(--text);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;}
+  .key:hover{background:var(--accent-l);border-color:var(--accent);transform:scale(1.06);}
+  .key.del{background:var(--wrong-l);border-color:var(--wrong);color:var(--wrong);font-size:18px;}
+  .key.del:hover{background:var(--wrong);color:#fff;}
+  .key.zero{grid-column:span 2;}
+  .key.ok{background:var(--correct-l);border-color:var(--correct);color:var(--correct);font-size:16px;font-weight:800;}
+  .key.ok:hover{background:var(--correct);color:#fff;}
+
+  /* AIDE droite temporelle */
+  .aide-zone{display:none;background:#FFF8E1;border:2px solid #F9A825;border-radius:12px;padding:12px 16px;text-align:center;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#5D4037;max-width:460px;width:100%;}
+  .aide-zone.show{display:block;}
+  .aide-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#F9A825;margin-bottom:8px;}
+
+  .controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
+  .btn{font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:10px 22px;border-radius:10px;border:2px solid var(--border-d);background:#fff;color:var(--text);cursor:pointer;transition:all .15s;}
+  .btn:hover{background:var(--bg2);border-color:var(--accent);}
+  .btn.primary{background:var(--accent);border-color:var(--accent-d);color:#fff;}
+  .btn.primary:hover{background:var(--accent-d);}
+  .btn.aide-btn{background:#FFF8E1;border-color:#F9A825;color:#5D4037;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="game-title">Durees et horaires</div>
+    <div class="game-sub">Lire l'heure, calculer des durees, convertir</div>
+  </div>
+  <span class="score-pill" id="score-lbl">Score : 0 / 0</span>
+</div>
+
+<div class="config-panel">
+  <div class="config-block">
+    <div class="config-label">Mode</div>
+    <div class="check-row" id="modes-row"></div>
+  </div>
+  <div class="config-block">
+    <div class="config-label">Type d'horloge</div>
+    <div class="check-row" id="horloges-row"></div>
+  </div>
+  <div class="config-block">
+    <div class="config-label">Precision</div>
+    <div class="check-row" id="precision-row"></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="feedback" id="feedback"></div>
+  <div class="game-and-keypad">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div id="game-zone"></div>
+      <div class="aide-zone" id="aide-zone">
+        <div class="aide-title">Aide</div>
+        <div id="aide-content"></div>
+      </div>
+    </div>
+    <div class="keypad-wrap">
+      <div class="keypad-hint">Clique une case puis un chiffre</div>
+      <div class="keypad" id="keypad"></div>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="btn aide-btn" id="btn-aide" onclick="showAide()" style="display:none">💡 Aide</button>
+    <button class="btn" onclick="newGame()">↺ Reessayer</button>
+    <button class="btn primary" onclick="newGame()">→ Nouvel exercice</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════
+const MODES = [
+  {id:'lire',    label:'Lire l\'heure'},
+  {id:'interactif', label:'Montrer l\'heure'},
+  {id:'calcul',  label:'Calculer une duree'},
+  {id:'convert', label:'Convertir'},
+];
+const HORLOGES = [
+  {id:'analog',  label:'Analogique'},
+  {id:'digital', label:'Numerique'},
+];
+const PRECISIONS = [
+  {id:'h',   label:'Heure pile'},
+  {id:'30',  label:'Demi-heure'},
+  {id:'15',  label:'Quart d\'heure'},
+  {id:'5',   label:'5 minutes'},
+  {id:'1',   label:'1 minute'},
+];
+
+let activeModes    = ['lire','calcul'];
+let activeHorloges = ['analog'];
+let activePrecisions = ['h','30','15'];
+let score=0, total=0;
+
+function buildConfig(){
+  document.getElementById('modes-row').innerHTML = MODES.map(m=>
+    `<div class="cbox${activeModes.includes(m.id)?' checked':''}" onclick="toggleArr('modes','${m.id}',this)">${m.label}</div>`).join('');
+  document.getElementById('horloges-row').innerHTML = HORLOGES.map(h=>
+    `<div class="cbox${activeHorloges.includes(h.id)?' checked':''}" onclick="toggleArr('horloges','${h.id}',this)">${h.label}</div>`).join('');
+  document.getElementById('precision-row').innerHTML = PRECISIONS.map(p=>
+    `<div class="cbox${activePrecisions.includes(p.id)?' checked':''}" onclick="toggleArr('precisions','${p.id}',this)">${p.label}</div>`).join('');
+}
+
+function toggleArr(type,id,el){
+  const map={modes:activeModes,horloges:activeHorloges,precisions:activePrecisions};
+  const arr=map[type];
+  if(arr.includes(id)&&arr.length===1)return;
+  const idx=arr.indexOf(id);
+  if(idx>=0)arr.splice(idx,1); else arr.push(id);
+  el.classList.toggle('checked',arr.includes(id));
+}
+
+// ═══════════════════════════════════════
+//  GENERATION
+// ═══════════════════════════════════════
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
+function pad(n){return String(n).padStart(2,'0');}
+
+function getStep(){
+  const steps={h:60,'30':30,'15':15,'5':5,'1':1};
+  const available=activePrecisions.map(p=>steps[p]);
+  return available[rnd(0,available.length-1)];
+}
+
+function randomTime(analogOnly=false){
+  const step=getStep();
+  const maxH=analogOnly?11:23;
+  const h=rnd(0,maxH);
+  const mSlots=60/step;
+  const m=rnd(0,mSlots-1)*step;
+  return {h,m};
+}
+
+function totalMin(h,m){return h*60+m;}
+function fromMin(tot){
+  tot=((tot%1440)+1440)%1440;
+  return {h:Math.floor(tot/60),m:tot%60};
+}
+
+// ═══════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════
+let currentQ=null, locked=false;
+let activeSlot=null; // 'hh','mm','dur','hh2','mm2'
+let answers={hh:null,mm:null,dur:null,hh2:null,mm2:null};
+// Mode interactif
+let dragAngle={h:0,m:0}, isDragging=null;
+
+// ═══════════════════════════════════════
+//  NEW GAME
+// ═══════════════════════════════════════
+function newGame(){
+  hideFeedback();hideAide();locked=false;activeSlot=null;
+  answers={hh:null,mm:null,dur:null,hh2:null,mm2:null};
+
+  const mode=shuffle(activeModes)[0];
+  const horloge=shuffle(activeHorloges)[0];
+
+  if(mode==='lire'){
+    const t=randomTime(horloge==='analog');
+    currentQ={mode,horloge,time:t,correct:{hh:t.h,mm:t.m}};
+    document.getElementById('btn-aide').style.display='none';
+  }
+  else if(mode==='interactif'){
+    const t=randomTime();
+    currentQ={mode,time:t};
+    document.getElementById('btn-aide').style.display='none';
+    // Initialiser aiguilles a midi
+    dragAngle={h:0,m:0};
+  }
+  else if(mode==='calcul'){
+    const sub=rnd(0,2); // 0=trouver fin, 1=trouver duree, 2=trouver debut
+    const t1=randomTime(horloge==='analog');
+    const dur=rnd(1,11)*5; // duree en minutes, multiple de 5, 5 a 55 min
+    const t2=fromMin(totalMin(t1.h,t1.m)+dur);
+    currentQ={mode,horloge,sub,t1,t2,dur};
+    document.getElementById('btn-aide').style.display='';
+  }
+  else if(mode==='convert'){
+    const sens=rnd(0,1); // 0=hmin->min, 1=min->hmin
+    let h,m,tot;
+    if(sens===0){h=rnd(1,12);m=rnd(0,11)*5;tot=h*60+m;}
+    else{tot=rnd(1,12*60);h=Math.floor(tot/60);m=tot%60;}
+    currentQ={mode,sens,h,m,tot};
+    document.getElementById('btn-aide').style.display='';
+  }
+
+  renderGame();
+}
+
+// ═══════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════
+function renderGame(){
+  const q=currentQ;
+  if(!q)return;
+  let html='';
+
+  if(q.mode==='lire'){
+    html=`<div class="clock-wrap">
+      ${q.horloge==='analog'?renderClockSVG(q.time,null,false):''}
+      ${q.horloge==='digital'?renderDigital(q.time.h,q.time.m):''}
+      <div class="clock-label">Quelle heure indique cette horloge ?</div>
+      ${renderTimeInput('hh','mm')}
+    </div>`;
+  }
+  else if(q.mode==='interactif'){
+    html=`<div class="clock-wrap">
+      ${renderClockSVG({h:Math.floor(dragAngle.h/30),m:Math.floor(dragAngle.m/6)},null,true)}
+      <div class="clock-label">Montre <strong>${pad(q.time.h)}:${pad(q.time.m)}</strong> sur l'horloge<br>
+        <span style="font-size:11px">(Fais glisser les aiguilles)</span></div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn" onclick="checkInteractif()" style="background:var(--correct-l);border-color:var(--correct);color:var(--correct);font-weight:800">✔ Valider</button>
+      </div>
+    </div>`;
+  }
+  else if(q.mode==='calcul'){
+    if(q.sub===0){
+      // Trouver heure de fin
+      html=`<div class="question-box">
+        <div class="question-text">Il est <strong>${pad(q.t1.h)}h${pad(q.t1.m)}</strong>.<br>
+          La seance dure <strong>${q.dur} minutes</strong>.<br>
+          A quelle heure se termine-t-elle ?</div>
+        ${q.horloge==='analog'?`<div style="margin:4px 0">${renderClockSVG(q.t1,null,false,120)}</div>`:''}
+        ${renderTimeInput('hh','mm')}
+      </div>`;
+    }else if(q.sub===1){
+      // Trouver la duree
+      html=`<div class="question-box">
+        <div class="question-text">De <strong>${pad(q.t1.h)}h${pad(q.t1.m)}</strong><br>
+          a <strong>${pad(q.t2.h)}h${pad(q.t2.m)}</strong><br>
+          combien de minutes s'ecoulent ?</div>
+        <div style="display:flex;gap:12px">
+          ${q.horloge==='analog'?renderClockSVG(q.t1,null,false,100):''}
+          ${q.horloge==='analog'?renderClockSVG(q.t2,null,false,100):''}
+        </div>
+        ${renderDurInput()}
+      </div>`;
+    }else{
+      // Trouver heure de debut
+      html=`<div class="question-box">
+        <div class="question-text">La seance se termine a <strong>${pad(q.t2.h)}h${pad(q.t2.m)}</strong>.<br>
+          Elle a dure <strong>${q.dur} minutes</strong>.<br>
+          A quelle heure a-t-elle commence ?</div>
+        ${q.horloge==='analog'?`<div style="margin:4px 0">${renderClockSVG(q.t2,null,false,120)}</div>`:''}
+        ${renderTimeInput('hh','mm')}
+      </div>`;
+    }
+  }
+  else if(q.mode==='convert'){
+    if(q.sens===0){
+      html=`<div class="question-box">
+        <div class="question-text">${q.h}h ${q.m}min = ___ minutes</div>
+        ${renderDurInput('dur')}
+      </div>`;
+    }else{
+      html=`<div class="question-box">
+        <div class="question-text">${q.tot} minutes = ___h ___min</div>
+        ${renderTimeInput('hh','mm',true)}
+      </div>`;
+    }
+  }
+
+  document.getElementById('game-zone').innerHTML=html;
+
+  // Attacher events interactif horloge
+  if(q.mode==='interactif'){
+    attachClockEvents();
+  }
+}
+
+// ═══════════════════════════════════════
+//  SVG HORLOGE
+// ═══════════════════════════════════════
+function renderClockSVG(time,_,interactive=false,size=200){
+  const h=(time&&time.h!==undefined?time.h:0)%12;
+  const m=(time&&time.m!==undefined?time.m:0);
+  const cx=100,cy=100,r=90;
+  const mAngle=(m/60)*360-90;
+  const hAngle=((h+(m/60))/12)*360-90;
+  const mRad=mAngle*Math.PI/180;
+  const hRad=hAngle*Math.PI/180;
+  const mLen=70, hLen=50;
+  const mx=(cx+mLen*Math.cos(mRad)).toFixed(1), my=(cy+mLen*Math.sin(mRad)).toFixed(1);
+  const hx=(cx+hLen*Math.cos(hRad)).toFixed(1), hy=(cy+hLen*Math.sin(hRad)).toFixed(1);
+
+  // Chiffres
+  const nums=Array.from({length:12},(_,i)=>{
+    const a=((i+1)/12)*2*Math.PI-Math.PI/2;
+    const nx=(cx+76*Math.cos(a)).toFixed(1), ny=(cy+76*Math.sin(a)).toFixed(1);
+    return `<text x="${nx}" y="${ny}" text-anchor="middle" dominant-baseline="middle"
+      font-family="Nunito,sans-serif" font-size="14" font-weight="800" fill="#4A148C">${i+1}</text>`;
+  }).join('');
+
+  // Graduations
+  const ticks=Array.from({length:60},(_,i)=>{
+    const a=(i/60)*2*Math.PI-Math.PI/2;
+    const isMaj=i%5===0;
+    const r1=isMaj?82:85, r2=90;
+    const x1=(cx+r1*Math.cos(a)).toFixed(1), y1=(cy+r1*Math.sin(a)).toFixed(1);
+    const x2=(cx+r2*Math.cos(a)).toFixed(1), y2=(cy+r2*Math.sin(a)).toFixed(1);
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#CE93D8" stroke-width="${isMaj?2:1}"/>`;
+  }).join('');
+
+  const interId=interactive?'id="clock-svg"':'';
+  const cursor=interactive?'cursor:pointer':'';
+
+  return `<div class="clock-svg-wrap" style="width:${size}px;height:${size}px">
+    <svg ${interId} viewBox="0 0 200 200" width="${size}" height="${size}" style="${cursor}">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="#F3E5F5" stroke="#9C27B0" stroke-width="3"/>
+      ${ticks}${nums}
+      <line id="hand-m" x1="${cx}" y1="${cy}" x2="${mx}" y2="${my}" stroke="#6A1B9A" stroke-width="3.5" stroke-linecap="round"/>
+      <line id="hand-h" x1="${cx}" y1="${cy}" x2="${hx}" y2="${hy}" stroke="#1A0E00" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="${cx}" cy="${cy}" r="5" fill="#6A1B9A"/>
+      ${interactive?`<circle cx="${cx}" cy="${cy}" r="${r}" fill="transparent" id="clock-touch"/>`:''}
+    </svg>
+  </div>`;
+}
+
+function renderDigital(h,m){
+  return `<div style="background:#1A0E00;border-radius:12px;padding:12px 24px;color:#E1BEE7;font-family:Nunito,sans-serif;font-size:48px;font-weight:900;letter-spacing:.1em">
+    ${pad(h)}:${pad(m)}
+  </div>`;
+}
+
+// ═══════════════════════════════════════
+//  HORLOGE INTERACTIVE
+// ═══════════════════════════════════════
+function attachClockEvents(){
+  const svg=document.getElementById('clock-svg');
+  if(!svg)return;
+  svg.addEventListener('mousedown',startDrag);
+  svg.addEventListener('touchstart',startDrag,{passive:false});
+}
+
+function startDrag(e){
+  e.preventDefault();
+  const svg=document.getElementById('clock-svg');
+  const rect=svg.getBoundingClientRect();
+  const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+  const pt=e.touches?e.touches[0]:e;
+  const dx=pt.clientX-cx, dy=pt.clientY-cy;
+  const dist=Math.sqrt(dx*dx+dy*dy);
+  // Determiner quelle aiguille selon distance au centre
+  isDragging=dist<rect.width*0.3?'h':'m';
+
+  const move=ev=>{
+    ev.preventDefault();
+    const p=ev.touches?ev.touches[0]:ev;
+    const ddx=p.clientX-cx, ddy=p.clientY-cy;
+    let angle=Math.atan2(ddy,ddx)*180/Math.PI+90;
+    if(angle<0)angle+=360;
+    if(isDragging==='m'){
+      // Snap aux 5 minutes
+      const mVal=Math.round(angle/6/5)*5*6;
+      dragAngle.m=mVal;
+    }else{
+      dragAngle.h=Math.round(angle/30)*30;
+    }
+    renderGame();
+  };
+  const up=()=>{document.removeEventListener('mousemove',move);document.removeEventListener('touchmove',move);document.removeEventListener('mouseup',up);document.removeEventListener('touchend',up);};
+  document.addEventListener('mousemove',move);
+  document.addEventListener('touchmove',move,{passive:false});
+  document.addEventListener('mouseup',up);
+  document.addEventListener('touchend',up);
+}
+
+function checkInteractif(){
+  const q=currentQ;
+  const shownH=Math.floor(dragAngle.h/30)%12;
+  const shownM=Math.floor(dragAngle.m/6);
+  const targetH=q.time.h%12;
+  const targetM=q.time.m;
+  locked=true;total++;
+  if(shownH===targetH&&shownM===targetM){
+    score++;showFeedback('Bravo ! L\'heure est bien affichee !','ok');
+  }else{
+    showFeedback(`Pas tout a fait — il fallait montrer ${pad(q.time.h)}:${pad(q.time.m)}`,'ko');
+  }
+  updateScore();
+}
+
+// ═══════════════════════════════════════
+//  INPUTS
+// ═══════════════════════════════════════
+function renderTimeInput(kH,kM,labelHM=false){
+  const vH=answers[kH], vM=answers[kM];
+  const lH=labelHM?'heures':'h';
+  const lM=labelHM?'minutes':'min';
+  let clsH='time-cell';let clsM='time-cell';
+  if(locked){
+    const {ch,cm}=getCorrectHM();
+    if(vH!==null) clsH+=Number(vH)===ch?' correct':' wrong';
+    if(vM!==null) clsM+=Number(vM)===cm?' correct':' wrong';
+  }else{
+    if(activeSlot===kH)clsH+=' active'; else if(vH!==null)clsH+=' filled';
+    if(activeSlot===kM)clsM+=' active'; else if(vM!==null)clsM+=' filled';
+  }
+  return `<div class="time-input">
+    <div class="time-part">
+      <div class="time-label">${lH}</div>
+      <div class="${clsH}" onclick="activateSlot('${kH}')">${vH!==null?pad(vH):''}</div>
+    </div>
+    <div class="time-sep">:</div>
+    <div class="time-part">
+      <div class="time-label">${lM}</div>
+      <div class="${clsM}" onclick="activateSlot('${kM}')">${vM!==null?pad(vM):''}</div>
+    </div>
+  </div>`;
+}
+
+function renderDurInput(key='dur'){
+  const v=answers[key];
+  let cls='dur-cell';
+  if(locked&&v!==null){
+    const correct=getCorrectDur();
+    cls+=Number(v)===correct?' correct':' wrong';
+  }else{
+    if(activeSlot===key)cls+=' active'; else if(v!==null)cls+=' filled';
+  }
+  return `<div class="dur-input">
+    <div class="${cls}" onclick="activateSlot('${key}')">${v!==null?v:''}</div>
+    <span>minutes</span>
+  </div>`;
+}
+
+function getCorrectHM(){
+  const q=currentQ;
+  if(q.mode==='lire') return {ch:q.time.h,cm:q.time.m};
+  if(q.mode==='calcul'){
+    if(q.sub===0) return {ch:q.t2.h,cm:q.t2.m};
+    if(q.sub===2) return {ch:q.t1.h,cm:q.t1.m};
+  }
+  if(q.mode==='convert'&&q.sens===1) return {ch:q.h,cm:q.m};
+  return {ch:0,cm:0};
+}
+function getCorrectDur(){
+  const q=currentQ;
+  if(q.mode==='calcul'&&q.sub===1) return q.dur;
+  if(q.mode==='convert'&&q.sens===0) return q.tot;
+  return 0;
+}
+
+function activateSlot(key){
+  if(locked)return;
+  activeSlot=key;
+  renderGame();
+}
+
+// ═══════════════════════════════════════
+//  PAVÉ NUMÉRIQUE
+// ═══════════════════════════════════════
+function buildKeypad(){
+  document.getElementById('keypad').innerHTML=`
+    <div class="key" onclick="pressKey(7)">7</div>
+    <div class="key" onclick="pressKey(8)">8</div>
+    <div class="key" onclick="pressKey(9)">9</div>
+    <div class="key" onclick="pressKey(4)">4</div>
+    <div class="key" onclick="pressKey(5)">5</div>
+    <div class="key" onclick="pressKey(6)">6</div>
+    <div class="key" onclick="pressKey(1)">1</div>
+    <div class="key" onclick="pressKey(2)">2</div>
+    <div class="key" onclick="pressKey(3)">3</div>
+    <div class="key zero" onclick="pressKey(0)">0</div>
+    <div class="key del" onclick="pressKey('del')">&#x232B;</div>
+    <div class="key ok" onclick="valider()">OK</div>`;
+}
+
+function pressKey(k){
+  if(locked||!activeSlot)return;
+  const cur=answers[activeSlot];
+  if(k==='del'){answers[activeSlot]=cur!==null&&String(cur).length>1?parseInt(String(cur).slice(0,-1)):null;}
+  else{
+    const s=cur!==null?String(cur)+k:String(k);
+    const v=parseInt(s);
+    // Validation max selon slot
+    if(activeSlot==='hh'&&v>23)return;
+    if(activeSlot==='mm'&&v>59)return;
+    answers[activeSlot]=v;
+    // Auto-avance
+    if(activeSlot==='hh'&&v>2)activeSlot='mm';
+    else if(activeSlot==='mm'&&String(v).length===2)activeSlot=null;
+  }
+  renderGame();
+}
+
+function valider(){
+  if(locked)return;
+  const q=currentQ;
+  let ok=true;
+
+  if(q.mode==='lire'||
+    (q.mode==='calcul'&&q.sub!==1)||
+    (q.mode==='convert'&&q.sens===1)){
+    const {ch,cm}=getCorrectHM();
+    if(answers.hh===null||answers.mm===null){showFeedback('Complete les deux cases !','info');return;}
+    ok=Number(answers.hh)===ch&&Number(answers.mm)===cm;
+  }else{
+    const cd=getCorrectDur();
+    if(answers.dur===null){showFeedback('Entre le nombre de minutes !','info');return;}
+    ok=Number(answers.dur)===cd;
+  }
+
+  locked=true;total++;
+  if(ok){score++;showFeedback('Bravo ! Bonne reponse !','ok');}
+  else{
+    let corr='';
+    if(q.mode==='lire'||(q.mode==='calcul'&&q.sub!==1)||(q.mode==='convert'&&q.sens===1)){
+      const {ch,cm}=getCorrectHM(); corr=`${pad(ch)}:${pad(cm)}`;
+    }else{
+      corr=getCorrectDur()+' minutes';
+    }
+    showFeedback('Pas tout a fait — reponse : '+corr,'ko');
+  }
+  updateScore();renderGame();
+}
+
+// ═══════════════════════════════════════
+//  AIDE
+// ═══════════════════════════════════════
+function showAide(){
+  const q=currentQ;if(!q)return;
+  const zone=document.getElementById('aide-zone');
+  zone.classList.add('show');
+  const content=document.getElementById('aide-content');
+
+  if(q.mode==='calcul'){
+    const t1=q.t1,t2=q.t2,dur=q.dur;
+    const W=360,pad2=20,totalW=W-pad2*2;
+    const minStart=totalMin(t1.h,t1.m);
+    const minEnd=totalMin(t2.h,t2.m);
+    // Droite temporelle
+    const x1=pad2, x2=W-pad2;
+    const svgH=70;
+    content.innerHTML=`
+      <svg width="${W}" height="${svgH}" viewBox="0 0 ${W} ${svgH}" style="display:block;margin:0 auto">
+        <line x1="${x1}" y1="35" x2="${x2}" y2="35" stroke="#5D4037" stroke-width="2"/>
+        <line x1="${x1}" y1="28" x2="${x1}" y2="42" stroke="#5D4037" stroke-width="2"/>
+        <line x1="${x2}" y1="28" x2="${x2}" y2="42" stroke="#5D4037" stroke-width="2"/>
+        <text x="${x1}" y="55" text-anchor="middle" font-size="12" font-family="Nunito,sans-serif" font-weight="800" fill="#4A148C">${pad(t1.h)}:${pad(t1.m)}</text>
+        <text x="${x2}" y="55" text-anchor="middle" font-size="12" font-family="Nunito,sans-serif" font-weight="800" fill="#4A148C">${pad(t2.h)}:${pad(t2.m)}</text>
+        <path d="M${x1},33 Q${(x1+x2)/2},12 ${x2},33" fill="none" stroke="#E8750A" stroke-width="2.5" stroke-dasharray="5,3"/>
+        <text x="${(x1+x2)/2}" y="12" text-anchor="middle" font-size="12" font-family="Nunito,sans-serif" font-weight="800" fill="#E8750A">+ ${dur} min</text>
+      </svg>
+      <div style="font-size:12px;margin-top:4px">Astuce : passe d'abord a l'heure pile la plus proche !</div>`;
+  }
+
+  if(q.mode==='convert'){
+    content.innerHTML=q.sens===0
+      ? `<div style="line-height:1.9">${q.h}h ${q.m}min<br>= ${q.h} &times; 60 + ${q.m}<br>= ${q.h*60} + ${q.m}<br>= <strong>${q.tot} minutes</strong></div>`
+      : `<div style="line-height:1.9">${q.tot} &divide; 60 = <strong>${q.h}</strong> h et il reste <strong>${q.m}</strong> min<br>Donc ${q.tot} min = <strong>${q.h}h ${q.m}min</strong></div>`;
+  }
+}
+function hideAide(){document.getElementById('aide-zone').classList.remove('show');}
+
+function showFeedback(m,t){const f=document.getElementById('feedback');f.textContent=m;f.className='feedback '+t;}
+function hideFeedback(){const f=document.getElementById('feedback');f.className='feedback';f.textContent='';}
+function updateScore(){document.getElementById('score-lbl').textContent='Score : '+score+' / '+total;}
+
+// ═══════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════
+buildConfig();
+buildKeypad();
+newGame();
+</script>
+<footer style="text-align:center;font-size:11px;color:#7A5C20;padding:1rem;border-top:2px solid #CE93D8;background:#fff;font-family:'Nunito Sans',sans-serif;">
+  &copy; Olivier Grandclément — École élémentaire Les Cascades, Dortan
+</footer>
+</body>
+</html>

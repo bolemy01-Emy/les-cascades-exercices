@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monnaie — Les Cascades</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#EDE7F6;--bg2:#D1C4E9;--panel-bg:#F3E5F5;--accent:#6A1B9A;--accent-d:#4A148C;--accent-l:#E1BEE7;--text:#1A0E00;--text-light:#7A5C20;--border:#CE93D8;--border-d:#9C27B0;--correct:#1B5E20;--correct-l:#C8E6C9;--wrong:#B71C1C;--wrong-l:#FFCDD2;--gold:#B8860B;--gold-l:#FFF8DC;--silver:#9E9E9E;--silver-l:#F5F5F5;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+  .topbar{background:var(--accent);padding:.9rem 1.4rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;border-bottom:4px solid var(--accent-d);}
+  .game-title{font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;color:#fff;}
+  .game-sub{font-size:12px;color:var(--accent-l);font-weight:600;margin-top:2px;}
+  .score-pill{font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;background:#fff;border:2px solid var(--accent-d);border-radius:20px;padding:5px 18px;color:var(--accent);}
+  .config-panel{background:var(--panel-bg);border-bottom:3px solid var(--border-d);padding:.8rem 1.4rem;display:flex;flex-wrap:wrap;gap:1.2rem;align-items:flex-start;}
+  .config-block{display:flex;flex-direction:column;gap:6px;}
+  .config-label{font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--text-light);}
+  .check-row{display:flex;flex-wrap:wrap;gap:5px;}
+  .cbox{display:flex;align-items:center;gap:4px;background:#fff;border:2px solid var(--border-d);border-radius:8px;padding:4px 9px;cursor:pointer;transition:all .15s;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:var(--text);user-select:none;}
+  .cbox:hover{border-color:var(--accent);}
+  .cbox.checked{background:var(--accent);border-color:var(--accent-d);color:#fff;}
+  .main{flex:1;padding:1.2rem 1.4rem;display:flex;flex-direction:column;gap:1rem;align-items:center;}
+  .feedback{display:none;padding:10px 18px;border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;text-align:center;border:2px solid transparent;width:100%;max-width:660px;}
+  .feedback.ok{background:var(--correct-l);color:var(--correct);border-color:var(--correct);display:block;}
+  .feedback.ko{background:var(--wrong-l);color:var(--wrong);border-color:var(--wrong);display:block;}
+  .feedback.info{background:var(--accent-l);color:var(--accent);border-color:var(--accent);display:block;}
+
+  /* ZONE JEUX */
+  .game-zone{background:#fff;border:3px solid var(--border-d);border-radius:16px;padding:1.4rem 1.6rem;display:flex;flex-direction:column;align-items:center;gap:14px;box-shadow:0 4px 16px rgba(106,27,154,.12);max-width:620px;width:100%;}
+  .question-text{font-family:'Nunito',sans-serif;font-size:17px;font-weight:800;color:var(--accent);text-align:center;}
+  .montant-display{font-family:'Nunito',sans-serif;font-size:40px;font-weight:900;color:var(--text);}
+
+  /* PIECES ET BILLETS */
+  .coins-section{display:flex;flex-direction:column;gap:8px;width:100%;}
+  .coins-label{font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);}
+  .coins-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+
+  .coin{
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+    cursor:pointer;user-select:none;transition:all .15s;
+  }
+  .coin-circle{
+    border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:'Nunito',sans-serif;font-weight:900;
+    border:3px solid;transition:all .15s;position:relative;
+  }
+  .coin-circle:hover{transform:scale(1.1);}
+  .coin-label{font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;color:var(--text-light);}
+  .coin-count{position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;}
+
+  /* Billet */
+  .billet{
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+    cursor:pointer;user-select:none;transition:all .15s;
+  }
+  .billet-rect{
+    border-radius:6px;display:flex;align-items:center;justify-content:center;
+    font-family:'Nunito',sans-serif;font-weight:900;font-size:14px;
+    border:2.5px solid;transition:all .15s;position:relative;
+    padding:4px 8px;
+  }
+  .billet-rect:hover{transform:scale(1.08);}
+
+  /* Zone selection */
+  .selection-zone{
+    min-height:70px;width:100%;background:var(--panel-bg);
+    border:2px dashed var(--border-d);border-radius:12px;
+    padding:10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;
+  }
+  .selection-zone.active{border-color:var(--accent);}
+  .sel-chip{
+    display:flex;align-items:center;gap:4px;
+    background:#fff;border:2px solid var(--border-d);border-radius:20px;
+    padding:4px 10px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;
+    cursor:pointer;transition:all .15s;
+  }
+  .sel-chip:hover{background:var(--wrong-l);border-color:var(--wrong);}
+
+  /* Total selectionne */
+  .total-sel{font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;color:var(--text-light);}
+  .total-sel span{color:var(--accent);font-size:20px;}
+
+  .controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
+  .btn{font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:10px 22px;border-radius:10px;border:2px solid var(--border-d);background:#fff;color:var(--text);cursor:pointer;transition:all .15s;}
+  .btn:hover{background:var(--bg2);border-color:var(--accent);}
+  .btn.primary{background:var(--accent);border-color:var(--accent-d);color:#fff;}
+  .btn.primary:hover{background:var(--accent-d);}
+  .btn.check{background:#1565C0;border-color:#0D47A1;color:#fff;}
+  .btn.check:hover{background:#0D47A1;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div><div class="game-title">La monnaie</div><div class="game-sub">Composer des sommes et rendre la monnaie</div></div>
+  <span class="score-pill" id="score-lbl">Score : 0 / 0</span>
+</div>
+<div class="config-panel">
+  <div class="config-block">
+    <div class="config-label">Mode</div>
+    <div class="check-row" id="mode-row"></div>
+  </div>
+  <div class="config-block">
+    <div class="config-label">Pèeces disponibles</div>
+    <div class="check-row" id="pieces-row"></div>
+  </div>
+  <div class="config-block">
+    <div class="config-label">Billets disponibles</div>
+    <div class="check-row" id="billets-row"></div>
+  </div>
+  <div class="config-block">
+    <div class="config-label">Montants</div>
+    <div class="check-row" id="montant-row"></div>
+  </div>
+</div>
+<div class="main">
+  <div class="feedback" id="feedback"></div>
+  <div id="game-zone"></div>
+  <div class="controls">
+    <button class="btn" onclick="clearSelection()">🗑 Effacer</button>
+    <button class="btn check" onclick="valider()">✔ Vérifier</button>
+    <button class="btn primary" onclick="newGame()">→ Nouvel exercice</button>
+  </div>
+</div>
+<script>
+// CONFIG
+const ALL_PIECES=[1,2,5,10,20,50,100,200]; // en centimes
+const ALL_BILLETS=[500,1000,2000]; // en centimes
+
+const MODES=[{id:'composer',label:'Composer une somme'},{id:'rendre',label:'Rendre la monnaie'},{id:'comparer',label:'Comparer des prix'}];
+const MONTANTS=[{id:'1e',label:'< 1 €'},{id:'10e',label:'< 10 €'},{id:'20e',label:'< 20 €'}];
+
+let activeModes=['composer'];
+let activePieces=[1,2,5,10,20,50,100,200];
+let activeBillets=[500,1000,2000];
+let activeMontants=['10e'];
+let score=0,total=0,locked=false;
+let targetCents=0,paye=0,selectedItems=[];
+
+function buildConfig(){
+  document.getElementById('mode-row').innerHTML=MODES.map(m=>
+    `<div class="cbox${activeModes.includes(m.id)?' checked':''}" onclick="setMode('${m.id}',this)">${m.label}</div>`).join('');
+  document.getElementById('pieces-row').innerHTML=ALL_PIECES.map(p=>
+    `<div class="cbox${activePieces.includes(p)?' checked':''}" onclick="togglePiece(${p},this)">${formatMoney(p)}</div>`).join('');
+  document.getElementById('billets-row').innerHTML=ALL_BILLETS.map(b=>
+    `<div class="cbox${activeBillets.includes(b)?' checked':''}" onclick="toggleBillet(${b},this)">${formatMoney(b)}</div>`).join('');
+  document.getElementById('montant-row').innerHTML=MONTANTS.map(m=>
+    `<div class="cbox${activeMontants.includes(m.id)?' checked':''}" onclick="setMontant('${m.id}',this)">${m.label}</div>`).join('');
+}
+
+function setMode(id,el){activeModes=[id];document.querySelectorAll('#mode-row .cbox').forEach(b=>b.classList.remove('checked'));el.classList.add('checked');}
+function setMontant(id,el){activeMontants=[id];document.querySelectorAll('#montant-row .cbox').forEach(b=>b.classList.remove('checked'));el.classList.add('checked');}
+function togglePiece(v,el){
+  if(activePieces.includes(v)&&activePieces.length===1)return;
+  const i=activePieces.indexOf(v);if(i>=0)activePieces.splice(i,1);else activePieces.push(v);
+  el.classList.toggle('checked',activePieces.includes(v));
+}
+function toggleBillet(v,el){
+  const i=activeBillets.indexOf(v);if(i>=0)activeBillets.splice(i,1);else activeBillets.push(v);
+  el.classList.toggle('checked',activeBillets.includes(v));
+}
+
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+
+function formatMoney(cents){
+  if(cents>=100)return (cents/100).toFixed(cents%100===0?0:2)+' €';
+  return cents+' c';
+}
+function formatMoneyFull(cents){
+  const e=Math.floor(cents/100),c=cents%100;
+  if(c===0)return e+' €';
+  return e+','+String(c).padStart(2,'0')+' €';
+}
+
+function getMaxCents(){
+  const m=activeMontants[0];
+  if(m==='1e')return 99;
+  if(m==='10e')return 999;
+  return 1999;
+}
+
+function newGame(){
+  hideFeedback();locked=false;selectedItems=[];
+  const maxC=getMaxCents();
+  const mode=activeModes[0];
+
+  if(mode==='composer'){
+    // Generer un montant aleatoire
+    const allCoins=[...activePieces,...activeBillets].filter(v=>v<=maxC);
+    if(!allCoins.length){showFeedback('Active des pièces ou billets !','info');return;}
+    // Montant multiple de la plus petite piece active
+    const minP=Math.min(...activePieces);
+    targetCents=Math.floor(rnd(1,maxC/minP))*minP;
+    paye=0;
+    renderGame(mode);
+  }else if(mode==='rendre'){
+    // Genere un achat et un billet donne
+    const allCoins=[...activePieces,...activeBillets].filter(v=>v<=maxC);
+    targetCents=rnd(1,maxC);
+    const billets=activeBillets.filter(v=>v>=targetCents);
+    paye=billets.length?billets[0]:Math.ceil(targetCents/100)*100;
+    renderGame(mode);
+  }else{
+    // Comparer deux prix
+    const p1=rnd(1,maxC),p2=rnd(1,maxC);
+    targetCents=p1;paye=p2;
+    renderGame(mode);
+  }
+}
+
+function renderGame(mode){
+  const avail=[...activePieces,...activeBillets].sort((a,b)=>a-b);
+  const totalSel=selectedItems.reduce((s,v)=>s+v,0);
+
+  let questionHtml='';
+  if(mode==='composer'){
+    questionHtml=`<div class="question-text">Compose exactement <span style="color:var(--text)">${formatMoneyFull(targetCents)}</span></div>`;
+  }else if(mode==='rendre'){
+    questionHtml=`<div class="question-text">Achat : <strong>${formatMoneyFull(targetCents)}</strong><br>
+      Paye avec : <strong>${formatMoneyFull(paye)}</strong><br>
+      Rends la monnaie éxacte !</div>`;
+    // La monnaie a rendre
+    const monnaie=paye-targetCents;
+    questionHtml+=`<div style="font-family:Nunito,sans-serif;font-size:14px;font-weight:700;color:var(--text-light)">Monnaie a rendre : <strong style="color:var(--accent)">${formatMoneyFull(monnaie)}</strong></div>`;
+  }else{
+    const diff=Math.abs(targetCents-paye);
+    questionHtml=`<div class="question-text">
+      <strong>${formatMoneyFull(targetCents)}</strong>
+      ${targetCents>paye?'&gt;':targetCents<paye?'&lt;':'='} 
+      <strong>${formatMoneyFull(paye)}</strong> ?<br>
+      <span style="font-size:13px;color:var(--text-light)">Difference : ${formatMoneyFull(diff)}</span>
+    </div>`;
+  }
+
+  // Pieces et billets
+  const piecesHtml=activePieces.map(p=>renderCoin(p,totalSel)).join('');
+  const billetsHtml=activeBillets.map(b=>renderBillet(b,totalSel)).join('');
+
+  // Selection
+  const groupSel={};
+  selectedItems.forEach(v=>{groupSel[v]=(groupSel[v]||0)+1;});
+  const selHtml=Object.entries(groupSel).map(([v,n])=>
+    `<div class="sel-chip" onclick="removeItem(${v})">
+      ${n} × ${formatMoney(Number(v))} <span style="color:#999">✕</span>
+    </div>`).join('');
+
+  document.getElementById('game-zone').innerHTML=`
+    <div class="game-zone">
+      ${questionHtml}
+      <div class="coins-section">
+        <div class="coins-label">Pieces</div>
+        <div class="coins-row">${piecesHtml}</div>
+        ${activeBillets.length?`<div class="coins-label" style="margin-top:4px">Billets</div><div class="coins-row">${billetsHtml}</div>`:''}
+      </div>
+      <div class="coins-section">
+        <div class="coins-label">Ta selection</div>
+        <div class="selection-zone${selectedItems.length?' active':''}">${selHtml||'<span style="color:#bbb;font-size:13px">Clique sur les pièces et billets</span>'}</div>
+        <div class="total-sel">Total selectionné : <span>${formatMoneyFull(totalSel)}</span></div>
+      </div>
+    </div>`;
+}
+
+function renderCoin(v,totalSel){
+  const size=v>=100?60:v>=50?54:v>=10?48:42;
+  const isGold=v>=100||v===50||v===20||v===10;
+  const bg=isGold?'#FFF8DC':'#F5F5F5';
+  const border=isGold?'#B8860B':'#9E9E9E';
+  const txt=isGold?'#7B5800':'#555';
+  const count=selectedItems.filter(x=>x===v).length;
+  return `<div class="coin" onclick="addItem(${v})">
+    <div class="coin-circle" style="width:${size}px;height:${size}px;background:${bg};border-color:${border};font-size:${size>50?13:11}px;color:${txt}">
+      ${formatMoney(v)}
+      ${count?`<div class="coin-count">${count}</div>`:''}
+    </div>
+  </div>`;
+}
+
+function renderBillet(v,totalSel){
+  const colors={500:['#E8F5E9','#2E7D32'],1000:['#E3F2FD','#1565C0'],2000:['#FFF3E0','#E65100']};
+  const [bg,border]=colors[v]||['#F3E5F5','#6A1B9A'];
+  const count=selectedItems.filter(x=>x===v).length;
+  return `<div class="billet" onclick="addItem(${v})">
+    <div class="billet-rect" style="background:${bg};border-color:${border};color:${border};width:70px">
+      ${formatMoney(v)}
+      ${count?`<div class="coin-count">${count}</div>`:''}
+    </div>
+  </div>`;
+}
+
+function addItem(v){
+  if(locked)return;
+  selectedItems.push(v);
+  renderGame(activeModes[0]);
+}
+function removeItem(v){
+  if(locked)return;
+  const i=selectedItems.lastIndexOf(Number(v));
+  if(i>=0)selectedItems.splice(i,1);
+  renderGame(activeModes[0]);
+}
+function clearSelection(){
+  if(locked)return;
+  selectedItems=[];
+  renderGame(activeModes[0]);
+}
+
+function valider(){
+  if(locked)return;
+  const mode=activeModes[0];
+  const totalSel=selectedItems.reduce((s,v)=>s+v,0);
+  locked=true;total++;
+
+  let ok=false,msg='';
+  if(mode==='composer'){
+    ok=totalSel===targetCents;
+    msg=ok?'Bravo ! Tu as composé exactement '+formatMoneyFull(targetCents)+' !'
+      :'Pas tout à fait — tu as composé '+formatMoneyFull(totalSel)+' au lieu de '+formatMoneyFull(targetCents);
+  }else if(mode==='rendre'){
+    const monnaie=paye-targetCents;
+    ok=totalSel===monnaie;
+    msg=ok?'Bravo ! Tu as rendu la monnaie éxacte !'
+      :'Pas tout à fait — il fallait rendre '+formatMoneyFull(monnaie)+', tu as selectionné '+formatMoneyFull(totalSel);
+  }else{
+    ok=true;msg='';
+  }
+
+  if(ok)score++;
+  showFeedback(msg,ok?'ok':'ko');
+  updateScore();
+}
+
+function showFeedback(m,t){const f=document.getElementById('feedback');f.textContent=m;f.className='feedback '+t;}
+function hideFeedback(){const f=document.getElementById('feedback');f.className='feedback';f.textContent='';}
+function updateScore(){document.getElementById('score-lbl').textContent='Score : '+score+' / '+total;}
+buildConfig();newGame();
+</script>
+</body>
+</html>

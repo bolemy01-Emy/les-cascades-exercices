@@ -291,8 +291,8 @@
 
   <div class="controls">
     <button class="btn aide" id="btn-aide" onclick="showAide()">💡 Aide</button>
-    <button class="btn check" id="btn-verif" onclick="checkAnswer()" style="display:none">✔ Verifier</button>
-    <button class="btn" onclick="resetRound()">Reessayer</button>
+    <button class="btn check" id="btn-verif" onclick="checkAnswer()" style="display:none">✔ Vérifier</button>
+    <button class="btn" onclick="resetRound()">Réessayer</button>
     <button class="btn primary" onclick="newGame()">Nouvel exercice</button>
   </div>
 </div>
@@ -304,9 +304,9 @@
 const CAS = [
   {
     id: 'meme-den',
-    label: 'Meme denominateur',
-    hint1: 'Ces deux fractions ont le meme denominateur.',
-    hint3: 'Meme denominateur → compare les numerateurs. Le plus grand numerateur = la plus grande fraction.',
+    label: 'Même dénominateur',
+    hint1: 'Ces deux fractions ont le même dénominateur.',
+    hint3: 'Même dénominateur → compare les numérateurs. Le plus grand numérateur = la plus grande fraction.',
     pairs: [
       [{n:1,d:4},{n:3,d:4}], [{n:2,d:5},{n:4,d:5}], [{n:1,d:6},{n:5,d:6}],
       [{n:3,d:8},{n:7,d:8}], [{n:2,d:6},{n:5,d:6}], [{n:1,d:3},{n:2,d:3}],
@@ -316,9 +316,9 @@ const CAS = [
   },
   {
     id: 'meme-num',
-    label: 'Meme numerateur',
-    hint1: 'Ces deux fractions ont le meme numerateur.',
-    hint3: 'Meme numerateur → compare les denominateurs. Le plus petit denominateur = la plus grande fraction (les parts sont plus grandes).',
+    label: 'Même numerateur',
+    hint1: 'Ces deux fractions ont le même numérateur.',
+    hint3: 'Même numérateur → compare les dénominateurs. Le plus petit dénominateur = la plus grande fraction (les parts sont plus grandes).',
     pairs: [
       [{n:1,d:3},{n:1,d:6}], [{n:1,d:4},{n:1,d:8}], [{n:1,d:2},{n:1,d:5}],
       [{n:2,d:3},{n:2,d:6}], [{n:3,d:4},{n:3,d:8}], [{n:1,d:3},{n:1,d:12}],
@@ -328,9 +328,9 @@ const CAS = [
   },
   {
     id: 'multiple',
-    label: 'Denominateur multiple',
-    hint1: 'Un denominateur est le double (ou le triple) de l\'autre.',
-    hint3: 'Quand un denominateur est multiple de l\'autre, on peut convertir l\'une des fractions pour les comparer facilement.',
+    label: 'Dénominateur multiple',
+    hint1: 'Un dénominateur est le double (ou le triple) de l\'autre.',
+    hint3: 'Quand un dénominateur est multiple de l\'autre, on peut convertir l\'une des fractions pour les comparer facilement.',
     pairs: [
       [{n:1,d:2},{n:3,d:4}], [{n:1,d:3},{n:5,d:6}], [{n:2,d:3},{n:5,d:6}],
       [{n:1,d:4},{n:3,d:8}], [{n:3,d:4},{n:7,d:8}], [{n:1,d:2},{n:5,d:8}],

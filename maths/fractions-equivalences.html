@@ -199,8 +199,8 @@
 
 <div class="topbar">
   <div>
-    <div class="game-title">Fractions equivalentes</div>
-    <div class="game-sub">Trouve les fractions qui representent la meme quantite</div>
+    <div class="game-title">Fractions équivalentes</div>
+    <div class="game-sub">Trouve les fractions qui représentent la meme quantité</div>
   </div>
   <span class="score-pill" id="score-lbl">Score : 0 / 0</span>
 </div>
@@ -232,12 +232,12 @@
     <div class="aide-figure" id="aide-figure"></div>
   </div>
 
-  <div class="instruction">Appuie sur deux fractions pour les associer &mdash; trouve toutes les paires egales !</div>
+  <div class="instruction">Appuie sur deux fractions pour les associer &mdash; trouve toutes les paires égales !</div>
   <div class="cards-grid" id="cards-grid"></div>
 
   <div class="controls">
     <button class="btn aide visible" id="btn-aide" onclick="showAide()">💡 Aide</button>
-    <button class="btn"         onclick="resetRound()">Reessayer</button>
+    <button class="btn"         onclick="resetRound()">Réessayer</button>
     <button class="btn primary" onclick="newGame()">Nouvel exercice</button>
   </div>
 </div>
@@ -399,7 +399,7 @@ function clickCard(i) {
     if (pairsFound === nbPaires) {
       setTimeout(() => {
         score++; total++;
-        showFeedback('Bravo ! Toutes les paires equivalentes sont trouvees !', 'ok');
+        showFeedback('Bravo ! Toutes les paires équivalentes sont trouvees !', 'ok');
         updateScore();
       }, 600);
     }
@@ -451,7 +451,7 @@ function showAide() {
 
   if (aideLevel === 1) {
     lvlEl.textContent = 'Indice 1 / 3';
-    txtEl.innerHTML = `Cette fraction vaut la meme chose qu'<strong>${card.familyRef}</strong>.<br>Cherche une autre fraction qui represente aussi <strong>${card.familyRef}</strong>.`;
+    txtEl.innerHTML = `Cette fraction vaut la même chose qu'<strong>${card.familyRef}</strong>.<br>Cherche une autre fraction qui représente aussi <strong>${card.familyRef}</strong>.`;
   }
 
   if (aideLevel === 2) {
@@ -471,14 +471,14 @@ function showAide() {
       txtEl.innerHTML = `
         <strong>${ref.n}/${ref.d}</strong> et <strong>${card.n}/${card.d}</strong> sont egales car :<br>
         ${ref.n} &times; ${mult} = ${card.n} &nbsp;&nbsp;et&nbsp;&nbsp; ${ref.d} &times; ${mult} = ${card.d}<br>
-        <span style="font-size:12px;color:#7A5C20">On multiplie le numerateur ET le denominateur par le meme nombre → la fraction ne change pas !</span>`;
+        <span style="font-size:12px;color:#7A5C20">On multiplie le numérateur ET le dénominateur par le même nombre → la fraction ne change pas !</span>`;
     } else {
       // Cas fraction reference elle-meme
       const mult2 = ref.d / card.d;
       txtEl.innerHTML = `
         <strong>${card.n}/${card.d}</strong> et <strong>${ref.n}/${ref.d}</strong> sont egales car :<br>
         ${card.n} &times; ${mult2} = ${ref.n} &nbsp;&nbsp;et&nbsp;&nbsp; ${card.d} &times; ${mult2} = ${ref.d}<br>
-        <span style="font-size:12px;color:#7A5C20">On multiplie le numerateur ET le denominateur par le meme nombre → la fraction ne change pas !</span>`;
+        <span style="font-size:12px;color:#7A5C20">On multiplie le numérateur ET le dénominateur par le même nombre → la fraction ne change pas !</span>`;
     }
   }
 

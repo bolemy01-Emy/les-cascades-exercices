@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calcul mental — Les Cascades</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #EDE7F6;
+    --bg2:       #D1C4E9;
+    --panel-bg:  #F3E5F5;
+    --accent:    #6A1B9A;
+    --accent-d:  #4A148C;
+    --accent-l:  #E1BEE7;
+    --text:      #1A0E00;
+    --text-light:#7A5C20;
+    --border:    #CE93D8;
+    --border-d:  #9C27B0;
+    --white:     #FFFFFF;
+    --correct:   #1B5E20;
+    --correct-l: #C8E6C9;
+    --wrong:     #B71C1C;
+    --wrong-l:   #FFCDD2;
+    --chrono-ok: #1565C0;
+    --chrono-warn:#E65100;
+    --chrono-danger:#B71C1C;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family:'Nunito Sans',sans-serif;
+    background:var(--bg); color:var(--text);
+    min-height:100vh; display:flex; flex-direction:column;
+  }
+
+  /* HEADER */
+  .topbar {
+    background:var(--accent); padding:.9rem 1.4rem;
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:10px; border-bottom:4px solid var(--accent-d);
+  }
+  .game-title { font-family:'Nunito',sans-serif; font-size:20px; font-weight:900; color:#fff; }
+  .game-sub   { font-size:12px; color:var(--accent-l); font-weight:600; margin-top:2px; }
+  .score-pill {
+    font-family:'Nunito',sans-serif; font-size:15px; font-weight:800;
+    background:#fff; border:2px solid var(--accent-d);
+    border-radius:20px; padding:5px 18px; color:var(--accent);
+  }
+
+  /* CONFIG */
+  .config-panel {
+    background:var(--panel-bg); border-bottom:3px solid var(--border-d);
+    padding:.8rem 1.4rem; display:flex; flex-wrap:wrap; gap:1.2rem; align-items:flex-start;
+  }
+  .config-block { display:flex; flex-direction:column; gap:6px; min-width:140px; }
+  .config-label {
+    font-family:'Nunito',sans-serif; font-size:11px; font-weight:800;
+    text-transform:uppercase; letter-spacing:.08em; color:var(--text-light);
+  }
+  .check-row { display:flex; flex-wrap:wrap; gap:5px; }
+  .cbox {
+    display:flex; align-items:center; gap:4px;
+    background:#fff; border:2px solid var(--border-d); border-radius:8px;
+    padding:4px 9px; cursor:pointer; transition:all .15s;
+    font-family:'Nunito',sans-serif; font-size:12px; font-weight:700; color:var(--text);
+    user-select:none;
+  }
+  .cbox:hover { border-color:var(--accent); }
+  .cbox.checked { background:var(--accent); border-color:var(--accent-d); color:#fff; }
+
+  .nb-row { display:flex; gap:5px; }
+  .nb-btn {
+    font-family:'Nunito',sans-serif; font-size:12px; font-weight:800;
+    padding:5px 10px; border-radius:8px;
+    border:2px solid var(--border-d); background:#fff; color:var(--text);
+    cursor:pointer; transition:all .15s;
+  }
+  .nb-btn:hover { border-color:var(--accent); }
+  .nb-btn.active { background:var(--accent); border-color:var(--accent-d); color:#fff; }
+
+  /* MAIN */
+  .main { flex:1; padding:1.2rem 1.4rem; display:flex; flex-direction:column; gap:1rem; align-items:center; }
+
+  /* CHRONO GLOBAL */
+  .chrono-global {
+    display:none; width:100%; max-width:560px;
+    background:#fff; border:2px solid var(--border-d); border-radius:10px;
+    padding:6px 14px; align-items:center; gap:10px;
+  }
+  .chrono-global.show { display:flex; }
+  .chrono-label { font-family:'Nunito',sans-serif; font-size:12px; font-weight:700; color:var(--text-light); }
+  .chrono-bar-wrap { flex:1; height:10px; background:var(--bg2); border-radius:5px; overflow:hidden; }
+  .chrono-bar { height:100%; border-radius:5px; background:var(--chrono-ok); transition:width .1s linear, background .3s; }
+  .chrono-val { font-family:'Nunito',sans-serif; font-size:13px; font-weight:800; color:var(--accent); min-width:32px; text-align:right; }
+
+  /* FEEDBACK */
+  .feedback {
+    display:none; padding:10px 18px; border-radius:10px;
+    font-family:'Nunito',sans-serif; font-size:14px; font-weight:800;
+    text-align:center; border:2px solid transparent; width:100%; max-width:560px;
+  }
+  .feedback.ok  { background:var(--correct-l); color:var(--correct); border-color:var(--correct); display:block; }
+  .feedback.ko  { background:var(--wrong-l);   color:var(--wrong);   border-color:var(--wrong);   display:block; }
+  .feedback.info{ background:var(--accent-l);  color:var(--accent);  border-color:var(--accent);  display:block; }
+
+  /* ZONE QUESTION */
+  .question-zone {
+    background:#fff; border:3px solid var(--border-d); border-radius:16px;
+    padding:1.8rem 2.4rem; display:flex; flex-direction:column;
+    align-items:center; gap:14px; box-shadow:0 4px 16px rgba(106,27,154,.12);
+    min-width:300px;
+  }
+
+  /* Compteur questions */
+  .q-counter {
+    font-family:'Nunito',sans-serif; font-size:12px; font-weight:700;
+    color:var(--text-light); align-self:flex-end;
+  }
+
+  /* Chrono PAR QUESTION */
+  .chrono-question {
+    display:none; width:100%; align-items:center; gap:8px;
+  }
+  .chrono-question.show { display:flex; }
+  .cq-bar-wrap { flex:1; height:8px; background:var(--bg2); border-radius:4px; overflow:hidden; }
+  .cq-bar { height:100%; border-radius:4px; background:var(--chrono-ok); transition:width .1s linear, background .3s; }
+  .cq-val { font-family:'Nunito',sans-serif; font-size:12px; font-weight:800; color:var(--accent); min-width:28px; text-align:right; }
+
+  /* Enonce */
+  .enonce {
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center;
+  }
+  .enonce-part {
+    font-family:'Nunito',sans-serif; font-size:46px; font-weight:900; color:var(--text);
+    line-height:1;
+  }
+  .enonce-op { font-family:'Nunito',sans-serif; font-size:40px; font-weight:900; color:var(--accent); }
+
+  /* Case réponse (trou) */
+  .answer-box {
+    min-width:72px; height:72px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Nunito',sans-serif; font-size:46px; font-weight:900; color:var(--text);
+    border:3px dashed var(--border-d); cursor:pointer; transition:all .18s;
+    background:var(--panel-bg); padding:0 8px;
+  }
+  .answer-box:hover { border-color:var(--accent); background:var(--accent-l); }
+  .answer-box.active { border:3px solid var(--accent); background:var(--accent-l); box-shadow:0 0 0 4px rgba(106,27,154,.2); }
+  .answer-box.filled { border-style:solid; border-color:var(--border-d); background:var(--bg2); }
+  .answer-box.correct { border-color:var(--correct)!important; background:var(--correct-l)!important; color:var(--correct); border-style:solid!important; }
+  .answer-box.wrong   { border-color:var(--wrong)!important;   background:var(--wrong-l)!important;   color:var(--wrong);   border-style:solid!important; }
+
+  /* AIDE (droite numerique) */
+  .aide-zone {
+    display:none; background:#FFF8E1; border:2px solid #F9A825;
+    border-radius:12px; padding:12px 16px; text-align:center;
+    font-family:'Nunito',sans-serif; font-size:13px; font-weight:700; color:#5D4037;
+    max-width:500px; width:100%;
+  }
+  .aide-zone.show { display:block; }
+  .aide-title { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#F9A825; margin-bottom:8px; }
+
+  /* ZONE GAME + CLAVIER */
+  .game-and-keypad {
+    display:flex; gap:2rem; align-items:center;
+    justify-content:center; flex-wrap:wrap;
+  }
+
+  /* PAVÉ NUMÉRIQUE */
+  .keypad-wrap { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .keypad-hint { font-family:'Nunito',sans-serif; font-size:12px; font-weight:700; color:var(--text-light); text-align:center; }
+  .keypad {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+    background:#fff; border:3px solid var(--border-d); border-radius:14px;
+    padding:12px; box-shadow:0 2px 8px rgba(0,0,0,.08);
+  }
+  .key {
+    font-family:'Nunito',sans-serif; font-size:22px; font-weight:900;
+    width:58px; height:58px; border-radius:10px;
+    border:2px solid var(--border-d); background:var(--panel-bg); color:var(--text);
+    cursor:pointer; transition:all .15s;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .key:hover { background:var(--accent-l); border-color:var(--accent); transform:scale(1.06); }
+  .key.del { background:var(--wrong-l); border-color:var(--wrong); color:var(--wrong); font-size:18px; }
+  .key.del:hover { background:var(--wrong); color:#fff; }
+  .key.zero { grid-column:span 2; }
+  .key.valider { background:var(--correct-l); border-color:var(--correct); color:var(--correct); font-size:16px; font-weight:800; }
+  .key.valider:hover { background:var(--correct); color:#fff; }
+
+  /* CONTROLS */
+  .controls { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .btn {
+    font-family:'Nunito',sans-serif; font-size:13px; font-weight:800;
+    padding:10px 22px; border-radius:10px; border:2px solid var(--border-d);
+    background:#fff; color:var(--text); cursor:pointer; transition:all .15s;
+  }
+  .btn:hover { background:var(--bg2); border-color:var(--accent); }
+  .btn.primary { background:var(--accent); border-color:var(--accent-d); color:#fff; }
+  .btn.primary:hover { background:var(--accent-d); }
+  .btn.aide-btn { background:#FFF8E1; border-color:#F9A825; color:#5D4037; }
+
+  /* BILAN FIN DE SERIE */
+  .bilan {
+    display:none; background:#fff; border:3px solid var(--border-d); border-radius:16px;
+    padding:1.6rem 2rem; max-width:560px; width:100%;
+    box-shadow:0 4px 16px rgba(106,27,154,.12);
+  }
+  .bilan.show { display:block; }
+  .bilan-title { font-family:'Nunito',sans-serif; font-size:18px; font-weight:900; color:var(--accent); margin-bottom:12px; text-align:center; }
+  .bilan-score { font-family:'Nunito',sans-serif; font-size:28px; font-weight:900; text-align:center; margin-bottom:14px; }
+  .bilan-errors { display:flex; flex-direction:column; gap:6px; }
+  .error-item {
+    display:flex; align-items:center; gap:10px;
+    background:var(--wrong-l); border:1px solid var(--wrong); border-radius:8px;
+    padding:6px 12px; font-family:'Nunito',sans-serif; font-size:13px; font-weight:700;
+  }
+  .error-q { color:var(--wrong); font-size:16px; font-weight:900; }
+  .error-arrow { color:var(--wrong); }
+  .error-a { color:var(--correct); }
+  .bilan-ok { text-align:center; font-family:'Nunito',sans-serif; font-size:14px; font-weight:700; color:var(--correct); padding:10px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="game-title">Calcul mental</div>
+    <div class="game-sub">Entraine-toi a calculer vite et bien</div>
+  </div>
+  <span class="score-pill" id="score-lbl">0 / 0</span>
+</div>
+
+<div class="config-panel">
+
+  <!-- Modes -->
+  <div class="config-block">
+    <div class="config-label">Notions</div>
+    <div class="check-row" id="modes-row"></div>
+  </div>
+
+  <!-- Tables multiplication -->
+  <div class="config-block" id="tables-block" style="display:none">
+    <div class="config-label">Tables (x)</div>
+    <div class="check-row" id="tables-row"></div>
+  </div>
+
+  <!-- Serie -->
+  <div class="config-block">
+    <div class="config-label">Questions par série</div>
+    <div class="nb-row" id="serie-row">
+      <button class="nb-btn"        onclick="setNb('serie',5,this)">5</button>
+      <button class="nb-btn active" onclick="setNb('serie',10,this)">10</button>
+      <button class="nb-btn"        onclick="setNb('serie',20,this)">20</button>
+    </div>
+  </div>
+
+  <!-- Chrono question -->
+  <div class="config-block">
+    <div class="config-label">Chrono / question</div>
+    <div class="nb-row" id="cq-row">
+      <button class="nb-btn active" onclick="setNb('cq',0,this)">Off</button>
+      <button class="nb-btn"        onclick="setNb('cq',5,this)">5s</button>
+      <button class="nb-btn"        onclick="setNb('cq',10,this)">10s</button>
+      <button class="nb-btn"        onclick="setNb('cq',15,this)">15s</button>
+    </div>
+  </div>
+
+  <!-- Chrono global -->
+  <div class="config-block">
+    <div class="config-label">Chrono global</div>
+    <div class="nb-row" id="cg-row">
+      <button class="nb-btn active" onclick="setNb('cg',0,this)">Off</button>
+      <button class="nb-btn"        onclick="setNb('cg',60,this)">1 min</button>
+      <button class="nb-btn"        onclick="setNb('cg',120,this)">2 min</button>
+      <button class="nb-btn"        onclick="setNb('cg',180,this)">3 min</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="main">
+  <div class="chrono-global" id="chrono-global">
+    <span class="chrono-label">Temps</span>
+    <div class="chrono-bar-wrap"><div class="chrono-bar" id="cg-bar"></div></div>
+    <span class="chrono-val" id="cg-val"></span>
+  </div>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="bilan" id="bilan"></div>
+
+  <div id="main-content">
+    <div class="game-and-keypad">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+        <div class="question-zone" id="question-zone">
+          <div class="q-counter" id="q-counter"></div>
+          <div class="chrono-question" id="chrono-question">
+            <div class="cq-bar-wrap"><div class="cq-bar" id="cq-bar"></div></div>
+            <span class="cq-val" id="cq-val"></span>
+          </div>
+          <div class="enonce" id="enonce"></div>
+        </div>
+        <div class="aide-zone" id="aide-zone">
+          <div class="aide-title">Aide — Droite numérique</div>
+          <div id="aide-content"></div>
+        </div>
+      </div>
+      <div class="keypad-wrap">
+        <div class="keypad-hint">Clique la case puis un chiffre</div>
+        <div class="keypad" id="keypad"></div>
+      </div>
+    </div>
+    <div class="controls" style="margin-top:10px">
+      <button class="btn aide-btn" id="btn-aide" onclick="showAide()" style="display:none">💡 Aide</button>
+      <button class="btn primary" onclick="startSerie()">▶ Nouvelle série</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════
+const MODES = [
+  { id:'add',    label:'Addition',          hasAide:false },
+  { id:'mult',   label:'Multiplication',    hasAide:false },
+  { id:'double', label:'Doubles / Moities', hasAide:false },
+  { id:'diz',    label:'Passage dizaine',   hasAide:true  },
+  { id:'cent',   label:'Passage centaine',  hasAide:true  },
+  { id:'comp10', label:'Complement a 10',   hasAide:false },
+  { id:'comp100',label:'Complement a 100',  hasAide:false },
+  { id:'trou',   label:'Operations a trou', hasAide:false },
+  { id:'p9p11',  label:'+9 / +11',          hasAide:true  },
+];
+
+const TABLES = [2,3,4,5,6,7,8,9];
+
+let activeModes  = ['add','double'];
+let activeTables = [2,3,4,5];
+let nbSerie      = 10;
+let chronoQ      = 0;   // secondes par question (0=off)
+let chronoG      = 0;   // secondes global (0=off)
+let score=0, total=0;
+
+// ═══════════════════════════════════════════
+//  BUILD CONFIG UI
+// ═══════════════════════════════════════════
+function buildConfig() {
+  document.getElementById('modes-row').innerHTML = MODES.map(m =>
+    `<div class="cbox${activeModes.includes(m.id)?' checked':''}" onclick="toggleMode('${m.id}',this)">${m.label}</div>`
+  ).join('');
+  document.getElementById('tables-row').innerHTML = TABLES.map(t =>
+    `<div class="cbox${activeTables.includes(t)?' checked':''}" onclick="toggleTable(${t},this)">&times;${t}</div>`
+  ).join('');
+  updateTablesVisibility();
+}
+
+function toggleMode(id, el) {
+  if(activeModes.includes(id)&&activeModes.length===1) return;
+  activeModes = activeModes.includes(id) ? activeModes.filter(x=>x!==id) : [...activeModes,id];
+  el.classList.toggle('checked', activeModes.includes(id));
+  updateTablesVisibility();
+}
+function toggleTable(t, el) {
+  if(activeTables.includes(t)&&activeTables.length===1) return;
+  activeTables = activeTables.includes(t) ? activeTables.filter(x=>x!==t) : [...activeTables,t];
+  el.classList.toggle('checked', activeTables.includes(t));
+}
+function updateTablesVisibility() {
+  document.getElementById('tables-block').style.display = activeModes.includes('mult') ? '' : 'none';
+}
+function setNb(type, val, el) {
+  if(type==='serie') nbSerie=val;
+  if(type==='cq')    chronoQ=val;
+  if(type==='cg')    chronoG=val;
+  document.querySelectorAll(`#${type==='serie'?'serie':type==='cq'?'cq':'cg'}-row .nb-btn`)
+    .forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+//  ETAT SERIE
+// ═══════════════════════════════════════════
+let questions   = [];  // liste des questions generees
+let qIndex      = 0;
+let currentQ    = null;
+let activeSlot  = null; // index du slot actif (0,1,2)
+let answers     = [];   // reponses saisies par slot
+let locked      = false;
+let errors      = [];   // {enonce, correct}
+
+// Timers
+let timerQ = null, timerG = null;
+let timeLeftQ = 0, timeLeftG = 0;
+
+// ═══════════════════════════════════════════
+//  GENERATION QUESTIONS
+// ═══════════════════════════════════════════
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
+
+function genQuestion(mode) {
+  // Chaque question : {slots:[{val,editable}], op, answer, enonceStr}
+  // slots = parties de l'enonce. editable=true = case a remplir
+  // answer = valeur correcte du/des trous
+
+  if(mode==='add') {
+    const a=rnd(0,9), b=rnd(0,9), res=a+b;
+    const pos=rnd(0,2); // 0=trou gauche, 1=trou milieu(op), 2=trou droit
+    if(pos===0) return {slots:[{val:'?',ed:true},{val:'+',ed:false},{val:b,ed:false},{val:'=',ed:false},{val:res,ed:false}], answers:[a], mode, label:`${a} + ${b} = ${res}`};
+    if(pos===2) return {slots:[{val:a,ed:false},{val:'+',ed:false},{val:'?',ed:true},{val:'=',ed:false},{val:res,ed:false}], answers:[b], mode, label:`${a} + ${b} = ${res}`};
+    return {slots:[{val:a,ed:false},{val:'+',ed:false},{val:b,ed:false},{val:'=',ed:false},{val:'?',ed:true}], answers:[res], mode, label:`${a} + ${b} = ${res}`};
+  }
+
+  if(mode==='mult') {
+    const t=activeTables[rnd(0,activeTables.length-1)];
+    const b=rnd(1,10), res=t*b;
+    const pos=rnd(0,2);
+    if(pos===0) return {slots:[{val:'?',ed:true},{val:'×',ed:false},{val:b,ed:false},{val:'=',ed:false},{val:res,ed:false}], answers:[t], mode, label:`${t} × ${b} = ${res}`};
+    if(pos===2) return {slots:[{val:t,ed:false},{val:'×',ed:false},{val:'?',ed:true},{val:'=',ed:false},{val:res,ed:false}], answers:[b], mode, label:`${t} × ${b} = ${res}`};
+    return {slots:[{val:t,ed:false},{val:'×',ed:false},{val:b,ed:false},{val:'=',ed:false},{val:'?',ed:true}], answers:[res], mode, label:`${t} × ${b} = ${res}`};
+  }
+
+  if(mode==='double') {
+    const isDouble=Math.random()>.5;
+    if(isDouble){
+      const a=rnd(1,20), res=a*2;
+      const pos=rnd(0,1);
+      if(pos===0) return {slots:[{val:'Double de',ed:false},{val:'?',ed:true},{val:'=',ed:false},{val:res,ed:false}], answers:[a], mode, label:`Double de ${a} = ${res}`};
+      return {slots:[{val:'Double de',ed:false},{val:a,ed:false},{val:'=',ed:false},{val:'?',ed:true}], answers:[res], mode, label:`Double de ${a} = ${res}`};
+    }else{
+      const a=rnd(1,20)*2, res=a/2;
+      const pos=rnd(0,1);
+      if(pos===0) return {slots:[{val:'Moitie de',ed:false},{val:'?',ed:true},{val:'=',ed:false},{val:res,ed:false}], answers:[a], mode, label:`Moitie de ${a} = ${res}`};
+      return {slots:[{val:'Moitie de',ed:false},{val:a,ed:false},{val:'=',ed:false},{val:'?',ed:true}], answers:[res], mode, label:`Moitie de ${a} = ${res}`};
+    }
+  }
+
+  if(mode==='diz') {
+    const diz=rnd(1,9)*10, reste=rnd(1,9), depart=diz+reste, manque=10-reste;
+    const pos=rnd(0,2);
+    const next=diz+10;
+    if(pos===0) return {slots:[{val:'?',ed:true},{val:'+',ed:false},{val:manque,ed:false},{val:'=',ed:false},{val:next,ed:false}], answers:[depart], mode, aide:{from:depart,to:next}, label:`${depart} + ${manque} = ${next}`};
+    if(pos===2) return {slots:[{val:depart,ed:false},{val:'+',ed:false},{val:'?',ed:true},{val:'=',ed:false},{val:next,ed:false}], answers:[manque], mode, aide:{from:depart,to:next}, label:`${depart} + ${manque} = ${next}`};
+    return {slots:[{val:depart,ed:false},{val:'+',ed:false},{val:manque,ed:false},{val:'=',ed:false},{val:'?',ed:true}], answers:[next], mode, aide:{from:depart,to:next}, label:`${depart} + ${manque} = ${next}`};
+  }
+
+  if(mode==='cent') {
+    const cent=rnd(1,9)*100, reste=rnd(1,99), depart=cent+reste, manque=100-reste;
+    const pos=rnd(0,2);
+    const next=cent+100;
+    if(pos===0) return {slots:[{val:'?',ed:true},{val:'+',ed:false},{val:manque,ed:false},{val:'=',ed:false},{val:next,ed:false}], answers:[depart], mode, aide:{from:depart,to:next,step:10}, label:`${depart} + ${manque} = ${next}`};
+    if(pos===2) return {slots:[{val:depart,ed:false},{val:'+',ed:false},{val:'?',ed:true},{val:'=',ed:false},{val:next,ed:false}], answers:[manque], mode, aide:{from:depart,to:next,step:10}, label:`${depart} + ${manque} = ${next}`};
+    return {slots:[{val:depart,ed:false},{val:'+',ed:false},{val:manque,ed:false},{val:'=',ed:false},{val:'?',ed:true}], answers:[next], mode, aide:{from:depart,to:next,step:10}, label:`${depart} + ${manque} = ${next}`};
+  }
+
+  if(mode==='comp10') {
+    const a=rnd(1,9), res=10;
+    const pos=rnd(0,1);
+    if(pos===0) return {slots:[{val:'?',ed:true},{val:'+',ed:false},{val:a,ed:false},{val:'=',ed:false},{val:res,ed:false}], answers:[10-a], mode, label:`${10-a} + ${a} = 10`};
+    return {slots:[{val:a,ed:false},{val:'+',ed:false},{val:'?',ed:true},{val:'=',ed:false},{val:res,ed:false}], answers:[10-a], mode, label:`${a} + ${10-a} = 10`};
+  }
+
+  if(mode==='comp100') {
+    const diz=rnd(1,9)*10, res=100;
+    const pos=rnd(0,1);
+    if(pos===0) return {slots:[{val:'?',ed:true},{val:'+',ed:false},{val:diz,ed:false},{val:'=',ed:false},{val:res,ed:false}], answers:[100-diz], mode, label:`${100-diz} + ${diz} = 100`};
+    return {slots:[{val:diz,ed:false},{val:'+',ed:false},{val:'?',ed:true},{val:'=',ed:false},{val:res,ed:false}], answers:[100-diz], mode, label:`${diz} + ${100-diz} = 100`};
+  }
+
+  if(mode==='trou') {
+    const ops=['+','-','×'];
+    const op=ops[rnd(0,1)]; // + ou -
+    let a,b,res;
+    if(op==='+'){a=rnd(10,50);b=rnd(1,20);res=a+b;}
+    else{a=rnd(20,80);b=rnd(1,a-1);res=a-b;}
+    const pos=rnd(0,2);
+    if(pos===0) return {slots:[{val:'?',ed:true},{val:op,ed:false},{val:b,ed:false},{val:'=',ed:false},{val:res,ed:false}], answers:[a], mode, label:`${a} ${op} ${b} = ${res}`};
+    if(pos===2) return {slots:[{val:a,ed:false},{val:op,ed:false},{val:'?',ed:true},{val:'=',ed:false},{val:res,ed:false}], answers:[b], mode, label:`${a} ${op} ${b} = ${res}`};
+    return {slots:[{val:a,ed:false},{val:op,ed:false},{val:b,ed:false},{val:'=',ed:false},{val:'?',ed:true}], answers:[res], mode, label:`${a} ${op} ${b} = ${res}`};
+  }
+
+  if(mode==='p9p11') {
+    const add9=Math.random()>.5;
+    const a=rnd(10,80), adj=add9?9:11, res=a+adj;
+    const pos=rnd(0,2);
+    const opStr=add9?'+ 9':'+ 11';
+    if(pos===0) return {slots:[{val:'?',ed:true},{val:add9?'+ 9':'+ 11',ed:false},{val:'=',ed:false},{val:res,ed:false}], answers:[a], mode, aide:{val:a,adj,add9}, label:`${a} + ${adj} = ${res}`};
+    return {slots:[{val:a,ed:false},{val:add9?'+ 9':'+ 11',ed:false},{val:'=',ed:false},{val:'?',ed:true}], answers:[res], mode, aide:{val:a,adj,add9}, label:`${a} + ${adj} = ${res}`};
+  }
+
+  // Fallback
+  return genQuestion('add');
+}
+
+function generateSerie() {
+  const pool = shuffle([...activeModes,...activeModes,...activeModes]);
+  questions = Array.from({length:nbSerie}, (_,i) => genQuestion(pool[i%pool.length]));
+}
+
+// ═══════════════════════════════════════════
+//  SERIE
+// ═══════════════════════════════════════════
+function startSerie() {
+  hideBilan();
+  generateSerie();
+  qIndex=0; score=0; total=0; errors=[];
+  updateScore();
+  startChronoGlobal();
+  loadQuestion();
+}
+
+function loadQuestion() {
+  if(qIndex>=questions.length){ endSerie(); return; }
+  currentQ = questions[qIndex];
+  activeSlot = null;
+  answers = currentQ.slots.map(s=>s.ed?null:s.val);
+  locked = false;
+  hideAide();
+  hideFeedback();
+
+  const hasAide = MODES.find(m=>m.id===currentQ.mode)?.hasAide;
+  document.getElementById('btn-aide').style.display = hasAide ? '' : 'none';
+
+  renderQuestion();
+  startChronoQuestion();
+}
+
+function renderQuestion() {
+  const q = currentQ;
+  document.getElementById('q-counter').textContent = `Question ${qIndex+1} / ${questions.length}`;
+
+  const enonceHtml = q.slots.map((s,i) => {
+    if(!s.ed) {
+      // Valeur fixe
+      const isOp=['×','+','-','÷','='].includes(String(s.val)) || String(s.val).includes('+') || String(s.val).includes('Double') || String(s.val).includes('Moitie');
+      const cls = isOp ? 'enonce-op' : 'enonce-part';
+      return `<span class="${cls}">${s.val}</span>`;
+    } else {
+      // Case editable
+      const val = answers[i];
+      let cls = 'answer-box';
+      if(locked) cls += (val!==null && Number(val)===q.answers[q.slots.filter(x=>x.ed).indexOf(s)]) ? ' correct' : ' wrong';
+      else if(activeSlot===i) cls += ' active';
+      else if(val!==null) cls += ' filled';
+      return `<div class="${cls}" onclick="activateSlot(${i})">${val!==null?val:''}</div>`;
+    }
+  }).join('');
+
+  document.getElementById('enonce').innerHTML = enonceHtml;
+}
+
+function activateSlot(i) {
+  if(locked) return;
+  activeSlot = i;
+  renderQuestion();
+}
+
+// ═══════════════════════════════════════════
+//  PAVÉ NUMÉRIQUE
+// ═══════════════════════════════════════════
+function buildKeypad() {
+  document.getElementById('keypad').innerHTML = `
+    <div class="key" onclick="pressKey(7)">7</div>
+    <div class="key" onclick="pressKey(8)">8</div>
+    <div class="key" onclick="pressKey(9)">9</div>
+    <div class="key" onclick="pressKey(4)">4</div>
+    <div class="key" onclick="pressKey(5)">5</div>
+    <div class="key" onclick="pressKey(6)">6</div>
+    <div class="key" onclick="pressKey(1)">1</div>
+    <div class="key" onclick="pressKey(2)">2</div>
+    <div class="key" onclick="pressKey(3)">3</div>
+    <div class="key zero" onclick="pressKey(0)">0</div>
+    <div class="key del" onclick="pressKey('del')">&#x232B;</div>
+    <div class="key valider" onclick="valider()">OK</div>`;
+}
+
+function pressKey(k) {
+  if(locked || activeSlot===null) return;
+  const cur = answers[activeSlot];
+  if(k==='del') {
+    answers[activeSlot] = cur!==null && String(cur).length>1
+      ? parseInt(String(cur).slice(0,-1))
+      : null;
+  } else {
+    const str = cur!==null ? String(cur)+k : String(k);
+    answers[activeSlot] = parseInt(str);
+  }
+  renderQuestion();
+}
+
+function valider() {
+  if(locked) return;
+  const editables = currentQ.slots.map((s,i)=>s.ed?i:-1).filter(i=>i>=0);
+  const allFilled = editables.every(i=>answers[i]!==null);
+  if(!allFilled) { showFeedback('Remplis toutes les cases !','info'); return; }
+  checkQuestion();
+}
+
+// ═══════════════════════════════════════════
+//  CHECK
+// ═══════════════════════════════════════════
+function checkQuestion() {
+  stopChronoQuestion();
+  locked = true;
+  const editables = currentQ.slots.map((s,i)=>s.ed?i:-1).filter(i=>i>=0);
+  const correctAnswers = currentQ.answers;
+  let ok = true;
+  editables.forEach((slotIdx,ai) => {
+    if(Number(answers[slotIdx]) !== Number(correctAnswers[ai])) ok=false;
+  });
+
+  total++;
+  if(ok) {
+    score++;
+    showFeedback('Bravo !','ok');
+  } else {
+    const correctStr = correctAnswers.join(', ');
+    showFeedback('Pas tout a fait — reponse : '+correctStr,'ko');
+    errors.push({label:currentQ.label, correct:correctStr});
+  }
+  updateScore();
+  renderQuestion();
+  setTimeout(()=>{ qIndex++; loadQuestion(); }, 1200);
+}
+
+// ═══════════════════════════════════════════
+//  AIDE
+// ═══════════════════════════════════════════
+function showAide() {
+  if(!currentQ||!currentQ.aide) return;
+  const zone = document.getElementById('aide-zone');
+  const content = document.getElementById('aide-content');
+  zone.classList.add('show');
+
+  const aide = currentQ.aide;
+
+  if(currentQ.mode==='diz'||currentQ.mode==='cent') {
+    // Droite numerique
+    const from=aide.from, to=aide.to;
+    const W=340, pad=20;
+    const range=to-from;
+    const totalW=W-pad*2;
+    // Points a afficher
+    const pts=[from];
+    if(currentQ.mode==='diz'){
+      // Intermediaires par 1
+      for(let v=from+1;v<=to;v++) pts.push(v);
+    }else{
+      // Intermediaires par 10
+      for(let v=from+10;v<=to;v+=10) pts.push(v);
+    }
+    const svgPts = pts.map(p=>({v:p,x:pad+((p-from)/range)*totalW}));
+    const ticksHtml = svgPts.map(p=>`
+      <line x1="${p.x.toFixed(1)}" y1="24" x2="${p.x.toFixed(1)}" y2="36" stroke="#5D4037" stroke-width="1.5"/>
+      <text x="${p.x.toFixed(1)}" y="50" text-anchor="middle" font-size="10" font-family="Nunito,sans-serif" font-weight="700" fill="#5D4037">${p.v}</text>
+    `).join('');
+    // Arc de saut
+    const x1=svgPts[0].x, x2=svgPts[svgPts.length-1].x;
+    const mx=(x1+x2)/2, my=10;
+    content.innerHTML = `
+      <svg width="${W}" height="60" viewBox="0 0 ${W} 60" style="display:block;margin:0 auto">
+        <line x1="${pad}" y1="30" x2="${W-pad}" y2="30" stroke="#5D4037" stroke-width="2"/>
+        ${ticksHtml}
+        <path d="M${x1.toFixed(1)},28 Q${mx.toFixed(1)},${my} ${x2.toFixed(1)},28"
+          fill="none" stroke="#E8750A" stroke-width="2.5" stroke-dasharray="4,3"/>
+        <text x="${mx.toFixed(1)}" y="${my-2}" text-anchor="middle" font-size="11" font-family="Nunito,sans-serif" font-weight="800" fill="#E8750A">+${to-from}</text>
+      </svg>
+      <div style="font-size:12px;margin-top:6px">De <strong>${from}</strong> a <strong>${to}</strong> il manque <strong>${to-from}</strong></div>`;
+  }
+
+  if(currentQ.mode==='p9p11') {
+    const a=aide.val, adj=aide.adj, add9=aide.add9;
+    content.innerHTML = add9
+      ? `<div style="line-height:1.8">${a} + 9 = ${a} + <strong>10</strong> - <strong>1</strong> = ${a+10} - 1 = <strong>${a+9}</strong><br>
+         <span style="font-size:12px;color:#7A5C20">Ajouter 9 = ajouter 10 puis enlever 1</span></div>`
+      : `<div style="line-height:1.8">${a} + 11 = ${a} + <strong>10</strong> + <strong>1</strong> = ${a+10} + 1 = <strong>${a+11}</strong><br>
+         <span style="font-size:12px;color:#7A5C20">Ajouter 11 = ajouter 10 puis ajouter 1</span></div>`;
+  }
+}
+
+function hideAide() {
+  document.getElementById('aide-zone').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════
+//  CHRONOS
+// ═══════════════════════════════════════════
+function startChronoGlobal() {
+  stopChronoGlobal();
+  if(!chronoG){document.getElementById('chrono-global').classList.remove('show');return;}
+  timeLeftG=chronoG;
+  document.getElementById('chrono-global').classList.add('show');
+  updateCGBar();
+  timerG=setInterval(()=>{
+    timeLeftG--;
+    updateCGBar();
+    if(timeLeftG<=0){stopChronoGlobal();endSerie();}
+  },1000);
+}
+function stopChronoGlobal(){clearInterval(timerG);timerG=null;}
+function updateCGBar(){
+  const pct=Math.max(0,(timeLeftG/chronoG)*100);
+  const bar=document.getElementById('cg-bar');
+  bar.style.width=pct+'%';
+  bar.style.background=pct>50?'var(--chrono-ok)':pct>20?'var(--chrono-warn)':'var(--chrono-danger)';
+  document.getElementById('cg-val').textContent=timeLeftG+'s';
+}
+
+function startChronoQuestion() {
+  stopChronoQuestion();
+  if(!chronoQ){document.getElementById('chrono-question').classList.remove('show');return;}
+  timeLeftQ=chronoQ;
+  document.getElementById('chrono-question').classList.add('show');
+  updateCQBar();
+  timerQ=setInterval(()=>{
+    timeLeftQ--;
+    updateCQBar();
+    if(timeLeftQ<=0){
+      stopChronoQuestion();
+      // Temps ecoule : passe a la suivante
+      locked=true;
+      const ans=currentQ.answers.join(', ');
+      showFeedback('Temps ecoule ! Reponse : '+ans,'ko');
+      errors.push({label:currentQ.label,correct:ans});
+      total++;updateScore();
+      setTimeout(()=>{qIndex++;loadQuestion();},1200);
+    }
+  },1000);
+}
+function stopChronoQuestion(){clearInterval(timerQ);timerQ=null;}
+function updateCQBar(){
+  const pct=Math.max(0,(timeLeftQ/chronoQ)*100);
+  const bar=document.getElementById('cq-bar');
+  bar.style.width=pct+'%';
+  bar.style.background=pct>50?'var(--chrono-ok)':pct>20?'var(--chrono-warn)':'var(--chrono-danger)';
+  document.getElementById('cq-val').textContent=timeLeftQ+'s';
+}
+
+// ═══════════════════════════════════════════
+//  FIN DE SERIE
+// ═══════════════════════════════════════════
+function endSerie() {
+  stopChronoGlobal();stopChronoQuestion();
+  hideFeedback();hideAide();
+  document.getElementById('enonce').innerHTML='';
+  document.getElementById('q-counter').textContent='';
+  document.getElementById('chrono-question').classList.remove('show');
+
+  const pct=Math.round((score/total)*100)||0;
+  const emoji=pct===100?'🎉':pct>=80?'👍':pct>=50?'🙂':'💪';
+
+  let errHtml='';
+  if(errors.length===0){
+    errHtml='<div class="bilan-ok">Aucune erreur — parfait !</div>';
+  }else{
+    errHtml='<div class="bilan-errors">'+errors.map(e=>
+      `<div class="error-item">
+        <span class="error-q">${e.label.split('=')[0].trim()}</span>
+        <span class="error-arrow">→</span>
+        <span class="error-a">= ${e.correct}</span>
+      </div>`
+    ).join('')+'</div>';
+  }
+
+  document.getElementById('bilan').innerHTML=`
+    <div class="bilan-title">${emoji} Fin de serie</div>
+    <div class="bilan-score" style="color:${pct>=80?'var(--correct)':pct>=50?'var(--accent)':'var(--wrong)'}">${score} / ${total} (${pct}%)</div>
+    ${errHtml}`;
+  document.getElementById('bilan').classList.add('show');
+}
+
+function hideBilan(){document.getElementById('bilan').classList.remove('show');}
+
+// ═══════════════════════════════════════════
+//  FEEDBACK
+// ═══════════════════════════════════════════
+function showFeedback(m,t){const f=document.getElementById('feedback');f.textContent=m;f.className='feedback '+t;}
+function hideFeedback(){const f=document.getElementById('feedback');f.className='feedback';f.textContent='';}
+function updateScore(){document.getElementById('score-lbl').textContent=score+' / '+total;}
+
+// ═══════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════
+buildConfig();
+buildKeypad();
+// Afficher une question d'exemple
+generateSerie();
+currentQ=questions[0];
+answers=currentQ.slots.map(s=>s.ed?null:s.val);
+renderQuestion();
+document.getElementById('q-counter').textContent='Appuie sur "Nouvelle serie" pour commencer';
+</script>
+</body>
+</html>

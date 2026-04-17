@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perimetre — Les Cascades</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#EDE7F6;--bg2:#D1C4E9;--panel-bg:#F3E5F5;--accent:#6A1B9A;--accent-d:#4A148C;--accent-l:#E1BEE7;--text:#1A0E00;--text-light:#7A5C20;--border:#CE93D8;--border-d:#9C27B0;--correct:#1B5E20;--correct-l:#C8E6C9;--wrong:#B71C1C;--wrong-l:#FFCDD2;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+  .topbar{background:var(--accent);padding:.9rem 1.4rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;border-bottom:4px solid var(--accent-d);}
+  .game-title{font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;color:#fff;}
+  .game-sub{font-size:12px;color:var(--accent-l);font-weight:600;margin-top:2px;}
+  .score-pill{font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;background:#fff;border:2px solid var(--accent-d);border-radius:20px;padding:5px 18px;color:var(--accent);}
+  .config-panel{background:var(--panel-bg);border-bottom:3px solid var(--border-d);padding:.8rem 1.4rem;display:flex;flex-wrap:wrap;gap:1.2rem;align-items:flex-start;}
+  .config-block{display:flex;flex-direction:column;gap:6px;}
+  .config-label{font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--text-light);}
+  .check-row{display:flex;flex-wrap:wrap;gap:5px;}
+  .cbox{display:flex;align-items:center;gap:4px;background:#fff;border:2px solid var(--border-d);border-radius:8px;padding:4px 9px;cursor:pointer;transition:all .15s;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:var(--text);user-select:none;}
+  .cbox:hover{border-color:var(--accent);}
+  .cbox.checked{background:var(--accent);border-color:var(--accent-d);color:#fff;}
+  .main{flex:1;padding:1.2rem 1.4rem;display:flex;flex-direction:column;gap:1rem;align-items:center;}
+  .feedback{display:none;padding:10px 18px;border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;text-align:center;border:2px solid transparent;width:100%;max-width:600px;}
+  .feedback.ok{background:var(--correct-l);color:var(--correct);border-color:var(--correct);display:block;}
+  .feedback.ko{background:var(--wrong-l);color:var(--wrong);border-color:var(--wrong);display:block;}
+  .feedback.info{background:var(--accent-l);color:var(--accent);border-color:var(--accent);display:block;}
+  .game-and-keypad{display:flex;gap:2rem;align-items:center;justify-content:center;flex-wrap:wrap;}
+  .question-box{background:#fff;border:3px solid var(--border-d);border-radius:16px;padding:1.4rem 1.6rem;display:flex;flex-direction:column;align-items:center;gap:14px;box-shadow:0 4px 16px rgba(106,27,154,.12);}
+  .fig-svg{background:var(--panel-bg);border:2px solid var(--border);border-radius:12px;padding:8px;}
+  .question-text{font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;color:var(--text);text-align:center;}
+  .answer-row{display:flex;align-items:center;gap:8px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:700;}
+  .answer-cell{min-width:90px;height:60px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;font-size:32px;font-weight:900;color:var(--text);border:2px dashed var(--border-d);cursor:pointer;transition:all .18s;background:var(--panel-bg);padding:0 8px;}
+  .answer-cell:hover{border-color:var(--accent);background:var(--accent-l);}
+  .answer-cell.active{border:3px solid var(--accent);background:var(--accent-l);box-shadow:0 0 0 3px rgba(106,27,154,.2);}
+  .answer-cell.filled{border-style:solid;border-color:var(--border-d);background:var(--bg2);}
+  .answer-cell.correct{border-color:var(--correct)!important;background:var(--correct-l)!important;color:var(--correct);border-style:solid!important;}
+  .answer-cell.wrong{border-color:var(--wrong)!important;background:var(--wrong-l)!important;color:var(--wrong);border-style:solid!important;}
+  .aide-zone{display:none;background:#FFF8E1;border:2px solid #F9A825;border-radius:12px;padding:12px 16px;text-align:center;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#5D4037;max-width:460px;width:100%;}
+  .aide-zone.show{display:block;}
+  .keypad-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;}
+  .keypad-hint{font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:var(--text-light);text-align:center;}
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:#fff;border:3px solid var(--border-d);border-radius:14px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+  .key{font-family:'Nunito',sans-serif;font-size:22px;font-weight:900;width:58px;height:58px;border-radius:10px;border:2px solid var(--border-d);background:var(--panel-bg);color:var(--text);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;}
+  .key:hover{background:var(--accent-l);border-color:var(--accent);transform:scale(1.06);}
+  .key.del{background:var(--wrong-l);border-color:var(--wrong);color:var(--wrong);font-size:18px;}
+  .key.del:hover{background:var(--wrong);color:#fff;}
+  .key.zero{grid-column:span 2;}
+  .key.ok{background:var(--correct-l);border-color:var(--correct);color:var(--correct);font-size:16px;font-weight:800;}
+  .key.ok:hover{background:var(--correct);color:#fff;}
+  .controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
+  .btn{font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:10px 22px;border-radius:10px;border:2px solid var(--border-d);background:#fff;color:var(--text);cursor:pointer;transition:all .15s;}
+  .btn:hover{background:var(--bg2);border-color:var(--accent);}
+  .btn.primary{background:var(--accent);border-color:var(--accent-d);color:#fff;}
+  .btn.primary:hover{background:var(--accent-d);}
+  .btn.aide-btn{background:#FFF8E1;border-color:#F9A825;color:#5D4037;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div><div class="game-title">Perimètre</div><div class="game-sub">Calculer le périmètre de figures</div></div>
+  <span class="score-pill" id="score-lbl">Score : 0 / 0</span>
+</div>
+<div class="config-panel">
+  <div class="config-block">
+    <div class="config-label">Figures</div>
+    <div class="check-row" id="fig-row"></div>
+  </div>
+  <div class="config-block">
+    <div class="config-label">Mode</div>
+    <div class="check-row" id="mode-row"></div>
+  </div>
+  <div class="config-block">
+    <div class="config-label">Unite</div>
+    <div class="check-row" id="unit-row"></div>
+  </div>
+  <div class="config-block">
+    <div class="config-label">Nombres</div>
+    <div class="check-row" id="nb-row"></div>
+  </div>
+</div>
+<div class="main">
+  <div class="feedback" id="feedback"></div>
+  <div class="game-and-keypad">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div id="game-zone"></div>
+      <div class="aide-zone" id="aide-zone">
+        <div style="font-weight:800;color:#F9A825;font-size:11px;text-transform:uppercase;margin-bottom:6px">💡 Aide — Formule</div>
+        <div id="aide-content"></div>
+      </div>
+    </div>
+    <div class="keypad-wrap">
+      <div class="keypad-hint">Clique la case puis un chiffre</div>
+      <div class="keypad" id="keypad"></div>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="btn aide-btn" onclick="showAide()">💡 Formule</button>
+    <button class="btn" onclick="newGame()">↺ Réessayer</button>
+    <button class="btn primary" onclick="newGame()">→ Nouvel exercice</button>
+  </div>
+</div>
+<script>
+const FIGS=[{id:'carre',label:'Carre'},{id:'rect',label:'Rectangle'},{id:'tri',label:'Triangle'},{id:'poly',label:'Polygone'}];
+const MODES=[{id:'perim',label:'Calculer le périmètre'},{id:'cote',label:'Trouver un cote'}];
+const UNITS=[{id:'cm',label:'cm'},{id:'m',label:'m'},{id:'mm',label:'mm'}];
+const NBS=[{id:'int',label:'Entiers'},{id:'dec',label:'Décimaux'}];
+
+let activeFigs=['carre','rect'],activeModes=['perim'],activeUnits=['cm'],activeNbs=['int'];
+let score=0,total=0,currentQ=null,locked=false,activeSlot=null,answer=null;
+
+function buildConfig(){
+  document.getElementById('fig-row').innerHTML=FIGS.map(f=>`<div class="cbox${activeFigs.includes(f.id)?' checked':''}" onclick="toggleArr('figs','${f.id}',this)">${f.label}</div>`).join('');
+  document.getElementById('mode-row').innerHTML=MODES.map(m=>`<div class="cbox${activeModes.includes(m.id)?' checked':''}" onclick="setOne('modes','${m.id}',this)">${m.label}</div>`).join('');
+  document.getElementById('unit-row').innerHTML=UNITS.map(u=>`<div class="cbox${activeUnits.includes(u.id)?' checked':''}" onclick="setOne('units','${u.id}',this)">${u.label}</div>`).join('');
+  document.getElementById('nb-row').innerHTML=NBS.map(n=>`<div class="cbox${activeNbs.includes(n.id)?' checked':''}" onclick="setOne('nbs','${n.id}',this)">${n.label}</div>`).join('');
+}
+function toggleArr(type,id,el){
+  const map={figs:activeFigs};const arr=map[type];
+  if(arr.includes(id)&&arr.length===1)return;
+  const idx=arr.indexOf(id);if(idx>=0)arr.splice(idx,1);else arr.push(id);
+  el.classList.toggle('checked',arr.includes(id));
+}
+function setOne(type,id,el){
+  const map={modes:activeModes,units:activeUnits,nbs:activeNbs};
+  map[type].length=0;map[type].push(id);
+  document.querySelectorAll(`#${type}-row .cbox`).forEach(b=>b.classList.remove('checked'));
+  el.classList.add('checked');
+}
+
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
+function rndf(a,b){return Math.round((Math.random()*(b-a)+a)*10)/10;}
+
+function newGame(){
+  hideFeedback();document.getElementById('aide-zone').classList.remove('show');
+  locked=false;activeSlot=null;answer=null;
+  const fig=shuffle(activeFigs)[0];
+  const mode=activeModes[0];
+  const unit=activeUnits[0];
+  const isInt=activeNbs[0]==='int';
+  const v=isInt?()=>rnd(2,20):()=>rndf(1,15);
+
+  let sides=[],perim=0,label='',formula='',hiddenIdx=-1;
+
+  if(fig==='carre'){
+    const a=v();
+    sides=[a,a,a,a];perim=4*a;
+    formula=`Perimetre = 4 × cote = 4 × ${a} = ${perim} ${unit}`;
+    label=`Carre de cote ${a} ${unit}`;
+  }else if(fig==='rect'){
+    const L=v(),l=v();
+    sides=[L,l,L,l];perim=2*(L+l);
+    formula=`Perimetre = 2 × (longueur + largeur) = 2 × (${L} + ${l}) = ${perim} ${unit}`;
+    label=`Rectangle ${L} × ${l} ${unit}`;
+  }else if(fig==='tri'){
+    const a=v(),b=v(),c=v();
+    sides=[a,b,c];perim=Math.round((a+b+c)*10)/10;
+    formula=`Perimetre = somme des cotes = ${a} + ${b} + ${c} = ${perim} ${unit}`;
+    label=`Triangle`;
+  }else{
+    const n=rnd(4,6);
+    sides=Array.from({length:n},v);
+    perim=Math.round(sides.reduce((s,x)=>s+x,0)*10)/10;
+    formula=`Perimetre = somme des ${n} cotes = ${sides.join(' + ')} = ${perim} ${unit}`;
+    label=`Polygone a ${n} cotes`;
+  }
+
+  let question='',correct=0;
+  if(mode==='perim'){
+    question=`Calcule le perimetre de cette figure (en ${unit})`;
+    correct=perim;
+  }else{
+    // Cacher un cote
+    hiddenIdx=rnd(0,sides.length-1);
+    const known=sides.reduce((s,x,i)=>i===hiddenIdx?s:s+x,0);
+    correct=Math.round((perim-known)*10)/10;
+    question=`Le perimetre est ${perim} ${unit}. Trouve le cote manquant (en ${unit})`;
+  }
+
+  currentQ={fig,mode,unit,sides,perim,label,formula,hiddenIdx,question,correct};
+  renderGame();
+}
+
+function renderGame(){
+  const q=currentQ;if(!q)return;
+  let cls='answer-cell';
+  if(locked)cls+=Number(answer)===q.correct?' correct':' wrong';
+  else if(activeSlot)cls+=' active';
+  else if(answer!==null)cls+=' filled';
+
+  document.getElementById('game-zone').innerHTML=`
+    <div class="question-box">
+      <div class="fig-svg">${drawFig(q)}</div>
+      <div class="question-text">${q.question}</div>
+      <div class="answer-row">
+        P =
+        <div class="${cls}" onclick="activateSlot('ans')">${answer!==null?answer:''}</div>
+        <span>${q.unit}</span>
+      </div>
+    </div>`;
+}
+
+function drawFig(q){
+  const {fig,sides,unit,hiddenIdx}=q;
+  const S=200;
+  const lbl=(v,i)=>`<text text-anchor="middle" dominant-baseline="middle" font-family="Nunito,sans-serif" font-size="13" font-weight="800" fill="${hiddenIdx===i?'#E53935':'#4A148C'}">${hiddenIdx===i?'?':v} ${unit}</text>`;
+
+  if(fig==='carre'){
+    const m=30,s=S-2*m;
+    return `<svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">
+      <rect x="${m}" y="${m}" width="${s}" height="${s}" fill="#E1BEE7" stroke="#6A1B9A" stroke-width="2.5"/>
+      <text x="${S/2}" y="${m-8}" text-anchor="middle" font-family="Nunito,sans-serif" font-size="13" font-weight="800" fill="${hiddenIdx===0?'#E53935':'#4A148C'}">${hiddenIdx===0?'?':sides[0]} ${unit}</text>
+      <text x="${m-8}" y="${S/2}" text-anchor="middle" dominant-baseline="middle" font-family="Nunito,sans-serif" font-size="13" font-weight="800" fill="${hiddenIdx===1?'#E53935':'#4A148C'}" transform="rotate(-90,${m-8},${S/2})">${hiddenIdx===1?'?':sides[1]} ${unit}</text>
+    </svg>`;
+  }
+  if(fig==='rect'){
+    const mx=24,my=40,w=S-2*mx,h=S-2*my-20;
+    return `<svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">
+      <rect x="${mx}" y="${my}" width="${w}" height="${h}" fill="#E1BEE7" stroke="#6A1B9A" stroke-width="2.5"/>
+      <text x="${S/2}" y="${my-8}" text-anchor="middle" font-family="Nunito,sans-serif" font-size="13" font-weight="800" fill="${hiddenIdx===0?'#E53935':'#4A148C'}">${hiddenIdx===0?'?':sides[0]} ${unit}</text>
+      <text x="${mx+w+10}" y="${my+h/2}" text-anchor="middle" dominant-baseline="middle" font-family="Nunito,sans-serif" font-size="13" font-weight="800" fill="${hiddenIdx===1?'#E53935':'#4A148C'}" transform="rotate(90,${mx+w+10},${my+h/2})">${hiddenIdx===1?'?':sides[1]} ${unit}</text>
+    </svg>`;
+  }
+  if(fig==='tri'){
+    const pts=[[S/2,20],[S-30,S-30],[30,S-30]];
+    const mids=[[((pts[0][0]+pts[1][0])/2)+14,((pts[0][1]+pts[1][1])/2)],[S/2,S-14],[((pts[2][0]+pts[0][0])/2)-14,((pts[2][1]+pts[0][1])/2)]];
+    const pStr=pts.map(p=>p.join(',')).join(' ');
+    return `<svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">
+      <polygon points="${pStr}" fill="#E1BEE7" stroke="#6A1B9A" stroke-width="2.5"/>
+      ${sides.map((v,i)=>`<text x="${mids[i][0]}" y="${mids[i][1]}" text-anchor="middle" dominant-baseline="middle" font-family="Nunito,sans-serif" font-size="12" font-weight="800" fill="${hiddenIdx===i?'#E53935':'#4A148C'}">${hiddenIdx===i?'?':v} ${unit}</text>`).join('')}
+    </svg>`;
+  }
+  // Polygone regulier approximatif
+  const n=sides.length;
+  const cx=S/2,cy=S/2,r=S/2-30;
+  const pts2=Array.from({length:n},(_,i)=>{
+    const a=(i/n)*2*Math.PI-Math.PI/2;
+    return [cx+r*Math.cos(a),cy+r*Math.sin(a)];
+  });
+  const pStr2=pts2.map(p=>p.map(x=>x.toFixed(1)).join(',')).join(' ');
+  const lbls=sides.map((v,i)=>{
+    const mx=((pts2[i][0]+pts2[(i+1)%n][0])/2);
+    const my=((pts2[i][1]+pts2[(i+1)%n][1])/2);
+    const dx=mx-cx,dy=my-cy;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    const nx=mx+(dx/dist)*16,ny=my+(dy/dist)*16;
+    return `<text x="${nx.toFixed(1)}" y="${ny.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-family="Nunito,sans-serif" font-size="11" font-weight="800" fill="${hiddenIdx===i?'#E53935':'#4A148C'}">${hiddenIdx===i?'?':v} ${unit}</text>`;
+  }).join('');
+  return `<svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">
+    <polygon points="${pStr2}" fill="#E1BEE7" stroke="#6A1B9A" stroke-width="2.5"/>
+    ${lbls}
+  </svg>`;
+}
+
+function activateSlot(k){if(locked)return;activeSlot=k;renderGame();}
+
+function pressKey(k){
+  if(locked||!activeSlot)return;
+  const cur=answer;
+  if(k==='del')answer=cur!==null&&String(cur).length>1?parseFloat(String(cur).slice(0,-1)):null;
+  else answer=cur!==null?parseFloat(String(cur)+k):parseFloat(String(k));
+  renderGame();
+}
+
+function valider(){
+  if(locked)return;
+  if(answer===null){showFeedback('Entre une valeur !','info');return;}
+  locked=true;total++;
+  const ok=Math.abs(Number(answer)-currentQ.correct)<0.05;
+  if(ok){score++;showFeedback('Bravo ! Périmètre correct !','ok');}
+  else showFeedback('Pas tout à fait — réponse : '+currentQ.correct+' '+currentQ.unit,'ko');
+  updateScore();renderGame();
+}
+
+function showAide(){
+  document.getElementById('aide-zone').classList.add('show');
+  document.getElementById('aide-content').innerHTML=`<div style="line-height:1.9">${currentQ?.formula||''}</div>`;
+}
+function buildKeypad(){
+  document.getElementById('keypad').innerHTML=`
+    <div class="key" onclick="pressKey(7)">7</div><div class="key" onclick="pressKey(8)">8</div><div class="key" onclick="pressKey(9)">9</div>
+    <div class="key" onclick="pressKey(4)">4</div><div class="key" onclick="pressKey(5)">5</div><div class="key" onclick="pressKey(6)">6</div>
+    <div class="key" onclick="pressKey(1)">1</div><div class="key" onclick="pressKey(2)">2</div><div class="key" onclick="pressKey(3)">3</div>
+    <div class="key zero" onclick="pressKey(0)">0</div><div class="key del" onclick="pressKey('del')">&#x232B;</div>
+    <div class="key ok" onclick="valider()">OK</div>`;
+}
+function showFeedback(m,t){const f=document.getElementById('feedback');f.textContent=m;f.className='feedback '+t;}
+function hideFeedback(){const f=document.getElementById('feedback');f.className='feedback';f.textContent='';}
+function updateScore(){document.getElementById('score-lbl').textContent='Score : '+score+' / '+total;}
+buildConfig();buildKeypad();newGame();
+</script>
+</body>
+</html>

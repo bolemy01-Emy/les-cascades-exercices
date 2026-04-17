@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grammaire - Les Cascades</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#EDE7F6;--bg2:#D1C4E9;--panel-bg:#F3E5F5;--accent:#6A1B9A;--accent-d:#4A148C;--accent-l:#E1BEE7;--text:#1A0E00;--text-light:#7A5C20;--border:#CE93D8;--border-d:#9C27B0;--correct:#1B5E20;--correct-l:#C8E6C9;--wrong:#B71C1C;--wrong-l:#FFCDD2;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+  .topbar{background:var(--accent);padding:.9rem 1.4rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;border-bottom:4px solid var(--accent-d);}
+  .game-title{font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;color:#fff;}
+  .game-sub{font-size:12px;color:var(--accent-l);font-weight:600;margin-top:2px;}
+  .score-pill{font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;background:#fff;border:2px solid var(--accent-d);border-radius:20px;padding:5px 18px;color:var(--accent);}
+  .config-panel{background:var(--panel-bg);border-bottom:3px solid var(--border-d);padding:.8rem 1.4rem;display:flex;flex-wrap:wrap;gap:1.2rem;align-items:flex-start;}
+  .config-block{display:flex;flex-direction:column;gap:6px;}
+  .config-label{font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--text-light);}
+  .check-row{display:flex;flex-wrap:wrap;gap:5px;}
+  .cbox{display:flex;align-items:center;gap:4px;background:#fff;border:2px solid var(--border-d);border-radius:8px;padding:4px 9px;cursor:pointer;transition:all .15s;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:var(--text);user-select:none;}
+  .cbox:hover{border-color:var(--accent);}
+  .cbox.checked{background:var(--accent);border-color:var(--accent-d);color:#fff;}
+  .main{flex:1;padding:1.2rem 1.4rem;display:flex;flex-direction:column;gap:1rem;align-items:center;}
+  .feedback{display:none;padding:10px 18px;border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;text-align:center;border:2px solid transparent;width:100%;max-width:680px;}
+  .feedback.ok{background:var(--correct-l);color:var(--correct);border-color:var(--correct);display:block;}
+  .feedback.ko{background:var(--wrong-l);color:var(--wrong);border-color:var(--wrong);display:block;}
+  .question-box{background:#fff;border:3px solid var(--border-d);border-radius:16px;padding:1.4rem 1.8rem;display:flex;flex-direction:column;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(106,27,154,.12);max-width:680px;width:100%;}
+  .badge-notion{font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;color:var(--accent);background:var(--accent-l);border:1px solid var(--border);border-radius:6px;padding:3px 12px;}
+  .consigne{font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;color:var(--text);text-align:center;line-height:1.5;}
+  .phrase-click{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px;}
+  .mot{font-family:'Nunito',sans-serif;font-size:22px;font-weight:800;padding:6px 12px;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:all .15s;color:var(--text);}
+  .mot:hover{background:var(--accent-l);border-color:var(--accent);}
+  .mot.selected{background:var(--accent);color:#fff;border-color:var(--accent-d);}
+  .mot.correct{background:var(--correct-l);color:var(--correct);border-color:var(--correct);pointer-events:none;}
+  .mot.wrong{background:var(--wrong-l);color:var(--wrong);border-color:var(--wrong);pointer-events:none;}
+  .mot.neutral{opacity:.5;pointer-events:none;}
+  .classement{display:flex;flex-direction:column;gap:12px;width:100%;}
+  .etiquettes-pool{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px;background:var(--panel-bg);border:2px solid var(--border);border-radius:10px;min-height:50px;}
+  .etiquette{font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;padding:6px 14px;border-radius:8px;cursor:pointer;border:2px solid var(--border-d);background:var(--bg2);color:var(--text);transition:all .15s;user-select:none;}
+  .etiquette:hover{border-color:var(--accent);background:var(--accent-l);}
+  .etiquette.selected{border-color:var(--accent);background:var(--accent);color:#fff;transform:scale(1.05);}
+  .etiquette.placed{opacity:.2;pointer-events:none;}
+  .colonnes{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+  .colonne{display:flex;flex-direction:column;gap:6px;min-width:130px;flex:1;}
+  .col-header{font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);text-align:center;padding:6px;background:var(--accent-l);border-radius:6px;}
+  .col-drop{min-height:60px;border:2px dashed var(--border-d);border-radius:8px;padding:6px;display:flex;flex-wrap:wrap;gap:4px;cursor:pointer;transition:all .15s;background:var(--panel-bg);}
+  .col-drop:hover{border-color:var(--accent);background:var(--accent-l);}
+  .col-drop.has-item{border-style:solid;background:var(--bg2);}
+  .col-item{font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;padding:4px 10px;border-radius:6px;background:#fff;border:1.5px solid var(--border-d);cursor:pointer;color:var(--text);}
+  .col-item:hover{background:var(--wrong-l);border-color:var(--wrong);}
+  .col-item.correct-item{background:var(--correct-l);border-color:var(--correct);color:var(--correct);pointer-events:none;}
+  .col-item.wrong-item{background:var(--wrong-l);border-color:var(--wrong);color:var(--wrong);pointer-events:none;}
+  .choices{display:flex;flex-direction:column;gap:9px;width:100%;}
+  .choice-btn{font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;padding:11px 16px;border-radius:12px;border:2px solid var(--border-d);background:var(--panel-bg);color:var(--text);cursor:pointer;transition:all .15s;text-align:center;}
+  .choice-btn:hover{border-color:var(--accent);background:var(--accent-l);}
+  .choice-btn.correct{border-color:var(--correct);background:var(--correct-l);color:var(--correct);pointer-events:none;}
+  .choice-btn.wrong{border-color:var(--wrong);background:var(--wrong-l);color:var(--wrong);pointer-events:none;}
+  .choice-btn.neutral{pointer-events:none;opacity:.5;}
+  .ordre-zone{display:flex;flex-direction:column;gap:12px;width:100%;}
+  .mots-pool{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px;background:var(--panel-bg);border:2px solid var(--border);border-radius:10px;min-height:50px;}
+  .slot-phrase{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px;background:var(--bg2);border:2px dashed var(--border-d);border-radius:10px;min-height:54px;cursor:pointer;transition:all .15s;}
+  .slot-phrase:hover{border-color:var(--accent);}
+  .mot-ordre{font-family:'Nunito',sans-serif;font-size:20px;font-weight:800;padding:6px 12px;border-radius:8px;cursor:pointer;border:2px solid var(--border-d);background:#fff;color:var(--text);transition:all .15s;}
+  .mot-ordre:hover{border-color:var(--accent);background:var(--accent-l);}
+  .mot-ordre.selected{background:var(--accent);color:#fff;border-color:var(--accent-d);}
+  .mot-ordre.placed{opacity:.2;pointer-events:none;}
+  .mot-place{font-family:'Nunito',sans-serif;font-size:20px;font-weight:800;padding:6px 12px;border-radius:8px;border:2px solid var(--border-d);background:#fff;color:var(--text);cursor:pointer;}
+  .mot-place:hover{background:var(--wrong-l);border-color:var(--wrong);}
+  .phrase-result{font-family:'Nunito',sans-serif;font-size:18px;font-weight:700;text-align:center;padding:8px;border-radius:8px;}
+  .phrase-result.correct{background:var(--correct-l);color:var(--correct);}
+  .phrase-result.wrong{background:var(--wrong-l);color:var(--wrong);}
+  .controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
+  .btn{font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:10px 22px;border-radius:10px;border:2px solid var(--border-d);background:#fff;color:var(--text);cursor:pointer;transition:all .15s;}
+  .btn:hover{background:var(--bg2);border-color:var(--accent);}
+  .btn.primary{background:var(--accent);border-color:var(--accent-d);color:#fff;}
+  .btn.primary:hover{background:var(--accent-d);}
+  .btn.check{background:#1565C0;border-color:#0D47A1;color:#fff;}
+  .btn.check:hover{background:#0D47A1;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div><div class="game-title">Grammaire</div><div class="game-sub">Du CP au CM2</div></div>
+  <span class="score-pill" id="score-lbl">Score : 0 / 0</span>
+</div>
+<div class="config-panel">
+  <div class="config-block"><div class="config-label">Niveau</div><div class="check-row" id="niveau-row"></div></div>
+  <div class="config-block"><div class="config-label">Notions</div><div class="check-row" id="notion-row"></div></div>
+  <div class="config-block"><div class="config-label">Exercice</div><div class="check-row" id="mode-row"></div></div>
+</div>
+<div class="main">
+  <div class="feedback" id="feedback"></div>
+  <div id="game-zone"></div>
+  <div class="controls">
+    <button class="btn check" id="btn-verif" onclick="verifier()" style="display:none">Vérifier</button>
+    <button class="btn" onclick="newGame()">Autre</button>
+    <button class="btn primary" onclick="newGame()">Suivant</button>
+  </div>
+</div>
+<script>
+const NIVEAUX=[{id:'cp',label:'CP'},{id:'ce1',label:'CE1'},{id:'ce2',label:'CE2'},{id:'cm1',label:'CM1'},{id:'cm2',label:'CM2'}];
+
+const NOTIONS=[
+  {id:'phrase',    label:'Phrase',           niv:['cp','ce1','ce2','cm1','cm2']},
+  {id:'nature',    label:'Nature des mots',  niv:['ce1','ce2','cm1','cm2']},
+  {id:'sujet',     label:'Sujet / Verbe',    niv:['ce1','ce2','cm1','cm2']},
+  {id:'gn',        label:'Groupe nominal',   niv:['ce2','cm1','cm2']},
+  {id:'type',      label:'Type de phrase',   niv:['ce2','cm1','cm2']},
+  {id:'compl',     label:'Compléments',      niv:['cm1','cm2']},
+  {id:'subord',    label:'Propositions',     niv:['cm2']},
+];
+
+const MODES=[
+  {id:'cliquer',   label:'Cliquer sur le mot'},
+  {id:'classer',   label:'Classer des mots'},
+  {id:'choix',     label:'Choix multiple'},
+  {id:'ordonner',  label:'Remettre en ordre'},
+];
+
+const EXERCICES = {
+  phrase: [
+    {mode:'choix', consigne:'Laquelle de ces propositions est une phrase correcte ?',
+     choices:['Le chat mange.','mange le chat.','le chat mange','Chat le mange.'],
+     correct:'Le chat mange.',
+     explication:'Une phrase commence par une majuscule et se termine par un point.'},
+    {mode:'choix', consigne:'Laquelle de ces propositions est une phrase correcte ?',
+     choices:['Les enfants jouent dans la cour.','les enfants jouent dans la cour','jouent enfants les','Jouent les enfants.'],
+     correct:'Les enfants jouent dans la cour.',
+     explication:'Une phrase commence par une majuscule et se termine par un point.'},
+    {mode:'choix', consigne:'Quelle ponctuation convient à la fin de cette phrase : "Quel beau soleil" ?',
+     choices:['!','.',',','?'],
+     correct:'!',
+     explication:"C'est une phrase exclamative — elle exprime une émotion forte."},
+    {mode:'choix', consigne:'Cette suite de mots est-elle une phrase ? "Le petit chien court vite."',
+     choices:["Oui, c\'est une phrase",'Non, il manque le verbe','Non, il manque la majuscule','Non, il manque le point'],
+     correct:"Oui, c\'est une phrase",
+     explication:'Elle a une majuscule, un sujet, un verbe et un point.'},
+  ],
+
+  nature: [
+    {mode:'cliquer', consigne:'Clique sur le NOM dans cette phrase.',
+     phrase:['Le','petit','chat','dort','tranquillement','.'],
+     nature:['det','adj','nom','verbe','adv','ponct'],
+     cible:'nom', motsCibles:[2],
+     explication:'Un nom désigne un être, un animal ou une chose.'},
+    {mode:'cliquer', consigne:'Clique sur le VERBE dans cette phrase.',
+     phrase:['Les','enfants','jouent','dans','le','jardin','.'],
+     nature:['det','nom','verbe','prep','det','nom','ponct'],
+     cible:'verbe', motsCibles:[2],
+     explication:'Le verbe exprime une action ou un état. On peut le conjuguer.'},
+    {mode:'cliquer', consigne:"Clique sur l'ADJECTIF dans cette phrase.",
+     phrase:['Une','grande','maison','se','dresse','là','.'],
+     nature:['det','adj','nom','pronom','verbe','adv','ponct'],
+     cible:'adjectif', motsCibles:[1],
+     explication:"L'adjectif qualifie le nom. Il s'accorde avec lui."},
+    {mode:'cliquer', consigne:'Clique sur le DÉTERMINANT dans cette phrase.',
+     phrase:['Mon','ami','mange','une','pomme','rouge','.'],
+     nature:['det','nom','verbe','det','nom','adj','ponct'],
+     cible:'déterminant', motsCibles:[0,3],
+     explication:'Le déterminant accompagne le nom et indique son genre et son nombre.'},
+    {mode:'cliquer', consigne:'Clique sur le PRONOM PERSONNEL SUJET dans cette phrase.',
+     phrase:['Elle','chante','une','belle','chanson','.'],
+     nature:['pronom','verbe','det','adj','nom','ponct'],
+     cible:'pronom', motsCibles:[0],
+     explication:'Le pronom personnel sujet remplace un nom. Ici, il remplace une personne.'},
+    {mode:'classer', consigne:'Classe chaque mot dans la bonne colonne.',
+     mots:['maison','courir','belle','le','rapidement','tu'],
+     classes:{'Nom':['maison'],'Verbe':['courir'],'Adjectif':['belle'],'Déterminant':['le'],'Adverbe':['rapidement'],'Pronom':['tu']},
+     explication:''},
+    {mode:'classer', consigne:'Classe chaque mot dans la bonne colonne.',
+     mots:['chien','sauter','petit','une','vite','elle'],
+     classes:{'Nom':['chien'],'Verbe':['sauter'],'Adjectif':['petit'],'Déterminant':['une'],'Adverbe':['vite'],'Pronom':['elle']},
+     explication:''},
+    {mode:'choix', consigne:'Quelle est la nature du mot "rapidement" dans "Il court rapidement." ?',
+     choices:['Un nom','Un adjectif','Un adverbe','Un verbe'],
+     correct:'Un adverbe',
+     explication:'Les adverbes modifient un verbe, un adjectif ou un autre adverbe. Ils sont invariables.'},
+    {mode:'choix', consigne:'Quelle est la nature du mot "les" dans "Les oiseaux chantent." ?',
+     choices:['Un pronom','Un déterminant','Un adjectif','Un nom'],
+     correct:'Un déterminant',
+     explication:'"Les" est un article défini pluriel. Il accompagne le nom "oiseaux".'},
+  ],
+
+  sujet: [
+    {mode:'cliquer', consigne:'Clique sur le SUJET de cette phrase.',
+     phrase:['Le','chien','court','dans','le','parc','.'],
+     nature:['det','nom','verbe','prep','det','nom','ponct'],
+     cible:'sujet', motsCibles:[0,1],
+     explication:'Le sujet indique qui fait l\'action. On trouve le sujet en posant la question "Qui est-ce qui ?" avant le verbe.'},
+    {mode:'cliquer', consigne:'Clique sur le VERBE CONJUGUÉ de cette phrase.',
+     phrase:['Les','oiseaux','chantent','dans','les','arbres','.'],
+     nature:['det','nom','verbe','prep','det','nom','ponct'],
+     cible:'verbe', motsCibles:[2],
+     explication:'On trouve le verbe en cherchant le mot qui change quand on change le temps.'},
+    {mode:'cliquer', consigne:'Clique sur le SUJET de cette phrase.',
+     phrase:['Ma','soeur','et','moi','jouons','au','foot','.'],
+     nature:['det','nom','conj','pronom','verbe','prep','nom','ponct'],
+     cible:'sujet', motsCibles:[0,1,2,3],
+     explication:'Ma soeur et moi est le sujet — il peut etre un groupe de mots.'},
+    {mode:'choix', consigne:'Quel est le sujet dans "Chaque matin, les élèves arrivent à l école." ?',
+     choices:['Chaque matin','les élèves','arrivent','à l école'],
+     correct:'les élèves',
+     explication:'On pose la question "Qui est-ce qui arrive ?" — ce sont les élèves.'},
+    {mode:'choix', consigne:'Quel est le verbe conjugué dans "Les enfants de la classe travaillent dur." ?',
+     choices:['enfants','classe','travaillent','dur'],
+     correct:'travaillent',
+     explication:'Le verbe exprime l action. Ici, les enfants "travaillent".'},
+  ],
+
+  gn: [
+    {mode:'cliquer', consigne:'Clique sur tous les mots du GROUPE NOMINAL sujet.',
+     phrase:['Le','grand','chien','noir','aboie','fort','.'],
+     nature:['det','adj','nom','adj','verbe','adv','ponct'],
+     cible:'GN', motsCibles:[0,1,2,3],
+     explication:'Le groupe nominal est formé d\'un déterminant + nom + éventuellement des adjectifs.'},
+    {mode:'choix', consigne:'Quel est le groupe nominal dans "Une jolie fleur pousse dans le jardin." ?',
+     choices:['Une jolie fleur','pousse dans','le jardin','dans le jardin'],
+     correct:'Une jolie fleur',
+     explication:'Le groupe nominal sujet est "Une jolie fleur" : déterminant + adjectif + nom.'},
+    {mode:'choix', consigne:'Que contient toujours un groupe nominal ?',
+     choices:['Un nom et un adjectif','Un nom et un déterminant','Un verbe et un nom','Un adjectif et un déterminant'],
+     correct:'Un nom et un déterminant',
+     explication:'Le groupe nominal contient obligatoirement un nom (noyau) et son déterminant.'},
+    {mode:'classer', consigne:'Classe ces groupes : lesquels sont des GN corrects ?',
+     mots:['le gros chat','mange vite','une belle fleur','courir fort','mon ami Paul','très grand'],
+     classes:{'Groupe nominal':['le gros chat','une belle fleur','mon ami Paul'],'Pas un GN':['mange vite','courir fort','très grand']},
+     explication:'Un GN doit contenir un nom avec son déterminant.'},
+  ],
+
+  type: [
+    {mode:'choix', consigne:'Quel est le type de cette phrase : "Est-ce que tu viens ?" ?',
+     choices:['Déclarative','Interrogative','Exclamative','Impérative'],
+     correct:'Interrogative',
+     explication:'Une phrase interrogative pose une question. Elle se termine par un point d\'interrogation.'},
+    {mode:'choix', consigne:'Quel est le type de cette phrase : "Comme il fait beau aujourd\'hui !" ?',
+     choices:['Déclarative','Interrogative','Exclamative','Impérative'],
+     correct:'Exclamative',
+     explication:'Une phrase exclamative exprime une émotion forte. Elle se termine par un point d\'exclamation.'},
+    {mode:'choix', consigne:'Quel est le type de cette phrase : "Viens ici tout de suite !" ?',
+     choices:['Déclarative','Interrogative','Exclamative','Impérative'],
+     correct:'Impérative',
+     explication:'Une phrase impérative donne un ordre ou un conseil. Le verbe est à l\'imperatif.'},
+    {mode:'choix', consigne:'Quel est le type de cette phrase : "Les enfants jouent dans la cour." ?',
+     choices:['Déclarative','Interrogative','Exclamative','Impérative'],
+     correct:'Déclarative',
+     explication:'Une phrase déclarative affirme ou infirme quelque chose. Elle se termine par un point.'},
+    {mode:'classer', consigne:'Classe ces phrases selon leur type.',
+     mots:['Il pleut dehors.','Quelle belle journée !','Viens ici !','Tu aimes le sport ?'],
+     classes:{'Déclarative':['Il pleut dehors.'],'Exclamative':['Quelle belle journée !'],'Impérative':['Viens ici !'],'Interrogative':['Tu aimes le sport ?']},
+     explication:''},
+  ],
+
+  compl: [
+    {mode:'cliquer', consigne:'Clique sur le COD (complément d\'objet direct) dans cette phrase.',
+     phrase:['Léa','mange','une','pomme','rouge','.'],
+     nature:['nom','verbe','det','nom','adj','ponct'],
+     cible:'COD', motsCibles:[2,3,4],
+     explication:'Le COD répond à la question "qui ?" ou "quoi ?" après le verbe. Ici "Léa mange QUOI ? une pomme rouge".'},
+    {mode:'choix', consigne:'Quel est le COD dans "Paul lit un livre intéressant." ?',
+     choices:['Paul','lit','un livre intéressant','intéressant'],
+     correct:'un livre intéressant',
+     explication:'On pose la question "Paul lit QUOI ?" — un livre intéressant.'},
+    {mode:'choix', consigne:'Quel est le complément circonstanciel de lieu dans "Les enfants jouent dans le jardin." ?',
+     choices:['Les enfants','jouent','dans le jardin','le jardin'],
+     correct:'dans le jardin',
+     explication:'Le CC de lieu indique où se passe l\'action. On pose la question "Où ?" après le verbe.'},
+    {mode:'choix', consigne:'Quel type de complément est "ce matin" dans "Ce matin, il a plu fort." ?',
+     choices:['COD','COI','CC de temps','CC de lieu'],
+     correct:'CC de temps',
+     explication:'"Ce matin" répond à la question "Quand ?" — c\'est un complément circonstanciel de temps.'},
+  ],
+
+  subord: [
+    {mode:'choix', consigne:'Combien y a-t-il de propositions dans "Je mange et tu lis." ?',
+     choices:['1','2','3','4'],
+     correct:'2',
+     explication:'"Je mange" est une proposition et "tu lis" en est une autre. Elles sont reliées par "et".'},
+    {mode:'choix', consigne:'Quel mot relie les deux propositions dans "Il vient quand il peut." ?',
+     choices:['il','vient','quand','peut'],
+     correct:'quand',
+     explication:'"Quand" est une conjonction de subordination. Elle introduit la proposition subordonnée.'},
+    {mode:'choix', consigne:'Quelle est la proposition principale dans "Je sais que tu as raison." ?',
+     choices:['Je sais','que tu as raison','tu as raison','Je sais que'],
+     correct:'Je sais',
+     explication:'La proposition principale est celle qui peut exister seule. "que tu as raison" est la subordonnée.'},
+  ],
+
+  ordonner_extra: [
+    {mode:'ordonner', consigne:'Remets les mots dans le bon ordre pour former une phrase.',
+     mots:['chante','oiseau','dans','le','jardin','.'],
+     correct:'oiseau chante dans le jardin .',
+     solution:'oiseau chante dans le jardin .'},
+    {mode:'ordonner', consigne:'Remets les mots dans le bon ordre.',
+     mots:['dans','Les','la','cour','enfants','jouent','.'],
+     correct:'Les enfants jouent dans la cour .',
+     solution:'Les enfants jouent dans la cour .'},
+  ],
+};
+
+let activeNiveaux=['ce2'],activeNotions=['nature','sujet'],activeModes=['cliquer','choix'];
+let score=0,total=0,currentQ=null,locked=false;
+let selectedMots=[],classement={},ordreBuilt=[];
+let selectedEtiquette=null;
+
+function buildConfig(){
+  document.getElementById('niveau-row').innerHTML=NIVEAUX.map(n=>`<div class="cbox${activeNiveaux.includes(n.id)?' checked':''}" onclick="setNiveau('${n.id}',this)">${n.label}</div>`).join('');
+  buildNotionRow();
+  document.getElementById('mode-row').innerHTML=MODES.map(m=>`<div class="cbox${activeModes.includes(m.id)?' checked':''}" onclick="toggleCfg('modes','${m.id}',this)">${m.label}</div>`).join('');
+}
+function buildNotionRow(){
+  const niv=activeNiveaux[0];
+  const avail=NOTIONS.filter(n=>n.niv.includes(niv));
+  activeNotions=activeNotions.filter(n=>avail.find(a=>a.id===n));
+  if(!activeNotions.length)activeNotions=[avail[0].id];
+  document.getElementById('notion-row').innerHTML=avail.map(n=>`<div class="cbox${activeNotions.includes(n.id)?' checked':''}" onclick="toggleCfg('notions','${n.id}',this)">${n.label}</div>`).join('');
+}
+function setNiveau(id,el){activeNiveaux=[id];document.querySelectorAll('#niveau-row .cbox').forEach(b=>b.classList.remove('checked'));el.classList.add('checked');buildNotionRow();}
+function toggleCfg(type,id,el){const map={notions:activeNotions,modes:activeModes};const arr=map[type];if(arr.includes(id)&&arr.length===1)return;const i=arr.indexOf(id);if(i>=0)arr.splice(i,1);else arr.push(id);el.classList.toggle('checked',arr.includes(id));}
+
+function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+
+function newGame(){
+  hideFeedback();locked=false;selectedMots=[];classement={};ordreBuilt=[];selectedEtiquette=null;
+  document.getElementById('btn-verif').style.display='none';
+  let pool=[];
+  activeNotions.forEach(n=>{
+    if(EXERCICES[n]) pool.push(...EXERCICES[n].filter(e=>activeModes.includes(e.mode)));
+  });
+  if(!pool.length){activeNotions.forEach(n=>{if(EXERCICES[n])pool.push(...EXERCICES[n]);});}
+  if(!pool.length){showFeedback('Aucun exercice disponible pour cette combinaison.','ko');return;}
+  currentQ=pick(pool);
+  renderGame();
+}
+
+function renderGame(){
+  const q=currentQ;if(!q)return;
+  const notionLabel=NOTIONS.find(n=>EXERCICES[n.id]?.includes(q))?.label||'Grammaire';
+  const zone=document.getElementById('game-zone');
+  zone.innerHTML='';
+
+  if(q.mode==='cliquer'){
+    const box=document.createElement('div');box.className='question-box';
+    box.innerHTML=`<div class="badge-notion">${notionLabel}</div><div class="consigne">${q.consigne}</div>`;
+    const phraseDiv=document.createElement('div');phraseDiv.className='phrase-click';
+    q.phrase.forEach((mot,i)=>{
+      const el=document.createElement('div');
+      if(mot==='.'){el.className='mot';el.style.cssText='padding:0 2px;cursor:default';el.textContent='.';}
+      else{
+        const isCible=q.motsCibles.includes(i),isSelected=selectedMots.includes(i);
+        let cls='mot';
+        if(locked){if(isCible)cls+=' correct';else if(isSelected&&!isCible)cls+=' wrong';else cls+=' neutral';}
+        else if(isSelected)cls+=' selected';
+        el.className=cls;el.textContent=mot;
+        if(!locked)el.addEventListener('click',()=>clickMot(i));
+      }
+      phraseDiv.appendChild(el);
+    });
+    box.appendChild(phraseDiv);
+    if(locked&&q.explication){const exp=document.createElement('div');exp.style.cssText='font-size:12px;color:var(--text-light);text-align:center;font-style:italic';exp.textContent=q.explication;box.appendChild(exp);}
+    zone.appendChild(box);
+    document.getElementById('btn-verif').style.display=locked?'none':'inline-flex';
+  }
+  else if(q.mode==='choix'){
+    const box=document.createElement('div');box.className='question-box';
+    box.innerHTML=`<div class="badge-notion">${notionLabel}</div><div class="consigne">${q.consigne}</div>`;
+    const choicesDiv=document.createElement('div');choicesDiv.className='choices';
+    q.choices.forEach(c=>{
+      const ok=locked&&c===q.correct,ko=locked&&c!==q.correct&&c===currentQ._chosen,neutral=locked&&!ok&&!ko;
+      const btn=document.createElement('div');
+      btn.className='choice-btn'+(ok?' correct':'')+(ko?' wrong':'')+(neutral?' neutral':'');
+      btn.textContent=c;
+      if(!locked)btn.addEventListener('click',()=>clickChoix(c));
+      choicesDiv.appendChild(btn);
+    });
+    box.appendChild(choicesDiv);
+    if(locked&&q.explication){const exp=document.createElement('div');exp.style.cssText='font-size:12px;color:var(--text-light);text-align:center;font-style:italic';exp.textContent=q.explication;box.appendChild(exp);}
+    zone.appendChild(box);
+    document.getElementById('btn-verif').style.display='none';
+  }
+  else if(q.mode==='classer'){
+    const cols=Object.keys(q.classes);
+    if(!Object.keys(classement).length){cols.forEach(c=>{classement[c]=[];});}
+    const motsRestants=q.mots.filter(m=>!cols.some(c=>classement[c].includes(m)));
+    const box=document.createElement('div');box.className='question-box';
+    box.innerHTML=`<div class="badge-notion">${notionLabel}</div><div class="consigne">${q.consigne}</div>`;
+    const classDiv=document.createElement('div');classDiv.className='classement';
+    const pool=document.createElement('div');pool.className='etiquettes-pool';
+    if(motsRestants.length){
+      motsRestants.forEach(m=>{
+        const el=document.createElement('div');
+        el.className='etiquette'+(selectedEtiquette===m?' selected':'');
+        el.textContent=m;
+        if(!locked)el.addEventListener('click',()=>selectEtiquette(m));
+        pool.appendChild(el);
+      });
+    } else {const s=document.createElement('span');s.style.cssText='font-size:12px;color:#bbb';s.textContent='Tous les mots sont placés';pool.appendChild(s);}
+    classDiv.appendChild(pool);
+    const colonnesDiv=document.createElement('div');colonnesDiv.className='colonnes';
+    cols.forEach(col=>{
+      const colDiv=document.createElement('div');colDiv.className='colonne';
+      const header=document.createElement('div');header.className='col-header';header.textContent=col;
+      const drop=document.createElement('div');
+      const items=classement[col]||[];
+      drop.className='col-drop'+(items.length?' has-item':'');
+      if(!locked)drop.addEventListener('click',()=>dropInCol(col));
+      if(items.length){
+        items.forEach(item=>{
+          const correct=q.classes[col]?.includes(item);
+          const el=document.createElement('div');
+          el.className='col-item'+(locked?(correct?' correct-item':' wrong-item'):'');
+          el.textContent=item;
+          if(!locked)el.addEventListener('click',(e)=>{e.stopPropagation();removeFromCol(col,item);});
+          drop.appendChild(el);
+        });
+      } else {const s=document.createElement('span');s.style.cssText='font-size:11px;color:#bbb';s.textContent='cliquer ici';drop.appendChild(s);}
+      colDiv.appendChild(header);colDiv.appendChild(drop);colonnesDiv.appendChild(colDiv);
+    });
+    classDiv.appendChild(colonnesDiv);box.appendChild(classDiv);zone.appendChild(box);
+    const allPlaced=q.mots.every(m=>cols.some(c=>classement[c]?.includes(m)));
+    document.getElementById('btn-verif').style.display=(allPlaced&&!locked)?'inline-flex':'none';
+  }
+  else if(q.mode==='ordonner'){
+    const box=document.createElement('div');box.className='question-box';
+    box.innerHTML=`<div class="badge-notion">${notionLabel}</div><div class="consigne">${q.consigne}</div>`;
+    const ordreDiv=document.createElement('div');ordreDiv.className='ordre-zone';
+    const poolDiv=document.createElement('div');poolDiv.className='mots-pool';
+    q.mots.forEach((m,i)=>{
+      const el=document.createElement('div');
+      el.className='mot-ordre'+(ordreBuilt.includes(i)?' placed':'');
+      el.textContent=m;
+      if(!locked)el.addEventListener('click',()=>addToOrdre(i));
+      poolDiv.appendChild(el);
+    });
+    const slotDiv=document.createElement('div');slotDiv.className='slot-phrase';
+    if(ordreBuilt.length){
+      ordreBuilt.forEach((idx,pos)=>{
+        const el=document.createElement('div');el.className='mot-place';el.textContent=q.mots[idx];
+        if(!locked)el.addEventListener('click',()=>removeFromOrdre(pos));
+        slotDiv.appendChild(el);
+      });
+    } else {const s=document.createElement('span');s.style.cssText='font-size:12px;color:#bbb';s.textContent="Clique sur les mots dans l'ordre";slotDiv.appendChild(s);}
+    ordreDiv.appendChild(poolDiv);ordreDiv.appendChild(slotDiv);
+    if(locked){
+      const built=ordreBuilt.map(i=>q.mots[i]).join(' ');const ok=built===q.solution;
+      const res=document.createElement('div');res.className='phrase-result '+(ok?'correct':'wrong');
+      res.textContent=ok?'Correct !':'Solution : '+q.solution;ordreDiv.appendChild(res);
+    }
+    box.appendChild(ordreDiv);zone.appendChild(box);
+    const allPlaced=ordreBuilt.length===q.mots.length;
+    document.getElementById('btn-verif').style.display=(allPlaced&&!locked)?'inline-flex':'none';
+  }
+}
+
+function clickMot(i){if(locked)return;if(selectedMots.includes(i))selectedMots=selectedMots.filter(x=>x!==i);else selectedMots.push(i);renderGame();}
+function clickChoix(chosen){if(locked)return;locked=true;total++;currentQ._chosen=chosen;const ok=chosen===currentQ.correct;if(ok){score++;showFeedback('Bravo ! Bonne réponse !','ok');}else showFeedback('Non — la bonne réponse : '+currentQ.correct,'ko');updateScore();renderGame();}
+
+function verifier(){
+  if(locked)return;
+  const q=currentQ;
+  if(q.mode==='cliquer'){
+    locked=true;total++;
+    const allCorrect=q.motsCibles.every(i=>selectedMots.includes(i));
+    const noWrong=selectedMots.every(i=>q.motsCibles.includes(i));
+    const ok=allCorrect&&noWrong;
+    if(ok){score++;showFeedback('Bravo ! Bonne réponse !','ok');}
+    else{const corrects=q.motsCibles.map(i=>q.phrase[i]).join(', ');showFeedback('Non — la bonne réponse : '+corrects,'ko');}
+    updateScore();renderGame();
+  }
+  else if(q.mode==='classer'){
+    locked=true;total++;
+    const cols=Object.keys(q.classes);
+    const ok=cols.every(col=>(classement[col]||[]).length===q.classes[col].length&&q.classes[col].every(m=>(classement[col]||[]).includes(m)));
+    if(ok){score++;showFeedback('Bravo ! Classement parfait !','ok');}
+    else showFeedback('Pas tout à fait — vérifie les cases en rouge.','ko');
+    updateScore();renderGame();
+  }
+  else if(q.mode==='ordonner'){
+    locked=true;total++;
+    const built=ordreBuilt.map(i=>q.mots[i]).join(' ');
+    const ok=built===q.solution;
+    if(ok){score++;showFeedback('Bravo ! La phrase est bien ordonnée !','ok');}
+    else showFeedback('Pas tout à fait — regarde la solution.','ko');
+    updateScore();renderGame();
+  }
+}
+
+function selectEtiquette(m){if(locked)return;selectedEtiquette=selectedEtiquette===m?null:m;renderGame();}
+function dropInCol(col){if(locked||!selectedEtiquette)return;classement[col]=[...(classement[col]||[]),selectedEtiquette];selectedEtiquette=null;renderGame();}
+function removeFromCol(col,item){if(locked)return;classement[col]=(classement[col]||[]).filter(m=>m!==item);renderGame();}
+function addToOrdre(i){if(locked||ordreBuilt.includes(i))return;ordreBuilt.push(i);renderGame();}
+function removeFromOrdre(pos){if(locked)return;ordreBuilt.splice(pos,1);renderGame();}
+
+function showFeedback(m,t){const f=document.getElementById('feedback');f.textContent=m;f.className='feedback '+t;}
+function hideFeedback(){const f=document.getElementById('feedback');f.className='feedback';f.textContent='';}
+function updateScore(){document.getElementById('score-lbl').textContent='Score : '+score+' / '+total;}
+
+buildConfig();
+newGame();
+</script>
+<footer style="text-align:center;font-size:11px;color:#7A5C20;padding:1rem;border-top:2px solid #CE93D8;background:#fff;font-family:'Nunito Sans',sans-serif;">
+  &copy; Olivier Grandclément — École élémentaire Les Cascades, Dortan
+</footer>
+</body>
+</html>

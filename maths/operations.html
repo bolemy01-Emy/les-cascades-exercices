@@ -218,7 +218,7 @@
 
 <div class="topbar">
   <div>
-    <div class="game-title">Operations posees</div>
+    <div class="game-title">Opérations posées</div>
     <div class="game-sub">Addition et soustraction avec retenues</div>
   </div>
   <span class="score-pill" id="score-lbl">Score : 0 / 0</span>
@@ -226,7 +226,7 @@
 
 <div class="config-panel">
   <div class="config-block">
-    <div class="config-label">Operation</div>
+    <div class="config-label">Opération</div>
     <div class="check-row">
       <div class="cbox checked" id="cb-add" onclick="toggleOp('add',this)">Addition</div>
       <div class="cbox checked" id="cb-sub" onclick="toggleOp('sub',this)">Soustraction</div>
@@ -242,11 +242,11 @@
   <div class="config-block">
     <div class="config-label">Retenues</div>
     <div class="check-row">
-      <div class="cbox checked" id="cb-ret" onclick="toggleCbox('ret',this)">Gerer les retenues</div>
+      <div class="cbox checked" id="cb-ret" onclick="toggleCbox('ret',this)">Gérer les retenues</div>
     </div>
   </div>
   <div class="config-block">
-    <div class="config-label">Poser l'operation</div>
+    <div class="config-label">Poser l'opération</div>
     <div class="check-row">
       <div class="cbox" id="cb-poser" onclick="toggleCbox('poser',this)">Poser soi-meme</div>
     </div>
@@ -263,8 +263,8 @@
     </div>
   </div>
   <div class="controls">
-    <button class="btn check"   onclick="checkAll()">Verifier</button>
-    <button class="btn"         onclick="resetRound()">Reessayer</button>
+    <button class="btn check"   onclick="checkAll()">Vérifier</button>
+    <button class="btn"         onclick="resetRound()">Réessayer</button>
     <button class="btn primary" onclick="newGame()">Nouvel exercice</button>
   </div>
 </div>
@@ -406,7 +406,7 @@ function renderPose(){
 
   document.getElementById('game-zone').innerHTML=`
     <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
-      <div class="poser-instruction">Pose cette operation dans la grille :</div>
+      <div class="poser-instruction">Pose cette opération dans la grille :</div>
       <div class="poser-display">${numA} ${op==='add'?'+':'&minus;'} ${numB}</div>
       <div class="op-wrap">
         <div class="op-row">${makeRow('A')}</div>
@@ -424,11 +424,11 @@ function activePoseCell(idx){
 }
 
 function checkPose(){
-  if(!poseCells.every(c=>c.value!==null)){showFeedback('Complete toutes les cases !','ko');return;}
+  if(!poseCells.every(c=>c.value!==null)){showFeedback('Complète toutes les cases !','ko');return;}
   if(poseCells.every(c=>c.value===c.correct)){
     showFeedback('Bien pose ! Maintenant calcule.','ok');
     setTimeout(()=>{hideFeedback();phasePose=false;initCalcul();},1200);
-  }else showFeedback('Verifie le placement des chiffres.','ko');
+  }else showFeedback('Vérifie le placement des chiffres.','ko');
 }
 
 // ═══════════════════════════════════════════
@@ -621,7 +621,7 @@ function checkAll(){
   if(phasePose){checkPose();return;}
   if(locked)return;
   const resCells=cells.filter(c=>c.type==='result');
-  if(resCells.some(c=>c.value===null)){showFeedback('Complete toutes les cases du resultat !','ko');return;}
+  if(resCells.some(c=>c.value===null)){showFeedback('Complète toutes les cases du résultat !','ko');return;}
   locked=true;
   const okRes=resCells.every(c=>c.value===c.correct);
   let okRet=true;
@@ -632,8 +632,8 @@ function checkAll(){
   }
   total++;
   if(okRes&&okRet){score++;showFeedback('Bravo ! '+numA+' '+(op==='add'?'+':'-')+' '+numB+' = '+result,'ok');}
-  else if(okRes){score++;showFeedback('Bon resultat ! Verifie les retenues (en rouge).','ok');}
-  else showFeedback('Pas tout a fait — le resultat correct est '+result+'.','ko');
+  else if(okRes){score++;showFeedback('Bon resultat ! Vérifie les retenues (en rouge).','ok');}
+  else showFeedback('Pas tout à fait — le résultat correct est '+result+'.','ko');
   updateScore();renderCalcul();
 }
 

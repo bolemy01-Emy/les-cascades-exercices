@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocabulaire - Les Cascades</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#EDE7F6;--bg2:#D1C4E9;--panel-bg:#F3E5F5;--accent:#6A1B9A;--accent-d:#4A148C;--accent-l:#E1BEE7;--text:#1A0E00;--text-light:#7A5C20;--border:#CE93D8;--border-d:#9C27B0;--correct:#1B5E20;--correct-l:#C8E6C9;--wrong:#B71C1C;--wrong-l:#FFCDD2;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+  .topbar{background:var(--accent);padding:.9rem 1.4rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;border-bottom:4px solid var(--accent-d);}
+  .game-title{font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;color:#fff;}
+  .game-sub{font-size:12px;color:var(--accent-l);font-weight:600;margin-top:2px;}
+  .score-pill{font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;background:#fff;border:2px solid var(--accent-d);border-radius:20px;padding:5px 18px;color:var(--accent);}
+  .config-panel{background:var(--panel-bg);border-bottom:3px solid var(--border-d);padding:.8rem 1.4rem;display:flex;flex-wrap:wrap;gap:1.2rem;align-items:flex-start;}
+  .config-block{display:flex;flex-direction:column;gap:6px;}
+  .config-label{font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--text-light);}
+  .check-row{display:flex;flex-wrap:wrap;gap:5px;}
+  .cbox{display:flex;align-items:center;gap:4px;background:#fff;border:2px solid var(--border-d);border-radius:8px;padding:4px 9px;cursor:pointer;transition:all .15s;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:var(--text);user-select:none;}
+  .cbox:hover{border-color:var(--accent);}
+  .cbox.checked{background:var(--accent);border-color:var(--accent-d);color:#fff;}
+  .main{flex:1;padding:1.2rem 1.4rem;display:flex;flex-direction:column;gap:1rem;align-items:center;}
+  .feedback{display:none;padding:10px 18px;border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;text-align:center;border:2px solid transparent;width:100%;max-width:680px;}
+  .feedback.ok{background:var(--correct-l);color:var(--correct);border-color:var(--correct);display:block;}
+  .feedback.ko{background:var(--wrong-l);color:var(--wrong);border-color:var(--wrong);display:block;}
+  .question-box{background:#fff;border:3px solid var(--border-d);border-radius:16px;padding:1.4rem 1.8rem;display:flex;flex-direction:column;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(106,27,154,.12);max-width:680px;width:100%;}
+  .badge-notion{font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;color:var(--accent);background:var(--accent-l);border:1px solid var(--border);border-radius:6px;padding:3px 12px;}
+  .consigne{font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;color:var(--text);text-align:center;line-height:1.5;}
+  .explication{font-size:12px;color:var(--text-light);text-align:center;font-style:italic;line-height:1.5;}
+
+  /* CHOIX MULTIPLE */
+  .choices{display:flex;flex-direction:column;gap:9px;width:100%;}
+  .choice-btn{font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;padding:11px 16px;border-radius:12px;border:2px solid var(--border-d);background:var(--panel-bg);color:var(--text);cursor:pointer;transition:all .15s;text-align:center;}
+  .choice-btn:hover{border-color:var(--accent);background:var(--accent-l);}
+  .choice-btn.correct{border-color:var(--correct);background:var(--correct-l);color:var(--correct);pointer-events:none;}
+  .choice-btn.wrong{border-color:var(--wrong);background:var(--wrong-l);color:var(--wrong);pointer-events:none;}
+  .choice-btn.neutral{pointer-events:none;opacity:.5;}
+
+  /* CLASSER */
+  .classement{display:flex;flex-direction:column;gap:12px;width:100%;}
+  .etiquettes-pool{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px;background:var(--panel-bg);border:2px solid var(--border);border-radius:10px;min-height:50px;}
+  .etiquette{font-family:'Nunito',sans-serif;font-size:17px;font-weight:800;padding:6px 14px;border-radius:8px;cursor:pointer;border:2px solid var(--border-d);background:var(--bg2);color:var(--text);transition:all .15s;user-select:none;}
+  .etiquette:hover{border-color:var(--accent);background:var(--accent-l);}
+  .etiquette.selected{border-color:var(--accent);background:var(--accent);color:#fff;transform:scale(1.05);}
+  .colonnes{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+  .colonne{display:flex;flex-direction:column;gap:6px;min-width:140px;flex:1;}
+  .col-header{font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);text-align:center;padding:6px;background:var(--accent-l);border-radius:6px;}
+  .col-drop{min-height:60px;border:2px dashed var(--border-d);border-radius:8px;padding:6px;display:flex;flex-wrap:wrap;gap:4px;cursor:pointer;transition:all .15s;background:var(--panel-bg);}
+  .col-drop:hover{border-color:var(--accent);background:var(--accent-l);}
+  .col-drop.has-item{border-style:solid;background:var(--bg2);}
+  .col-item{font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;padding:4px 10px;border-radius:6px;background:#fff;border:1.5px solid var(--border-d);cursor:pointer;color:var(--text);}
+  .col-item:hover{background:var(--wrong-l);border-color:var(--wrong);}
+  .col-item.correct-item{background:var(--correct-l);border-color:var(--correct);color:var(--correct);pointer-events:none;}
+  .col-item.wrong-item{background:var(--wrong-l);border-color:var(--wrong);color:var(--wrong);pointer-events:none;}
+
+  /* ASSOCIER (clic-clic paires) */
+  .associer-zone{display:flex;gap:16px;width:100%;justify-content:center;flex-wrap:wrap;}
+  .assoc-col{display:flex;flex-direction:column;gap:8px;min-width:180px;flex:1;}
+  .assoc-label{font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);text-align:center;margin-bottom:2px;}
+  .assoc-card{font-family:'Nunito',sans-serif;font-size:17px;font-weight:800;padding:10px 14px;border-radius:10px;border:2px solid var(--border-d);background:var(--panel-bg);color:var(--text);cursor:pointer;transition:all .15s;text-align:center;line-height:1.4;}
+  .assoc-card:hover{border-color:var(--accent);background:var(--accent-l);}
+  .assoc-card.selected{border-color:var(--accent);background:var(--accent);color:#fff;box-shadow:0 0 0 3px rgba(106,27,154,.25);}
+  .assoc-card.paired{border-color:var(--correct);background:var(--correct-l);color:var(--correct);pointer-events:none;}
+  .assoc-card.wrong-flash{border-color:var(--wrong);background:var(--wrong-l);}
+  .assoc-card.neutral{opacity:.4;pointer-events:none;}
+
+  /* COMPLETER (trou dans phrase) */
+  .phrase-trou{font-family:'Nunito',sans-serif;font-size:22px;font-weight:700;color:var(--text);text-align:center;line-height:1.8;}
+  .trou-btn{display:inline-block;font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;padding:4px 16px;border-radius:8px;border:2px dashed var(--border-d);background:var(--panel-bg);color:var(--text);cursor:default;margin:0 4px;}
+  .trou-btn.filled{border-style:solid;background:var(--bg2);}
+  .trou-btn.correct{border-color:var(--correct);background:var(--correct-l);color:var(--correct);border-style:solid;}
+  .trou-btn.wrong{border-color:var(--wrong);background:var(--wrong-l);color:var(--wrong);border-style:solid;}
+  .options-trou{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px;}
+  .opt-btn{font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;padding:8px 18px;border-radius:10px;border:2px solid var(--border-d);background:var(--panel-bg);color:var(--text);cursor:pointer;transition:all .15s;}
+  .opt-btn:hover{border-color:var(--accent);background:var(--accent-l);}
+  .opt-btn.used{opacity:.2;pointer-events:none;}
+
+  .controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
+  .btn{font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:10px 22px;border-radius:10px;border:2px solid var(--border-d);background:#fff;color:var(--text);cursor:pointer;transition:all .15s;}
+  .btn:hover{background:var(--bg2);border-color:var(--accent);}
+  .btn.primary{background:var(--accent);border-color:var(--accent-d);color:#fff;}
+  .btn.primary:hover{background:var(--accent-d);}
+  .btn.check{background:#1565C0;border-color:#0D47A1;color:#fff;}
+  .btn.check:hover{background:#0D47A1;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div><div class="game-title">Vocabulaire</div><div class="game-sub">Du CP au CM2</div></div>
+  <span class="score-pill" id="score-lbl">Score : 0 / 0</span>
+</div>
+<div class="config-panel">
+  <div class="config-block"><div class="config-label">Niveau</div><div class="check-row" id="niveau-row"></div></div>
+  <div class="config-block"><div class="config-label">Notions</div><div class="check-row" id="notion-row"></div></div>
+  <div class="config-block"><div class="config-label">Exercice</div><div class="check-row" id="mode-row"></div></div>
+</div>
+<div class="main">
+  <div class="feedback" id="feedback"></div>
+  <div id="game-zone"></div>
+  <div class="controls">
+    <button class="btn check" id="btn-verif" onclick="verifier()" style="display:none">Verifier</button>
+    <button class="btn" onclick="newGame()">Autre</button>
+    <button class="btn primary" onclick="newGame()">Suivant</button>
+  </div>
+</div>
+<script>
+const NIVEAUX=[{id:'cp',label:'CP'},{id:'ce1',label:'CE1'},{id:'ce2',label:'CE2'},{id:'cm1',label:'CM1'},{id:'cm2',label:'CM2'}];
+const NOTIONS=[
+  {id:'champ',    label:'Champ lexical',    niv:['cp','ce1','ce2','cm1','cm2']},
+  {id:'contraire',label:'Contraires',       niv:['cp','ce1','ce2','cm1','cm2']},
+  {id:'synonyme', label:'Synonymes',        niv:['ce2','cm1','cm2']},
+  {id:'contexte', label:'Sens en contexte', niv:['ce2','cm1','cm2']},
+  {id:'famille',  label:'Familles de mots', niv:['cm1','cm2']},
+  {id:'affixes',  label:'Prefixes/suffixes',niv:['cm1','cm2']},
+  {id:'propfig',  label:'Sens propre/figure',niv:['cm2']},
+  {id:'polysemie',label:'Polysemie',        niv:['cm2']},
+  {id:'niveau',   label:'Niveaux de langue',niv:['cm2']},
+];
+const MODES=[
+  {id:'choix',    label:'Choix multiple'},
+  {id:'classer',  label:'Classer'},
+  {id:'associer', label:'Associer'},
+  {id:'completer',label:'Completer'},
+];
+
+const EXERCICES = {
+  champ:[
+    {mode:'classer',notion:'champ',consigne:'Classe ces mots selon leur champ lexical.',
+     mots:['chat','rose','chien','tulipe','lapin','marguerite'],
+     classes:{'Animaux':['chat','chien','lapin'],'Fleurs':['rose','tulipe','marguerite']},
+     explication:'Un champ lexical regroupe des mots qui se rapportent au meme theme.'},
+    {mode:'classer',notion:'champ',consigne:'Classe ces mots selon leur champ lexical.',
+     mots:['pomme','genou','poignet','poire','coude','banane'],
+     classes:{'Fruits':['pomme','poire','banane'],'Parties du corps':['genou','poignet','coude']},
+     explication:''},
+    {mode:'choix',notion:'champ',consigne:'Quel mot n\'appartient pas au champ lexical de la cuisine ?',
+     choices:['casserole','spatule','tablier','ballon'],
+     correct:'ballon',
+     explication:'"Ballon" appartient au champ lexical du sport, pas de la cuisine.'},
+    {mode:'choix',notion:'champ',consigne:'Quel mot appartient au champ lexical de la mer ?',
+     choices:['montagne','vague','foret','desert'],
+     correct:'vague',
+     explication:'"Vague" appartient bien au champ lexical de la mer.'},
+    {mode:'classer',notion:'champ',consigne:'Classe ces mots selon leur champ lexical.',
+     mots:['crayon','addition','cahier','soustraction','gomme','multiplication'],
+     classes:{'Fournitures':['crayon','cahier','gomme'],'Calcul':['addition','soustraction','multiplication']},
+     explication:''},
+  ],
+  contraire:[
+    {mode:'associer',notion:'contraire',consigne:'Associe chaque mot a son contraire.',
+     paires:[['grand','petit'],['chaud','froid'],['rapide','lent'],['jour','nuit']],
+     explication:'Le contraire (ou antonyme) est un mot de sens oppose.'},
+    {mode:'associer',notion:'contraire',consigne:'Associe chaque mot a son contraire.',
+     paires:[['fort','faible'],['propre','sale'],['facile','difficile'],['bruit','silence']],
+     explication:''},
+    {mode:'choix',notion:'contraire',consigne:'Quel est le contraire de "genereux" ?',
+     choices:['avare','gentil','brave','heureux'],
+     correct:'avare',
+     explication:'Genereux = qui donne beaucoup. Avare = qui ne donne pas, qui garde tout pour soi.'},
+    {mode:'choix',notion:'contraire',consigne:'Quel est le contraire de "monter" ?',
+     choices:['sauter','courir','descendre','marcher'],
+     correct:'descendre',
+     explication:'Monter et descendre sont des contraires : ils indiquent des directions opposees.'},
+    {mode:'completer',notion:'contraire',consigne:'Complete avec le contraire du mot en gras.',
+     phrase:'Il fait ____ dehors, alors que la maison est bien chaude.',
+     trous:[{pos:0,correct:'froid'}],
+     mot_gras:'chaude',
+     options:['froid','frais','glace','doux'],
+     explication:'"Froid" est le contraire de "chaud".'},
+  ],
+  synonyme:[
+    {mode:'associer',notion:'synonyme',consigne:'Associe chaque mot a son synonyme.',
+     paires:[['content','heureux'],['rapide','vite'],['maison','demeure'],['beau','joli']],
+     explication:'Un synonyme est un mot qui a le meme sens ou un sens tres proche.'},
+    {mode:'associer',notion:'synonyme',consigne:'Associe chaque mot a son synonyme.',
+     paires:[['fatigué','epuise'],['commencer','debuter'],['terminer','finir'],['parler','discuter']],
+     explication:''},
+    {mode:'choix',notion:'synonyme',consigne:'Quel mot est synonyme de "courageux" ?',
+     choices:['peureux','brave','timide','mechant'],
+     correct:'brave',
+     explication:'"Courageux" et "brave" signifient tous les deux "qui n\'a pas peur".'},
+    {mode:'choix',notion:'synonyme',consigne:'Quel mot est synonyme de "chercher" ?',
+     choices:['trouver','voir','rechercher','perdre'],
+     correct:'rechercher',
+     explication:'"Chercher" et "rechercher" ont le meme sens : tenter de trouver quelque chose.'},
+    {mode:'completer',notion:'synonyme',consigne:'Choisis le synonyme de "content" pour completer la phrase.',
+     phrase:'Lea etait ____ d\'avoir recu ce beau cadeau.',
+     trous:[{pos:0,correct:'heureuse'}],
+     options:['heureuse','triste','fatiguee','en colere'],
+     explication:'"Heureuse" est synonyme de "contente".'},
+  ],
+  contexte:[
+    {mode:'choix',notion:'contexte',consigne:'Dans "Il a pris la fuite.", que signifie "fuite" ?',
+     choices:['Une conduite d\'eau','Le fait de s\'echapper','Un vetement','Un outil'],
+     correct:'Le fait de s\'echapper',
+     explication:'Le contexte nous aide : "prendre la fuite" est une expression qui signifie s\'echapper en courant.'},
+    {mode:'choix',notion:'contexte',consigne:'Dans "Elle a un coeur d\'or.", que signifie cette expression ?',
+     choices:['Son coeur est en metal','Elle est tres riche','Elle est tres gentille et genereux','Elle aime l\'or'],
+     correct:'Elle est tres gentille et genereux',
+     explication:'Ici "coeur d\'or" est une expression figuree qui signifie etre tres bon et genereux.'},
+    {mode:'choix',notion:'contexte',consigne:'Dans "La lumiere de la lampe est vive.", que signifie "vive" ?',
+     choices:['Rapide','Intense et brillante','Douce','Coloree'],
+     correct:'Intense et brillante',
+     explication:'Dans ce contexte, "vive" qualifie la lumiere et signifie tres intense.'},
+    {mode:'completer',notion:'contexte',consigne:'Choisis le mot qui convient le mieux dans la phrase.',
+     phrase:'Le boulanger ____ le pain chaque matin avant l\'ouverture.',
+     trous:[{pos:0,correct:'prepare'}],
+     options:['mange','prepare','vend','achete'],
+     explication:'Un boulanger PREPARE (fabrique) le pain - il ne le vend pas avant de l\'avoir fait.'},
+    {mode:'completer',notion:'contexte',consigne:'Choisis le mot qui convient le mieux dans la phrase.',
+     phrase:'Les eleves sont ____ en classe, ils ne font pas de bruit.',
+     trous:[{pos:0,correct:'silencieux'}],
+     options:['silencieux','bruyants','fatigues','absents'],
+     explication:'Si les eleves "ne font pas de bruit", ils sont silencieux.'},
+  ],
+  famille:[
+    {mode:'classer',notion:'famille',consigne:'Classe ces mots selon leur famille.',
+     mots:['jardin','jardinage','jardiner','fleur','fleurir','fleuriste'],
+     classes:{'Famille de jardin':['jardin','jardinage','jardiner'],'Famille de fleur':['fleur','fleurir','fleuriste']},
+     explication:'Une famille de mots partage le meme radical (la partie commune).'},
+    {mode:'choix',notion:'famille',consigne:'Quel mot appartient a la meme famille que "terre" ?',
+     choices:['terrine','montagne','mer','ciel'],
+     correct:'terrine',
+     explication:'"Terrine" vient de "terre" (recipient en terre cuite). Ils partagent le meme radical "terr-".'},
+    {mode:'choix',notion:'famille',consigne:'Quel est le radical commun a : "lire, lecteur, lecture, relire" ?',
+     choices:['lir-','lect-','eur','-ure'],
+     correct:'lect-',
+     explication:'Le radical commun est "lect-" (du latin legere, lire). Il se retrouve dans tous ces mots.'},
+    {mode:'associer',notion:'famille',consigne:'Associe chaque mot au radical de sa famille.',
+     paires:[['porteur','port-'],['chaleureux','chale-'],['mangeable','mang-'],['joueur','jou-']],
+     explication:'Le radical est la partie du mot qui porte le sens principal.'},
+    {mode:'classer',notion:'famille',consigne:'Classe ces mots selon leur famille.',
+     mots:['maison','maigre','maisonette','amaigrir','maisonnee','maigreur'],
+     classes:{'Famille de maison':['maison','maisonette','maisonnee'],'Famille de maigre':['maigre','amaigrir','maigreur']},
+     explication:''},
+  ],
+  affixes:[
+    {mode:'choix',notion:'affixes',consigne:'Que signifie le prefixe "re-" dans "relire" ?',
+     choices:['Lire vite','Lire a nouveau','Ne pas lire','Lire lentement'],
+     correct:'Lire a nouveau',
+     explication:'Le prefixe "re-" signifie "de nouveau, encore une fois". Relire = lire a nouveau.'},
+    {mode:'choix',notion:'affixes',consigne:'Que signifie le prefixe "in-" dans "impossible" ?',
+     choices:['Tres possible','Pas du tout possible','Un peu possible','Facilement possible'],
+     correct:'Pas du tout possible',
+     explication:'Le prefixe "in-" (ou im-, il-, ir-) signifie "pas, non". Impossible = pas possible.'},
+    {mode:'choix',notion:'affixes',consigne:'Que signifie le suffixe "-eur" dans "chanteur" ?',
+     choices:['Qui chante souvent','Qui aime chanter','Personne qui chante','Maniere de chanter'],
+     correct:'Personne qui chante',
+     explication:'Le suffixe "-eur" indique la personne qui fait l\'action : chanteur, lecteur, conducteur...'},
+    {mode:'classer',notion:'affixes',consigne:'Classe ces mots selon leur prefixe.',
+     mots:['refaire','impossible','relire','impoli','revenir','impatient'],
+     classes:{'Prefixe re- (de nouveau)':['refaire','relire','revenir'],'Prefixe im- (pas)':['impossible','impoli','impatient']},
+     explication:''},
+    {mode:'completer',notion:'affixes',consigne:'Choisis le bon prefixe pour former un mot correct.',
+     phrase:'Cet eleve est tres ____poli, il ne dit jamais bonjour.',
+     trous:[{pos:0,correct:'im'}],
+     options:['im','re','pre','sur'],
+     explication:'"Im-" + "poli" = "impoli" : qui n\'est pas poli.'},
+  ],
+  propfig:[
+    {mode:'choix',notion:'propfig',consigne:'Dans quelle phrase le mot "feu" est-il employe au sens propre ?',
+     choices:['Il a le feu sacre.','Le feu de la cheminee rechauffait la piece.','Il a mis le feu aux poudres.','Elle brulait du feu de la jalousie.'],
+     correct:'Le feu de la cheminee rechauffait la piece.',
+     explication:'Au sens propre, le feu est une flamme reelle. Les autres emplois sont figures (expressions).'},
+    {mode:'choix',notion:'propfig',consigne:'Dans "Il a le coeur brise.", le mot "brise" est employe :',
+     choices:['Au sens propre : son coeur est casse','Au sens figure : il est tres triste','Les deux a la fois','Ni l\'un ni l\'autre'],
+     correct:'Au sens figure : il est tres triste',
+     explication:'Un coeur ne peut pas vraiment etre brise. "Coeur brise" est une expression figuree pour dire tres triste.'},
+    {mode:'classer',notion:'propfig',consigne:'Classe ces emplois du mot "froid" : sens propre ou sens figure.',
+     mots:['L\'eau est froide.','Il lui a fait un accueil froid.','La glace est froide.','Sa reponse etait froide et seche.'],
+     classes:{'Sens propre':['L\'eau est froide.','La glace est froide.'],'Sens figure':['Il lui a fait un accueil froid.','Sa reponse etait froide et seche.']},
+     explication:'Le sens propre est le sens concret, le sens figure est un sens image, metaphorique.'},
+  ],
+  polysemie:[
+    {mode:'choix',notion:'polysemie',consigne:'Dans "Elle a une belle voix.", que signifie "voix" ?',
+     choices:['Un chemin','Un son produit par la gorge','Un vote','Une direction'],
+     correct:'Un son produit par la gorge',
+     explication:'"Voix" est un mot polysemique : il peut signifier "son de la voix", "vote" (voix electorale) ou "voie" selon le contexte.'},
+    {mode:'choix',notion:'polysemie',consigne:'Quel mot a plusieurs sens differents ?',
+     choices:['pomme','vite','cou','lettre'],
+     correct:'lettre',
+     explication:'"Lettre" peut etre : une lettre de l\'alphabet, ou un courrier envoye a quelqu\'un.'},
+    {mode:'classer',notion:'polysemie',consigne:'Classe ces emplois du mot "tour" selon son sens.',
+     mots:['la tour Eiffel','faire un tour de velo','un tour de magie','une grande tour'],
+     classes:{'Construction elevee':['la tour Eiffel','une grande tour'],'Deplacement / action':['faire un tour de velo','un tour de magie']},
+     explication:'"Tour" est polysemique : il peut designer une construction ou une action.'},
+  ],
+  niveau:[
+    {mode:'classer',notion:'niveau',consigne:'Classe ces expressions selon le niveau de langue.',
+     mots:['C\'est super !','C\'est excellent.','C\'est trop bien !','C\'est remarquable.'],
+     classes:{'Familier':['C\'est super !','C\'est trop bien !'],'Soutenu':['C\'est excellent.','C\'est remarquable.']},
+     explication:'Le niveau familier s\'utilise entre amis. Le niveau soutenu s\'utilise a l\'ecrit ou en situation formelle.'},
+    {mode:'choix',notion:'niveau',consigne:'Quelle formulation convient dans une lettre formelle ?',
+     choices:['Salut !','Coucou !','Bonjour monsieur,','Ca va ?'],
+     correct:'Bonjour monsieur,',
+     explication:'Dans une lettre formelle, on utilise un niveau de langue soutenu.'},
+    {mode:'associer',notion:'niveau',consigne:'Associe chaque mot familier a son equivalent courant.',
+     paires:[['bouquin','livre'],['boulot','travail'],['rigoler','rire'],['fringues','vetements']],
+     explication:'Ces mots ont le meme sens mais un niveau de langue different.'},
+  ],
+};
+
+let activeNiveaux=['ce2'],activeNotions=['synonyme','contraire'],activeModes=['choix','associer'];
+let score=0,total=0,currentQ=null,locked=false;
+let classement={},selectedEtiquette=null;
+let assocSel={col:null,idx:null},pairesFound=[],assocWrongFlash=[];
+let troupAnswers={};
+
+function buildConfig(){
+  document.getElementById('niveau-row').innerHTML=NIVEAUX.map(n=>`<div class="cbox${activeNiveaux.includes(n.id)?' checked':''}" onclick="setNiveau('${n.id}',this)">${n.label}</div>`).join('');
+  buildNotionRow();
+  document.getElementById('mode-row').innerHTML=MODES.map(m=>`<div class="cbox${activeModes.includes(m.id)?' checked':''}" onclick="toggleCfg('modes','${m.id}',this)">${m.label}</div>`).join('');
+}
+function buildNotionRow(){
+  const niv=activeNiveaux[0];
+  const avail=NOTIONS.filter(n=>n.niv.includes(niv));
+  activeNotions=activeNotions.filter(n=>avail.find(a=>a.id===n));
+  if(!activeNotions.length)activeNotions=[avail[0].id];
+  document.getElementById('notion-row').innerHTML=avail.map(n=>`<div class="cbox${activeNotions.includes(n.id)?' checked':''}" onclick="toggleCfg('notions','${n.id}',this)">${n.label}</div>`).join('');
+}
+function setNiveau(id,el){activeNiveaux=[id];document.querySelectorAll('#niveau-row .cbox').forEach(b=>b.classList.remove('checked'));el.classList.add('checked');buildNotionRow();}
+function toggleCfg(type,id,el){const map={notions:activeNotions,modes:activeModes};const arr=map[type];if(arr.includes(id)&&arr.length===1)return;const i=arr.indexOf(id);if(i>=0)arr.splice(i,1);else arr.push(id);el.classList.toggle('checked',arr.includes(id));}
+
+function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+
+function newGame(){
+  hideFeedback();locked=false;classement={};selectedEtiquette=null;
+  assocSel={col:null,idx:null};pairesFound=[];assocWrongFlash=[];troupAnswers={};
+  document.getElementById('btn-verif').style.display='none';
+
+  let pool=[];
+  activeNotions.forEach(n=>{
+    if(EXERCICES[n])pool.push(...EXERCICES[n].filter(e=>activeModes.includes(e.mode)));
+  });
+  if(!pool.length){activeNotions.forEach(n=>{if(EXERCICES[n])pool.push(...EXERCICES[n]);});}
+  if(!pool.length){showFeedback('Aucun exercice disponible.','ko');return;}
+
+  currentQ=pick(pool);
+  renderGame();
+}
+
+function getNotionLabel(q){
+  const n=NOTIONS.find(n=>n.id===q.notion);
+  return n?n.label:'Vocabulaire';
+}
+
+function renderGame(){
+  const q=currentQ;if(!q)return;
+  const notionLabel=getNotionLabel(q);
+  let html='';
+
+  // ── CHOIX MULTIPLE ──
+  if(q.mode==='choix'){
+    html=`<div class="question-box">
+      <div class="badge-notion">${notionLabel}</div>
+      <div class="consigne">${q.consigne}</div>
+      <div class="choices">${q.choices.map(c=>{
+        const ok=locked&&c===q.correct,ko=locked&&c!==q.correct&&c===currentQ._chosen,neutral=locked&&!ok&&!ko;
+        return `<div class="choice-btn${ok?' correct':''}${ko?' wrong':''}${neutral?' neutral':''}" onclick="clickChoix(${JSON.stringify(c)})">${c}</div>`;
+      }).join('')}</div>
+      ${locked&&q.explication?`<div class="explication">${q.explication}</div>`:''}
+    </div>`;
+    document.getElementById('btn-verif').style.display='none';
+  }
+
+  // ── CLASSER ──
+  else if(q.mode==='classer'){
+    const cols=Object.keys(q.classes);
+    if(!Object.keys(classement).length)cols.forEach(c=>{classement[c]=[];});
+    const placed=cols.flatMap(c=>classement[c]||[]);
+    const restants=q.mots.filter(m=>!placed.includes(m));
+    const poolHtml=restants.map(m=>{
+      const isSel=selectedEtiquette===m;
+      return `<div class="etiquette${isSel?' selected':''}" onclick="selectEt(${JSON.stringify(m)})">${m}</div>`;
+    }).join('');
+    const colonnesHtml=cols.map(col=>{
+      const items=classement[col]||[];
+      return `<div class="colonne">
+        <div class="col-header">${col}</div>
+        <div class="col-drop${items.length?' has-item':''}" onclick="dropCol(${JSON.stringify(col)})">
+          ${items.map(item=>{
+            const correct=q.classes[col]?.includes(item);
+            return `<div class="col-item${locked?(correct?' correct-item':' wrong-item'):''}" onclick="removeCol(${JSON.stringify(col)},${JSON.stringify(item)})">${item}</div>`;
+          }).join('')||'<span style="font-size:11px;color:#bbb">clic ici</span>'}
+        </div>
+      </div>`;
+    }).join('');
+    html=`<div class="question-box">
+      <div class="badge-notion">${notionLabel}</div>
+      <div class="consigne">${q.consigne}</div>
+      <div class="classement">
+        <div class="etiquettes-pool">${poolHtml||'<span style="font-size:12px;color:#bbb">Tous les mots sont places</span>'}</div>
+        <div class="colonnes">${colonnesHtml}</div>
+      </div>
+      ${locked&&q.explication?`<div class="explication">${q.explication}</div>`:''}
+    </div>`;
+    const allPlaced=q.mots.every(m=>cols.some(c=>(classement[c]||[]).includes(m)));
+    document.getElementById('btn-verif').style.display=(allPlaced&&!locked)?'inline-flex':'none';
+  }
+
+  // ── ASSOCIER ──
+  else if(q.mode==='associer'){
+    const paires=q.paires;
+    const colA=paires.map(p=>p[0]);
+    const colB=shuffle(paires.map(p=>p[1]));
+    const selCol=assocSel.col,selIdx=assocSel.idx;
+
+    const makeCard=(mot,col,idx)=>{
+      const pairIdx=paires.findIndex(p=>p[0]===mot||p[1]===mot);
+      const isPaired=pairesFound.includes(pairIdx);
+      const isWrong=assocWrongFlash.some(w=>(col==='A'&&w.iA===idx)||(col==='B'&&w.iB===idx));
+      const isSel=selCol===col&&selIdx===idx;
+      let cls='assoc-card';
+      if(isPaired)cls+=' paired';
+      else if(isWrong)cls+=' wrong-flash';
+      else if(isSel)cls+=' selected';
+      return `<div class="${cls}" onclick="clickAssoc('${col}',${idx})">${mot}</div>`;
+    };
+
+    html=`<div class="question-box">
+      <div class="badge-notion">${notionLabel}</div>
+      <div class="consigne">${q.consigne}</div>
+      <div class="associer-zone">
+        <div class="assoc-col">
+          <div class="assoc-label">Mot</div>
+          ${colA.map((m,i)=>makeCard(m,'A',i)).join('')}
+        </div>
+        <div class="assoc-col">
+          <div class="assoc-label">Associer a</div>
+          ${colB.map((m,i)=>makeCard(m,'B',i)).join('')}
+        </div>
+      </div>
+      ${locked&&q.explication?`<div class="explication">${q.explication}</div>`:''}
+    </div>`;
+    document.getElementById('btn-verif').style.display='none';
+    // Stocker colB pour verif
+    currentQ._colB=colB;
+  }
+
+  // ── COMPLETER ──
+  else if(q.mode==='completer'){
+    const parts=q.phrase.split('____');
+    let phraseHtml='';
+    parts.forEach((part,i)=>{
+      phraseHtml+=`<span>${part}</span>`;
+      if(i<q.trous.length){
+        const val=troupAnswers[i];
+        let cls='trou-btn';
+        if(locked)cls+=val===q.trous[i].correct?' correct':' wrong';
+        else if(val)cls+=' filled';
+        phraseHtml+=`<span class="${cls}">${val||'___'}</span>`;
+      }
+    });
+    const usedOpts=Object.values(troupAnswers);
+    const optsHtml=q.options.map(opt=>{
+      const used=usedOpts.includes(opt);
+      return `<div class="opt-btn${used?' used':''}" onclick="clickOpt(${JSON.stringify(opt)})">${opt}</div>`;
+    }).join('');
+    html=`<div class="question-box">
+      <div class="badge-notion">${notionLabel}</div>
+      <div class="consigne">${q.consigne}</div>
+      ${q.mot_gras?`<div style="font-family:Nunito,sans-serif;font-size:13px;font-weight:700;color:var(--accent)">Mot en gras : <strong>${q.mot_gras}</strong></div>`:''}
+      <div class="phrase-trou">${phraseHtml}</div>
+      <div class="options-trou">${optsHtml}</div>
+      ${locked&&q.explication?`<div class="explication">${q.explication}</div>`:''}
+    </div>`;
+    const allFilled=q.trous.every((_,i)=>troupAnswers[i]);
+    document.getElementById('btn-verif').style.display=(allFilled&&!locked)?'inline-flex':'none';
+  }
+
+  document.getElementById('game-zone').innerHTML=html;
+}
+
+// ═══ INTERACTIONS ════════════════════════════
+function clickChoix(chosen){
+  if(locked)return;locked=true;total++;
+  currentQ._chosen=chosen;
+  const ok=chosen===currentQ.correct;
+  if(ok){score++;showFeedback('Bravo ! Bonne reponse !','ok');}
+  else showFeedback('Non - la bonne reponse : '+currentQ.correct,'ko');
+  updateScore();renderGame();
+}
+
+function selectEt(m){if(locked)return;selectedEtiquette=selectedEtiquette===m?null:m;renderGame();}
+function dropCol(col){if(locked||!selectedEtiquette)return;classement[col]=[...(classement[col]||[]),selectedEtiquette];selectedEtiquette=null;renderGame();}
+function removeCol(col,item){if(locked)return;classement[col]=(classement[col]||[]).filter(m=>m!==item);renderGame();}
+
+function clickAssoc(col,idx){
+  if(locked)return;
+  const paires=currentQ.paires,colB=currentQ._colB;
+  const sel=assocSel;
+  // Si rien de selectionne
+  if(sel.col===null){assocSel={col,idx};renderGame();return;}
+  // Si meme carte recliquee
+  if(sel.col===col&&sel.idx===idx){assocSel={col:null,idx:null};renderGame();return;}
+  // Si meme colonne
+  if(sel.col===col){assocSel={col,idx};renderGame();return;}
+  // Deux cartes de colonnes differentes -> verifier
+  const iA=sel.col==='A'?sel.idx:idx;
+  const iB=sel.col==='B'?sel.idx:idx;
+  const motA=paires[iA][0];
+  const motB=colB[iB];
+  const correct=paires[iA][1]===motB;
+  if(correct){
+    pairesFound.push(iA);
+    assocSel={col:null,idx:null};
+    assocWrongFlash=[];
+    // Verif fin
+    if(pairesFound.length===paires.length){
+      locked=true;total++;score++;
+      showFeedback('Bravo ! Toutes les paires sont trouvees !','ok');
+      updateScore();
+    }
+  }else{
+    assocWrongFlash=[{iA,iB}];
+    assocSel={col:null,idx:null};
+    setTimeout(()=>{assocWrongFlash=[];renderGame();},700);
+  }
+  renderGame();
+}
+
+function clickOpt(opt){
+  if(locked)return;
+  const q=currentQ;
+  const nextTrou=q.trous.findIndex((_,i)=>!troupAnswers[i]);
+  if(nextTrou===-1)return;
+  troupAnswers[nextTrou]=opt;
+  renderGame();
+}
+
+function verifier(){
+  if(locked)return;
+  const q=currentQ;
+  if(q.mode==='classer'){
+    locked=true;total++;
+    const cols=Object.keys(q.classes);
+    const ok=cols.every(col=>(classement[col]||[]).length===q.classes[col].length&&q.classes[col].every(m=>(classement[col]||[]).includes(m)));
+    if(ok){score++;showFeedback('Bravo ! Classement parfait !','ok');}
+    else showFeedback('Pas tout a fait - verifie les cases en rouge.','ko');
+    updateScore();renderGame();
+  }
+  else if(q.mode==='completer'){
+    locked=true;total++;
+    const ok=q.trous.every((_,i)=>troupAnswers[i]===q.trous[i].correct);
+    if(ok){score++;showFeedback('Bravo ! Bonne reponse !','ok');}
+    else showFeedback('Non - la bonne reponse : '+q.trous[0].correct,'ko');
+    updateScore();renderGame();
+  }
+}
+
+function showFeedback(m,t){const f=document.getElementById('feedback');f.textContent=m;f.className='feedback '+t;}
+function hideFeedback(){const f=document.getElementById('feedback');f.className='feedback';f.textContent='';}
+function updateScore(){document.getElementById('score-lbl').textContent='Score : '+score+' / '+total;}
+
+buildConfig();
+newGame();
+</script>
+</body>
+</html>
