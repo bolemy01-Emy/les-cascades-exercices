@@ -212,6 +212,59 @@
   .pose-cell:hover { border-color:var(--accent); background:var(--accent-l); }
   .pose-cell.active { border:3px solid var(--accent); background:var(--accent-l); box-shadow:0 0 0 3px rgba(106,27,154,.2); }
   .pose-cell.filled { border-style:solid; border-color:var(--border-d); background:var(--bg2); }
+
+  /* MULTIPLICATION */
+  .mul-wrap {
+    background:#fff; border:3px solid var(--border-d); border-radius:16px;
+    padding:1.6rem 2rem; display:inline-flex; flex-direction:column;
+    align-items:flex-end; box-shadow:0 4px 16px rgba(106,27,154,.12); gap:0;
+  }
+  .mul-row { display:flex; align-items:flex-end; gap:0; position:relative; }
+  .mul-sep { width:100%; height:3px; background:var(--text); border-radius:2px; margin:8px 0; }
+  .mul-sep-thin { width:100%; height:2px; background:var(--border-d); border-radius:2px; margin:4px 0; }
+  .mul-label {
+    font-family:'Nunito',sans-serif; font-size:10px; font-weight:800;
+    color:var(--text-light); background:var(--panel-bg); border:1px solid var(--border);
+    border-radius:4px; padding:2px 6px; margin-right:6px; white-space:nowrap; align-self:center;
+  }
+  .mul-col { display:flex; flex-direction:column; align-items:center; width:52px; position:relative; }
+  .mul-digit { font-family:'Nunito',sans-serif; font-size:36px; font-weight:900; color:var(--text); line-height:1; padding:6px 4px; }
+  .mul-digit.zero-dec { color:var(--wrong); }
+  /* Case résultat multiplication */
+  .mul-cell {
+    width:48px; height:54px; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Nunito',sans-serif; font-size:32px; font-weight:900; color:var(--text);
+    border:2px dashed var(--border-d); cursor:pointer; transition:all .15s;
+    background:var(--panel-bg); position:relative;
+  }
+  .mul-cell:hover { border-color:var(--accent); background:var(--accent-l); }
+  .mul-cell.active { border:3px solid var(--accent); background:var(--accent-l); box-shadow:0 0 0 3px rgba(106,27,154,.2); }
+  .mul-cell.filled { border-style:solid; border-color:var(--border-d); background:var(--bg2); }
+  .mul-cell.correct { border-color:var(--correct)!important; background:var(--correct-l)!important; color:var(--correct); border-style:solid!important; }
+  .mul-cell.wrong   { border-color:var(--wrong)!important; background:var(--wrong-l)!important; color:var(--wrong); border-style:solid!important; }
+  /* Retenue multiplication - petit cercle haut-droite */
+  .ret-mul {
+    width:22px; height:22px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Nunito',sans-serif; font-size:12px; font-weight:900;
+    cursor:pointer; transition:all .15s; z-index:2;
+    border:2px dashed var(--border); background:#fff; color:transparent;
+  }
+  .ret-mul:hover { border-color:var(--accent); background:var(--accent-l); color:var(--accent); }
+  .ret-mul.filled { border:2px solid var(--ret); color:var(--ret); background:var(--ret-l); }
+  .ret-mul.active { border:2px solid var(--accent); background:var(--accent-l); color:var(--accent); }
+  .ret-mul.correct { border-color:var(--correct); background:var(--correct-l); color:var(--correct); }
+  .ret-mul.wrong   { border-color:var(--wrong); background:var(--wrong-l); color:var(--wrong); }
+  /* Bouton + retenue */
+  .add-ret-btn {
+    width:22px; height:22px; border-radius:50%;
+    background:var(--accent-l); border:1.5px solid var(--accent);
+    font-size:13px; font-weight:900; color:var(--accent);
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    line-height:1;
+  }
+  .add-ret-btn:hover { background:var(--accent); color:#fff; }
 </style>
 </head>
 <body>
@@ -219,7 +272,7 @@
 <div class="topbar">
   <div>
     <div class="game-title">Opérations posées</div>
-    <div class="game-sub">Addition et soustraction avec retenues</div>
+    <div class="game-sub">Addition, soustraction et multiplication posées</div>
   </div>
   <span class="score-pill" id="score-lbl">Score : 0 / 0</span>
 </div>
@@ -230,13 +283,28 @@
     <div class="check-row">
       <div class="cbox checked" id="cb-add" onclick="toggleOp('add',this)">Addition</div>
       <div class="cbox checked" id="cb-sub" onclick="toggleOp('sub',this)">Soustraction</div>
+      <div class="cbox" id="cb-mul" onclick="toggleOp('mul',this)">Multiplication</div>
     </div>
   </div>
-  <div class="config-block">
-    <div class="config-label">Nombres</div>
+  <div class="config-block" id="block-addsub">
+    <div class="config-label">Nombres (+ et −)</div>
     <div class="check-row">
       <div class="cbox checked" id="cb-2c" onclick="toggleChiffres(2,this)">2 chiffres</div>
       <div class="cbox"         id="cb-3c" onclick="toggleChiffres(3,this)">3 chiffres</div>
+    </div>
+  </div>
+  <div class="config-block" id="block-mul" style="display:none">
+    <div class="config-label">1er facteur (×)</div>
+    <div class="check-row">
+      <div class="cbox checked" id="cb-mul2" onclick="toggleMul1(2,this)">2 chiffres</div>
+      <div class="cbox"         id="cb-mul3" onclick="toggleMul1(3,this)">3 chiffres</div>
+    </div>
+  </div>
+  <div class="config-block" id="block-mul2" style="display:none">
+    <div class="config-label">2e facteur (×)</div>
+    <div class="check-row">
+      <div class="cbox checked" id="cb-f1" onclick="toggleMul2(1,this)">1 chiffre</div>
+      <div class="cbox"         id="cb-f2" onclick="toggleMul2(2,this)">2 chiffres</div>
     </div>
   </div>
   <div class="config-block">
@@ -369,6 +437,9 @@ function calcRetenuesSub(){
 function newGame(){
   hideFeedback();locked=false;activeCell=null;phasePose=false;
   const chosenOp=ops[Math.floor(Math.random()*ops.length)];
+  if(chosenOp==='mul'){
+    initMul();buildKeypadMul();return;
+  }
   const ex=chosenOp==='add'?genAdd():genSub();
   op=ex.op;numA=ex.a;numB=ex.b;result=ex.res;nCols=nbChiffres;
   if(poserSoiMeme)initPose();
@@ -585,7 +656,23 @@ function buildKeypad(){
     <div class="key del" onclick="pressKey('del')">&#x232B;</div>`;
 }
 
+function buildKeypadMul(){
+  document.getElementById('keypad').innerHTML=`
+    <div class="key" onclick="pressMulKey(7)">7</div>
+    <div class="key" onclick="pressMulKey(8)">8</div>
+    <div class="key" onclick="pressMulKey(9)">9</div>
+    <div class="key" onclick="pressMulKey(4)">4</div>
+    <div class="key" onclick="pressMulKey(5)">5</div>
+    <div class="key" onclick="pressMulKey(6)">6</div>
+    <div class="key" onclick="pressMulKey(1)">1</div>
+    <div class="key" onclick="pressMulKey(2)">2</div>
+    <div class="key" onclick="pressMulKey(3)">3</div>
+    <div class="key zero" onclick="pressMulKey(0)">0</div>
+    <div class="key del" onclick="pressMulKey('del')">&#x232B;</div>`;
+}
+
 function pressKey(k){
+  if(document.querySelector('.mul-wrap')){pressMulKey(k);return;}
   if(locked)return;
   // Mode pose
   if(phasePose&&activeCell&&activeCell.type==='pose'){
@@ -618,6 +705,9 @@ function autoNextCalc(){
 //  CHECK
 // ═══════════════════════════════════════════
 function checkAll(){
+  if(ops.length===1&&ops[0]==='mul'||mulActiveId!==undefined&&document.querySelector('.mul-wrap')){
+    if(document.querySelector('.mul-wrap')){checkMul();return;}
+  }
   if(phasePose){checkPose();return;}
   if(locked)return;
   const resCells=cells.filter(c=>c.type==='result');
@@ -638,6 +728,7 @@ function checkAll(){
 }
 
 function resetRound(){
+  if(document.querySelector('.mul-wrap')){resetMul();return;}
   locked=false;activeCell=null;hideFeedback();
   if(poserSoiMeme)initPose();
   else{cells.forEach(c=>{c.value=null;c.active=false;});renderCalcul();}
@@ -647,10 +738,356 @@ function updateScore(){document.getElementById('score-lbl').textContent='Score :
 function showFeedback(m,t){const f=document.getElementById('feedback');f.textContent=m;f.className='feedback '+t;}
 function hideFeedback(){const f=document.getElementById('feedback');f.className='feedback';f.textContent='';}
 
+
+// ═══════════════════════════════════════════
+//  CONFIG MULTIPLICATION
+// ═══════════════════════════════════════════
+let mulChiffres1=2, mulChiffres2=1;
+
+function toggleMul1(n,el){
+  mulChiffres1=n;
+  document.getElementById('cb-mul2').classList.toggle('checked',n===2);
+  document.getElementById('cb-mul3').classList.toggle('checked',n===3);
+}
+function toggleMul2(n,el){
+  mulChiffres2=n;
+  document.getElementById('cb-f1').classList.toggle('checked',n===1);
+  document.getElementById('cb-f2').classList.toggle('checked',n===2);
+}
+
+// Surcharge toggleOp pour afficher/masquer blocs config
+const _origToggleOp = toggleOp;
+function toggleOp(o,el){
+  ops=[o];
+  document.querySelectorAll('#cb-add,#cb-sub,#cb-mul').forEach(function(b){b.classList.remove('checked');});
+  el.classList.add('checked');
+  const hasMul=ops.includes('mul');
+  const hasOther=ops.includes('add')||ops.includes('sub');
+  document.getElementById('block-mul').style.display=hasMul?'':'none';
+  document.getElementById('block-mul2').style.display=hasMul?'':'none';
+  document.getElementById('block-addsub').style.display=hasOther?'':'none';
+}
+
+// ═══════════════════════════════════════════
+//  GENERATION MULTIPLICATION
+// ═══════════════════════════════════════════
+function genMul(){
+  const mn1=mulChiffres1===2?10:100, mx1=mulChiffres1===2?99:999;
+  const mn2=mulChiffres2===1?2:10,   mx2=mulChiffres2===1?9:99;
+  const a=rnd(mn1,mx1), b=rnd(mn2,mx2);
+  return {a,b,res:a*b,op:'mul'};
+}
+
+// ═══════════════════════════════════════════
+//  STATE MULTIPLICATION
+// ═══════════════════════════════════════════
+let mulCells=[], mulActiveCellId=null, mulLocked=false;
+let mulNumA=0, mulNumB=0, mulResult=0;
+let mulNbCols1=0, mulNbCols2=0; // nb chiffres facteur1, facteur2
+
+// Structure: partial[i] = tableau de chiffres de la ligne partielle i (i=0: unites, i=1: dizaines)
+// finalRes = chiffres du résultat final
+// retCells = retenues {id, line, col, value, correct}
+
+let mulPartials=[];
+let mulOkFinal=false;   // [{digits:[...], offset:i, correct:[...]}]
+let mulFinalRes=[];   // [{col, value, correct}]
+let mulRetCells=[];   // [{id, line, col, value}]  // line=index de la ligne partielle
+let mulActiveId=null; // {zone:'partial'|'final'|'ret', line, col, retId}
+
+function initMul(){
+  const ex=genMul();
+  mulNumA=ex.a; mulNumB=ex.b; mulResult=ex.res;
+  mulNbCols1=mulChiffres1; mulNbCols2=mulChiffres2;
+  mulLocked=false; mulActiveId=null; mulRetCells=[];
+
+  const dA=getDigits(mulNumA, mulNbCols1+mulNbCols2);
+  const dB=getDigits(mulNumB, mulNbCols2);
+
+  // Calculer les lignes partielles
+  mulPartials=[];
+  for(let b=0;b<mulNbCols2;b++){
+    const factor=dB[b]; // chiffre du 2e facteur
+    const partial=mulNumA*factor;
+    const maxCols=mulNbCols1+mulNbCols2;
+    const partDigits=getDigits(partial,maxCols);
+    mulPartials.push({
+      factorChiffre:factor,
+      offset:b,          // décalage = b cases depuis la droite
+      correct:partDigits,
+      values:Array(maxCols).fill(null)
+    });
+  }
+
+  // Résultat final
+  const maxFinal=mulNbCols1+mulNbCols2;
+  const finalDigits=getDigits(mulResult,maxFinal);
+  mulFinalRes=finalDigits.map((d,i)=>({col:i,correct:d,value:null}));
+
+  renderMul();
+}
+
+// ═══════════════════════════════════════════
+//  RENDER MULTIPLICATION
+// ═══════════════════════════════════════════
+function renderMul(){
+  const nCols=mulNbCols1+mulNbCols2;
+  const dA=getDigits(mulNumA,mulNbCols1);
+  const dB=getDigits(mulNumB,mulNbCols2);
+  const nbDigFinal=String(mulResult).length;
+
+  function makeRetRight(retId,lineTag){
+    const ret=mulRetCells.find(function(r){return r.id===retId;});
+    const isAct=mulActiveId&&mulActiveId.zone==='ret'&&mulActiveId.retId===retId;
+    let cls,content;
+    if(ret){
+      cls=isAct?'ret-mul active':(ret.value!==null?'ret-mul filled':'ret-mul active');
+      content=ret.value!==null?ret.value:'?';
+    }else{ cls='add-ret-btn';content='+'; }
+    return '<div class="mul-col" style="display:flex;align-items:center;padding-left:8px;min-width:38px">'
+      +'<div class="'+cls+'" data-ret="'+retId+'" data-line="'+lineTag+'" data-col="-1" onclick="handleRetClick(this)">'+content+'</div>'
+      +'</div>';
+  }
+
+  function makeRetAbove(retId,lineTag,colTag){
+    const ret=mulRetCells.find(function(r){return r.id===retId;});
+    let cls,content;
+    if(ret){
+      cls=ret.value!==null?'ret-mul filled':'ret-mul active';
+      content=ret.value!==null?ret.value:'?';
+    }else{ cls='add-ret-btn';content='+'; }
+    return '<div class="'+cls+'" data-ret="'+retId+'" data-line="'+lineTag+'" data-col="'+colTag+'" onclick="handleRetClick(this)">'+content+'</div>';
+  }
+
+  function emptyRetCol(){ return '<div class="mul-col" style="min-width:38px"></div>'; }
+
+  // Ligne A
+  const rowA=Array.from({length:nCols},(_,i)=>nCols-1-i).map(function(col){
+    if(col>=mulNbCols1) return '<div class="mul-col"><div class="mul-digit" style="color:transparent">0</div></div>';
+    return '<div class="mul-col"><div class="mul-digit">'+dA[col]+'</div></div>';
+  }).join('')+emptyRetCol();
+
+  // Ligne B
+  const rowB=Array.from({length:nCols},(_,i)=>nCols-1-i).map(function(col){
+    if(col>=mulNbCols2) return '<div class="mul-col"><div class="mul-digit" style="color:transparent">0</div></div>';
+    return '<div class="mul-col"><div class="mul-digit">'+dB[col]+'</div></div>';
+  }).join('')+emptyRetCol();
+
+  // Lignes partielles
+  // Si 2 lignes partielles : retenues addition au-dessus de la 1ere ligne partielle
+  const dB2=getDigits(mulNumB,mulNbCols2);
+  const partialsHtml=mulPartials.map(function(p,lineIdx){
+    const offset=p.offset;
+    const partial=mulNumA*p.factorChiffre;
+    const nbDigP=partial===0?1:String(partial).length;
+    const maxCol=offset+nbDigP-1;
+
+    // Rangée retenues addition AU-DESSUS de la 1ere ligne partielle uniquement
+    let retAboveHtml='';
+    if(lineIdx===0 && mulNbCols2>1 && !mulLocked){
+      for(let col=nCols-1;col>=0;col--){
+        if(col>=1 && col<nbDigFinal){
+          retAboveHtml+='<div class="mul-col" style="display:flex;justify-content:center;height:26px;align-items:center">'
+            +makeRetAbove('rf_'+col,-2,col)+'</div>';
+        }else{
+          retAboveHtml+='<div class="mul-col" style="height:26px"></div>';
+        }
+      }
+      retAboveHtml+='<div style="min-width:38px"></div>';
+    }
+
+    // Rangée cases
+    let cellRow='';
+    for(let col=nCols-1;col>=0;col--){
+      if(col>maxCol){
+        cellRow+='<div class="mul-col"><div class="mul-cell" style="border:2px dashed transparent;background:transparent;cursor:default"></div></div>';
+        continue;
+      }
+      const val=p.values[col];
+      const correct=p.correct[col];
+      let cls='mul-cell';
+      const isAct=mulActiveId&&mulActiveId.zone==='partial'&&mulActiveId.line===lineIdx&&mulActiveId.col===col;
+      if(mulLocked) cls+=mulOkFinal?' correct':(val!==null&&Number(val)===correct?' correct':' wrong');
+      else if(isAct) cls+=' active';
+      else if(val!==null) cls+=' filled';
+      cellRow+='<div class="mul-col"><div class="'+cls+'" data-zone="partial" data-line="'+lineIdx+'" data-col="'+col+'" onclick="handleMulCellClick(this)">'+(val!==null?val:'')+'</div></div>';
+    }
+
+    let label='';
+    if(mulNbCols2>1){
+      const facteur=lineIdx===0?dB2[0]:(dB2[1]*10);
+      label='<span class="mul-label">'+mulNumA+'&times;'+facteur+'</span>';
+    }
+
+    return (retAboveHtml?'<div class="mul-row">'+label+retAboveHtml+'</div>':'')
+          +'<div class="mul-row">'+label+cellRow+makeRetRight('rp_'+lineIdx,lineIdx)+'</div>';
+  }).join('');
+
+  // Ligne résultat final — sans retenue (elles sont au-dessus de la 1ere ligne)
+  let finalCells='';
+  for(let col=nCols-1;col>=0;col--){
+    if(col>=nbDigFinal){
+      finalCells+='<div class="mul-col"><div class="mul-cell" style="border:2px dashed transparent;background:transparent;cursor:default"></div></div>';
+      continue;
+    }
+    const f=mulFinalRes[col];
+    let cls='mul-cell';
+    const isAct=mulActiveId&&mulActiveId.zone==='final'&&mulActiveId.col===col;
+    if(mulLocked) cls+=mulOkFinal?' correct':(f.value!==null&&Number(f.value)===f.correct?' correct':' wrong');
+    else if(isAct) cls+=' active';
+    else if(f.value!==null) cls+=' filled';
+    finalCells+='<div class="mul-col"><div class="'+cls+'" data-zone="final" data-line="-1" data-col="'+col+'" onclick="handleMulCellClick(this)">'+(f.value!==null?f.value:'')+'</div></div>';
+  }
+  finalCells+=emptyRetCol();
+
+  const sepMid=mulNbCols2>1?'<div class="mul-sep-thin"></div>':'';
+
+  document.getElementById('game-zone').innerHTML=
+    '<div class="mul-wrap">'
+    +'<div class="mul-row">'+rowA+'</div>'
+    +'<div class="mul-row"><div class="mul-digit" style="width:36px;font-size:28px">&times;</div>'+rowB+'</div>'
+    +'<div class="mul-sep"></div>'
+    +partialsHtml
+    +sepMid
+    +'<div class="mul-sep"></div>'
+    +'<div class="mul-row">'+finalCells+'</div>'
+    +'</div>';
+}
+function handleMulCellClick(el){
+  const zone=el.getAttribute('data-zone');
+  const line=parseInt(el.getAttribute('data-line'));
+  const col=parseInt(el.getAttribute('data-col'));
+  activateMulCell(zone,line,col);
+}
+function activateMulCell(zone,line,col){
+  if(mulLocked)return;
+  mulActiveId={zone,line,col};
+  renderMul();
+}
+
+
+function handleRetClick(el){
+  const retId=el.getAttribute('data-ret');
+  const line=parseInt(el.getAttribute('data-line'));
+  const col=parseInt(el.getAttribute('data-col'));
+  toggleMulRet(retId,line,col);
+}
+function toggleMulRet(retId,line,col){
+  if(mulLocked)return;
+  const existing=mulRetCells.find(function(r){return r.id===retId;});
+  if(existing){
+    mulActiveId={zone:'ret',retId:retId,line:line,col:col};
+  }else{
+    mulRetCells.push({id:retId,line:line,col:col,value:null});
+    mulActiveId={zone:'ret',retId:retId,line:line,col:col};
+  }
+  renderMul();
+}
+
+function pressMulKey(k){
+  if(mulLocked||!mulActiveId)return;
+  const {zone,line,col,retId}=mulActiveId;
+
+  if(zone==='partial'){
+    const p=mulPartials[line];
+    if(k==='del') p.values[col]=null;
+    else{ p.values[col]=Number(k); autoNextMulPartial(line,col); }
+  }else if(zone==='final'){
+    const f=mulFinalRes[col];
+    if(k==='del') f.value=null;
+    else{ f.value=Number(k); autoNextMulFinal(col); }
+  }else if(zone==='ret'){
+    const ret=mulRetCells.find(function(r){return r.id===retId;});
+    if(ret){
+      if(k==='del') ret.value=null;
+      else ret.value=Number(k);
+    }
+    mulActiveId=null;
+  }
+  renderMul();
+}
+
+function autoNextMulPartial(line,col){
+  // Chercher la prochaine case vide à gauche (col-1)
+  const p=mulPartials[line];
+  const nCols=mulNbCols1+mulNbCols2;
+  for(let c=col-1;c>=mulPartials[line].offset;c--){
+    if(p.values[c]===null){mulActiveId={zone:'partial',line,col:c};return;}
+  }
+  // Passer à la ligne suivante si dispo
+  if(line+1<mulPartials.length){
+    mulActiveId={zone:'partial',line:line+1,col:mulPartials[line+1].offset+mulNbCols1};
+  }
+}
+
+function autoNextMulFinal(col){
+  const nCols=mulNbCols1+mulNbCols2;
+  for(let c=col-1;c>=0;c--){
+    if(mulFinalRes[c].value===null){mulActiveId={zone:'final',line:-1,col:c};return;}
+  }
+}
+
+function checkMul(){
+  if(mulLocked)return;
+  const nCols=mulNbCols1+mulNbCols2;
+  const nbDigFinal=String(mulResult).length;
+  let allFilled=true;
+
+  mulPartials.forEach(function(p){
+    const partial=mulNumA*p.factorChiffre;
+    const nbDigPartial=partial===0?1:String(partial).length;
+    // Ne vérifier que les cases jusqu'au nombre de chiffres du partiel
+    for(let col=p.offset;col<p.offset+nbDigPartial;col++){
+      if(col<nCols && p.values[col]===null){allFilled=false;}
+    }
+  });
+
+  for(let col=0;col<nbDigFinal;col++){
+    if(mulFinalRes[col].value===null){allFilled=false;}
+  }
+
+  if(!allFilled){showFeedback('Complète toutes les cases !','ko');return;}
+
+  mulLocked=true;total++;
+
+  const okPartials=mulPartials.every(function(p){
+    const partial=mulNumA*p.factorChiffre;
+    const nbDigPartial=partial===0?1:String(partial).length;
+    for(let col=p.offset;col<p.offset+nbDigPartial;col++){
+      if(col<nCols && Number(p.values[col])!==p.correct[col])return false;
+    }
+    return true;
+  });
+
+  const okFinal=mulFinalRes.slice(0,nbDigFinal).every(function(f){
+    return Number(f.value)===f.correct;
+  });
+
+  if(okFinal){
+    score++;
+    showFeedback('Bravo ! '+mulNumA+' × '+mulNumB+' = '+mulResult,'ok');
+  }else if(okPartials){
+    showFeedback('Lignes intermédiaires correctes, mais vérifie le résultat final.','ko');
+  }else{
+    showFeedback('Pas tout à fait — le résultat est '+mulResult+'.','ko');
+  }
+  updateScore();renderMul();
+}
+
+function resetMul(){
+  mulLocked=false;mulActiveId=null;mulRetCells=[];mulOkFinal=false;
+  mulPartials.forEach(p=>p.values=p.values.map(()=>null));
+  mulFinalRes.forEach(f=>f.value=null);
+  hideFeedback();renderMul();
+}
+
 // ═══════════════════════════════════════════
 //  BOOT
 // ═══════════════════════════════════════════
 newGame();
 </script>
+<footer style="text-align:center;font-size:11px;color:#7A5C20;padding:1rem;border-top:2px solid #CE93D8;background:#fff;font-family:'Nunito Sans',sans-serif;">
+  &copy; Olivier Grandclément — École élémentaire Les Cascades, Dortan
+</footer>
 </body>
 </html>
