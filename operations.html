@@ -265,71 +265,6 @@
     line-height:1;
   }
   .add-ret-btn:hover { background:var(--accent); color:#fff; }
-
-  /* DIVISION */
-  .div-wrap {
-    display:inline-flex; flex-direction:column; gap:0;
-    background:#fff; border:3px solid var(--border-d); border-radius:16px;
-    padding:1.4rem 1.8rem; box-shadow:0 4px 16px rgba(106,27,154,.12);
-    min-width:320px;
-  }
-  .div-top { display:flex; align-items:stretch; gap:0; margin-bottom:8px; }
-  .div-dividende {
-    font-family:'Nunito',sans-serif; font-size:36px; font-weight:900;
-    color:var(--text); padding-right:12px; border-right:3px solid var(--text);
-    display:flex; align-items:flex-start; gap:0;
-  }
-  .div-right { display:flex; flex-direction:column; padding-left:12px; }
-  .div-diviseur {
-    font-family:'Nunito',sans-serif; font-size:36px; font-weight:900;
-    color:var(--text); border-bottom:3px solid var(--text); padding-bottom:4px;
-    margin-bottom:4px; min-width:60px;
-  }
-  .div-quotient-row { display:flex; gap:0; }
-  /* Case saisie division */
-  .div-cell {
-    min-width:44px; height:52px; border-radius:8px;
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Nunito',sans-serif; font-size:30px; font-weight:900; color:var(--text);
-    border:2px dashed var(--border-d); cursor:pointer; transition:all .15s;
-    background:var(--panel-bg); padding:0 6px;
-  }
-  .div-cell:hover { border-color:var(--accent); background:var(--accent-l); }
-  .div-cell.active { border:3px solid var(--accent); background:var(--accent-l); box-shadow:0 0 0 3px rgba(106,27,154,.2); }
-  .div-cell.filled { border-style:solid; border-color:var(--border-d); background:var(--bg2); }
-  .div-cell.correct { border-color:var(--correct)!important; background:var(--correct-l)!important; color:var(--correct); border-style:solid!important; }
-  .div-cell.wrong   { border-color:var(--wrong)!important; background:var(--wrong-l)!important; color:var(--wrong); border-style:solid!important; }
-  /* Etapes division */
-  .div-steps { display:flex; flex-direction:column; gap:2px; }
-  .div-step { display:flex; flex-direction:column; gap:0; margin-left:8px; }
-  .div-step-row { display:flex; align-items:center; gap:0; position:relative; }
-  .div-step-label {
-    font-family:'Nunito',sans-serif; font-size:13px; font-weight:800;
-    color:var(--accent); margin-right:6px; min-width:14px; text-align:right;
-  }
-  .div-sep { height:2px; background:var(--border-d); margin:3px 0 3px 0; border-radius:1px; }
-  /* Retenue soustraction division - même style que soustraction normale */
-  .div-ret {
-    position:absolute; bottom:2px; left:2px;
-    width:20px; height:20px; border-radius:4px;
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Nunito',sans-serif; font-size:12px; font-weight:900;
-    cursor:pointer; transition:all .15s;
-    border:2px dashed var(--border); color:transparent;
-  }
-  .div-ret:hover { border-color:var(--accent); background:var(--accent-l); }
-  .div-ret.filled { border:2px solid var(--ret); color:var(--ret); background:var(--ret-l); }
-  .div-ret.correct { border-color:var(--correct); background:var(--correct-l); color:var(--correct); }
-  .div-ret.wrong   { border-color:var(--wrong); background:var(--wrong-l); color:var(--wrong); }
-  /* Bouton ajouter etape */
-  .div-add-step {
-    display:inline-flex; align-items:center; gap:6px;
-    font-family:'Nunito',sans-serif; font-size:13px; font-weight:800;
-    color:var(--accent); background:var(--accent-l); border:2px solid var(--accent);
-    border-radius:8px; padding:6px 14px; cursor:pointer; transition:all .15s;
-    margin-top:8px; align-self:flex-start;
-  }
-  .div-add-step:hover { background:var(--accent); color:#fff; }
 </style>
 </head>
 <body>
@@ -337,7 +272,7 @@
 <div class="topbar">
   <div>
     <div class="game-title">Opérations posées</div>
-    <div class="game-sub">Additions, soustractions et multiplications posées</div>
+    <div class="game-sub">Addition, soustraction et multiplication posées</div>
   </div>
   <span class="score-pill" id="score-lbl">Score : 0 / 0</span>
 </div>
@@ -347,9 +282,8 @@
     <div class="config-label">Opération</div>
     <div class="check-row">
       <div class="cbox checked" id="cb-add" onclick="toggleOp('add',this)">Addition</div>
-      <div class="cbox" id="cb-sub" onclick="toggleOp('sub',this)">Soustraction</div>
+      <div class="cbox checked" id="cb-sub" onclick="toggleOp('sub',this)">Soustraction</div>
       <div class="cbox" id="cb-mul" onclick="toggleOp('mul',this)">Multiplication</div>
-      <div class="cbox" id="cb-div" onclick="toggleOp('div',this)">Division</div>
     </div>
   </div>
   <div class="config-block" id="block-addsub">
@@ -371,28 +305,6 @@
     <div class="check-row">
       <div class="cbox checked" id="cb-f1" onclick="toggleMul2(1,this)">1 chiffre</div>
       <div class="cbox"         id="cb-f2" onclick="toggleMul2(2,this)">2 chiffres</div>
-    </div>
-  </div>
-  <div class="config-block" id="block-div" style="display:none">
-    <div class="config-label">Dividende</div>
-    <div class="check-row">
-      <div class="cbox checked" id="cb-div2" onclick="toggleDivCfg('dd',2,this)">2 chiffres</div>
-      <div class="cbox checked" id="cb-div3" onclick="toggleDivCfg('dd',3,this)">3 chiffres</div>
-      <div class="cbox" id="cb-div4" onclick="toggleDivCfg('dd',4,this)">4 chiffres</div>
-    </div>
-  </div>
-  <div class="config-block" id="block-div2" style="display:none">
-    <div class="config-label">Diviseur</div>
-    <div class="check-row">
-      <div class="cbox checked" id="cb-divs1" onclick="toggleDivCfg('ds',1,this)">1 chiffre</div>
-      <div class="cbox" id="cb-divs2" onclick="toggleDivCfg('ds',2,this)">2 chiffres</div>
-    </div>
-  </div>
-  <div class="config-block" id="block-div3" style="display:none">
-    <div class="config-label">Options</div>
-    <div class="check-row">
-      <div class="cbox" id="cb-divdec" onclick="toggleDivOpt('dec',this)">Décimales</div>
-      <div class="cbox checked" id="cb-divreste" onclick="toggleDivOpt('reste',this)">Avec reste</div>
     </div>
   </div>
   <div class="config-block">
@@ -429,7 +341,7 @@
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-let ops=['add'], nbChiffres=2, avecRetenue=true, poserSoiMeme=false;
+let ops=['add','sub'], nbChiffres=2, avecRetenue=true, poserSoiMeme=false;
 let score=0, total=0;
 
 function toggleOp(o,el){
@@ -527,9 +439,6 @@ function newGame(){
   const chosenOp=ops[Math.floor(Math.random()*ops.length)];
   if(chosenOp==='mul'){
     initMul();buildKeypadMul();return;
-  }
-  if(chosenOp==='div'){
-    initDiv();buildKeypadDiv();return;
   }
   const ex=chosenOp==='add'?genAdd():genSub();
   op=ex.op;numA=ex.a;numB=ex.b;result=ex.res;nCols=nbChiffres;
@@ -747,20 +656,6 @@ function buildKeypad(){
     <div class="key del" onclick="pressKey('del')">&#x232B;</div>`;
 }
 
-function buildKeypadDiv(){
-  document.getElementById('keypad').innerHTML=`
-    <div class="key" onclick="pressKey(7)">7</div>
-    <div class="key" onclick="pressKey(8)">8</div>
-    <div class="key" onclick="pressKey(9)">9</div>
-    <div class="key" onclick="pressKey(4)">4</div>
-    <div class="key" onclick="pressKey(5)">5</div>
-    <div class="key" onclick="pressKey(6)">6</div>
-    <div class="key" onclick="pressKey(1)">1</div>
-    <div class="key" onclick="pressKey(2)">2</div>
-    <div class="key" onclick="pressKey(3)">3</div>
-    <div class="key zero" onclick="pressKey(0)">0</div>
-    <div class="key del" onclick="pressKey('del')">&#x232B;</div>`;}
-
 function buildKeypadMul(){
   document.getElementById('keypad').innerHTML=`
     <div class="key" onclick="pressMulKey(7)">7</div>
@@ -777,7 +672,6 @@ function buildKeypadMul(){
 }
 
 function pressKey(k){
-  if(document.querySelector('.div-wrap')){pressDivKey(k);return;}
   if(document.querySelector('.mul-wrap')){pressMulKey(k);return;}
   if(locked)return;
   // Mode pose
@@ -811,8 +705,9 @@ function autoNextCalc(){
 //  CHECK
 // ═══════════════════════════════════════════
 function checkAll(){
-  if(document.querySelector('.div-wrap')){checkDiv();return;}
-  if(document.querySelector('.mul-wrap')){checkMul();return;}
+  if(ops.length===1&&ops[0]==='mul'||mulActiveId!==undefined&&document.querySelector('.mul-wrap')){
+    if(document.querySelector('.mul-wrap')){checkMul();return;}
+  }
   if(phasePose){checkPose();return;}
   if(locked)return;
   const resCells=cells.filter(c=>c.type==='result');
@@ -833,7 +728,6 @@ function checkAll(){
 }
 
 function resetRound(){
-  if(document.querySelector('.div-wrap')){resetDiv();return;}
   if(document.querySelector('.mul-wrap')){resetMul();return;}
   locked=false;activeCell=null;hideFeedback();
   if(poserSoiMeme)initPose();
@@ -1190,341 +1084,6 @@ function resetMul(){
 // ═══════════════════════════════════════════
 //  BOOT
 // ═══════════════════════════════════════════
-
-// ═══════════════════════════════════════════
-//  CONFIG DIVISION
-// ═══════════════════════════════════════════
-let divDividendeChiffres=[2,3];
-let divDiviseurChiffres=1;
-let divDecimales=false;
-let divAvecReste=true;
-
-function toggleDivCfg(type,val,el){
-  if(type==='dd'){
-    if(divDividendeChiffres.includes(val)&&divDividendeChiffres.length===1)return;
-    const i=divDividendeChiffres.indexOf(val);
-    if(i>=0)divDividendeChiffres.splice(i,1);else divDividendeChiffres.push(val);
-    el.classList.toggle('checked',divDividendeChiffres.includes(val));
-  }else{
-    divDiviseurChiffres=val;
-    document.getElementById('cb-divs1').classList.toggle('checked',val===1);
-    document.getElementById('cb-divs2').classList.toggle('checked',val===2);
-  }
-}
-function toggleDivOpt(opt,el){
-  if(opt==='dec'){divDecimales=!divDecimales;el.classList.toggle('checked',divDecimales);}
-  else{divAvecReste=!divAvecReste;el.classList.toggle('checked',divAvecReste);}
-}
-
-// Surcharge toggleOp pour division
-const _origToggleOpDiv=toggleOp;
-function toggleOp(o,el){
-  ops=[o];
-  document.querySelectorAll('#cb-add,#cb-sub,#cb-mul,#cb-div').forEach(function(b){b.classList.remove('checked');});
-  el.classList.add('checked');
-  const hasMul=o==='mul', hasDiv=o==='div', hasOther=o==='add'||o==='sub';
-  document.getElementById('block-mul').style.display=hasMul?'':'none';
-  document.getElementById('block-mul2').style.display=hasMul?'':'none';
-  document.getElementById('block-addsub').style.display=hasOther?'':'none';
-  document.getElementById('block-div').style.display=hasDiv?'':'none';
-  document.getElementById('block-div2').style.display=hasDiv?'':'none';
-  document.getElementById('block-div3').style.display=hasDiv?'':'none';
-}
-
-// ═══════════════════════════════════════════
-//  GENERATION DIVISION
-// ═══════════════════════════════════════════
-function genDiv(){
-  const nbDD=divDividendeChiffres[Math.floor(Math.random()*divDividendeChiffres.length)];
-  const mnDD=Math.pow(10,nbDD-1), mxDD=Math.pow(10,nbDD)-1;
-  const mnDS=divDiviseurChiffres===1?2:10, mxDS=divDiviseurChiffres===1?9:99;
-  let diviseur=rnd(mnDS,mxDS);
-
-  if(divDecimales){
-    // Dividende décimal : on génère quotient entier ou décimal, diviseur entier
-    // On choisit nb décimales (1 ou 2)
-    const nbDec=rnd(1,2);
-    const scale=Math.pow(10,nbDec);
-    // Quotient peut être décimal aussi (1 ou 2 décimales)
-    const nbDecQ=rnd(0,nbDec);
-    const scaleQ=Math.pow(10,nbDecQ);
-    // Générer quotient
-    const qEntier=rnd(Math.floor(mnDD/diviseur), Math.floor(mxDD/diviseur));
-    const quotientScaled=qEntier*scaleQ + (nbDecQ>0?rnd(1,scaleQ-1):0);
-    const quotient=quotientScaled/scaleQ;
-    // Dividende = quotient * diviseur, arrondi à nbDec décimales
-    const dividendeRaw=quotient*diviseur;
-    const dividende=Math.round(dividendeRaw*scale)/scale;
-    const reste=0;
-    return {dividende,diviseur,quotient,reste,nbDecDD:nbDec,nbDecQ:nbDecQ>0?nbDecQ:0,isDecimal:true};
-  } else {
-    // Entier
-    let dividende, quotient, reste;
-    if(divAvecReste){
-      dividende=rnd(mnDD,mxDD);
-    }else{
-      quotient=rnd(Math.floor(mnDD/diviseur),Math.floor(mxDD/diviseur));
-      dividende=quotient*diviseur;
-    }
-    quotient=Math.floor(dividende/diviseur);
-    reste=dividende%diviseur;
-    return {dividende,diviseur,quotient,reste,nbDecDD:0,nbDecQ:0,isDecimal:false};
-  }
-}
-
-// ═══════════════════════════════════════════
-//  STATE DIVISION
-// ═══════════════════════════════════════════
-let divDividende=0, divDiviseur=0, divQuotient=0, divReste=0;
-let divLocked=false, divActiveId=null;
-// Quotient saisi chiffre par chiffre
-let divQuotientDigits=[];   // [{value:null}]
-// Etapes : [{sousVal:null, resteVal:null, retenues:{col:val}}]
-let divSteps=[];
-let divRetenues={};  // 'step_i_col' -> value
-
-let divNbDecDD=0, divNbDecQ=0, divIsDecimal=false;
-
-function initDiv(){
-  const ex=genDiv();
-  divDividende=ex.dividende; divDiviseur=ex.diviseur;
-  divQuotient=ex.quotient; divReste=ex.reste;
-  divNbDecDD=ex.nbDecDD; divNbDecQ=ex.nbDecQ; divIsDecimal=ex.isDecimal;
-  divLocked=false; divActiveId=null; divRetenues={};
-  // Quotient : chiffres sans la virgule pour la saisie
-  const qStr=String(divQuotient).replace('.','');
-  divQuotientDigits=Array.from({length:qStr.length},function(){return {value:null};});
-  divSteps=[];
-  renderDiv();
-}
-
-// ═══════════════════════════════════════════
-//  RENDER DIVISION
-// ═══════════════════════════════════════════
-function renderDiv(){
-  // Formater dividende avec virgule si décimal
-  const ddStr=divIsDecimal?String(divDividende).replace('.',','):String(divDividende);
-  // Formater quotient attendu avec virgule si décimal
-  const qExpected=divIsDecimal&&divNbDecQ>0?String(divQuotient).replace('.',','):String(divQuotient);
-  const dsStr=String(divDiviseur);
-  const nbDD=ddStr.length;
-  const nbQ=divQuotientDigits.length;
-  const CELL_W=52; // largeur d'une case en px
-
-  // Helper : case saisie
-  function divCell(cls,dataAttrs,val){
-    return '<div class="'+cls+'" '+dataAttrs+' onclick="activateDivCell(this)" style="width:'+CELL_W+'px;min-width:'+CELL_W+'px;height:'+CELL_H+'px;font-size:'+FONT_DIV+'">'+(val!==null&&val!==undefined?val:'')+'</div>';
-  }
-
-  // Quotient cases (alignées à droite sous le diviseur)
-  const quotientHtml=divQuotientDigits.map(function(d,i){
-    let cls='div-cell';
-    const isAct=divActiveId&&divActiveId.zone==='q'&&divActiveId.idx===i;
-    const qExpStr=qExpected.replace(',','');
-    if(divLocked) cls+=divOkFinal?' correct':(d.value!==null&&Number(d.value)===Number(qExpStr[i])?' correct':' wrong');
-    else if(isAct) cls+=' active';
-    else if(d.value!==null) cls+=' filled';
-    // Virgule dans le quotient si décimal
-    let cellHtml=divCell(cls,'data-zone="q" data-idx="'+i+'"',d.value);
-    // Insérer virgule après le bon chiffre
-    if(divIsDecimal&&divNbDecQ>0){
-      const posVirgule=qExpected.indexOf(',');
-      if(i===posVirgule-1){
-        cellHtml+='<div style="font-family:Nunito,sans-serif;font-size:36px;font-weight:900;color:var(--text);padding:0 2px">,</div>';
-      }
-    }
-    return cellHtml;
-  }).join('');
-
-  // ── BLOC PRINCIPAL : dividende | diviseur/quotient
-  // Le dividende est affiché chiffre par chiffre pour aligner les étapes
-  const ddChars=ddStr.split('').map(function(c){
-    if(c===',') return '<div style="width:20px;text-align:center;font-family:Nunito,sans-serif;font-size:36px;font-weight:900;color:var(--text)">,</div>';
-    return '<div style="width:'+CELL_W+'px;text-align:center;font-family:Nunito,sans-serif;font-size:'+FONT_DIV+';font-weight:900;color:var(--text)">'+c+'</div>';
-  }).join('');
-
-  // ── ETAPES : chaque étape est alignée sous le dividende
-  // nCols = nbDD (même largeur que le dividende)
-  let stepsHtml='';
-  divSteps.forEach(function(step,si){
-    // Soustraction : alignée à droite sur nbDD colonnes
-    const nCols=nbDD;
-
-    // Ligne soustraction
-    let subRowHtml='<div style="display:flex;align-items:center">'
-      +'<span style="font-family:Nunito,sans-serif;font-size:28px;font-weight:900;color:var(--text);width:24px;text-align:right;flex-shrink:0">-</span>';
-    for(let col=nCols-1;col>=0;col--){
-      const val=step.subDigits&&step.subDigits[col]!==undefined?step.subDigits[col]:null;
-      // Calcul correct : chiffre du produit (diviseur * chiffre quotient courant)
-      let correctDigit=null;
-      if(step.correctSub!==null&&step.correctSub!==undefined){
-        const cStr=String(step.correctSub).padStart(nCols,'0');
-        correctDigit=Number(cStr[nCols-1-col]);
-      }
-      let cls='div-cell';
-      const isAct=divActiveId&&divActiveId.zone==='sub'&&divActiveId.step===si&&divActiveId.col===col;
-      if(divLocked&&!divOkFinal) cls+=val!==null&&correctDigit!==null&&Number(val)===correctDigit?' correct':' wrong';
-      else if(divLocked&&divOkFinal) cls+=' correct';
-      else if(isAct) cls+=' active';
-      else if(val!==null) cls+=' filled';
-
-      // Retenue sous-gauche style soustraction
-      const retId='ret_'+si+'_'+col;
-      const retVal=divRetenues[retId];
-      const isRetAct=divActiveId&&divActiveId.zone==='ret'&&divActiveId.retId===retId;
-      let retCls='div-ret'+(retVal!==undefined?' filled':'')+(isRetAct?' active':'');
-
-      subRowHtml+='<div style="position:relative;display:inline-block;width:'+CELL_W+'px;height:'+CELL_H+'px">'
-        +'<div class="'+cls+'" data-zone="sub" data-step="'+si+'" data-col="'+col+'" onclick="activateDivCell(this)" style="width:'+CELL_W+'px;height:'+CELL_H+'px;font-size:'+FONT_DIV+'">'+(val!==null?val:'')+'</div>'
-        +'<div class="'+retCls+'" data-ret="'+retId+'" onclick="activateDivRet(this)">'+(retVal!==undefined?retVal:'')+'</div>'
-        +'</div>';
-    }
-    subRowHtml+='</div>';
-
-    // Séparateur
-    const sepHtml='<div style="height:2px;background:var(--border-d);margin:3px 0 3px 24px;border-radius:1px"></div>';
-
-    // Ligne reste partiel (alignée à droite aussi)
-    let restRowHtml='<div style="display:flex;align-items:center;padding-left:24px">';
-    for(let col=nCols-1;col>=0;col--){
-      const val=step.restDigits&&step.restDigits[col]!==undefined?step.restDigits[col]:null;
-      let correctDigit=null;
-      if(step.correctRest!==null&&step.correctRest!==undefined){
-        const cStr=String(step.correctRest).padStart(nCols,'0');
-        correctDigit=Number(cStr[nCols-1-col]);
-      }
-      let cls='div-cell';
-      const isAct=divActiveId&&divActiveId.zone==='rest'&&divActiveId.step===si&&divActiveId.col===col;
-      if(divLocked&&!divOkFinal) cls+=val!==null&&correctDigit!==null&&Number(val)===correctDigit?' correct':' wrong';
-      else if(divLocked&&divOkFinal) cls+=' correct';
-      else if(isAct) cls+=' active';
-      else if(val!==null) cls+=' filled';
-      restRowHtml+='<div class="'+cls+'" data-zone="rest" data-step="'+si+'" data-col="'+col+'" onclick="activateDivCell(this)" style="width:'+CELL_W+'px;height:'+CELL_H+'px;font-size:'+FONT_DIV+'">'+(val!==null?val:'')+'</div>';
-    }
-    restRowHtml+='</div>';
-
-    stepsHtml+='<div>'+subRowHtml+sepHtml+restRowHtml+'</div>';
-  });
-
-  // Bouton ajouter étape
-  const addBtn=!divLocked
-    ?'<div class="div-add-step" onclick="addDivStep()">+ Ajouter une étape</div>'
-    :'';
-
-  // Séparateur horizontal sous le dividende
-  const mainSep='<div style="height:3px;background:var(--text);border-radius:2px;margin:4px 0"></div>';
-
-  // Assemblage final
-  // Partie gauche : dividende + étapes empilées
-  const leftHtml='<div style="display:flex;flex-direction:column">'
-    +'<div style="display:flex">'+ddChars+'</div>'
-    +mainSep
-    +stepsHtml
-    +addBtn
-    +'</div>';
-
-  // Partie droite : diviseur + trait + quotient
-  const rightHtml='<div style="display:flex;flex-direction:column;padding-left:16px;border-left:3px solid var(--text)">'
-    +'<div style="font-family:Nunito,sans-serif;font-size:36px;font-weight:900;color:var(--text);border-bottom:3px solid var(--text);padding-bottom:4px;margin-bottom:6px">'+dsStr+'</div>'
-    +'<div style="display:flex">'+quotientHtml+'</div>'
-    +'</div>';
-
-  document.getElementById('game-zone').innerHTML=
-    '<div class="div-wrap">'
-    +'<div style="display:flex;align-items:flex-start">'
-    +leftHtml
-    +rightHtml
-    +'</div>'
-    +'</div>';
-}
-function addDivStep(){
-  if(divLocked)return;
-  divSteps.push({
-    subVal:null, resteVal:null,
-    subDigits:{}, restDigits:{}
-  });
-  renderDiv();
-}
-
-function activateDivCell(el){
-  if(divLocked)return;
-  const zone=el.getAttribute('data-zone');
-  const idx=el.getAttribute('data-idx')!==null?parseInt(el.getAttribute('data-idx')):null;
-  const step=el.getAttribute('data-step')!==null?parseInt(el.getAttribute('data-step')):null;
-  const col=el.getAttribute('data-col')!==null?parseInt(el.getAttribute('data-col')):null;
-  divActiveId={zone,idx,step,col};
-  renderDiv();
-}
-
-function activateDivRet(el){
-  if(divLocked)return;
-  const retId=el.getAttribute('data-ret');
-  divActiveId={zone:'ret',retId};
-  renderDiv();
-}
-
-function pressDivKey(k){
-  if(divLocked||!divActiveId)return;
-  const {zone,idx,step,col,retId}=divActiveId;
-
-  if(zone==='q'){
-    if(k==='del') divQuotientDigits[idx].value=null;
-    else{
-      divQuotientDigits[idx].value=Number(k);
-      // Auto-avance
-      if(idx<divQuotientDigits.length-1) divActiveId={zone:'q',idx:idx+1};
-    }
-  }else if(zone==='sub'){
-    const s=divSteps[step];
-    if(k==='del') s.subDigits[col]=undefined;
-    else s.subDigits[col]=Number(k);
-  }else if(zone==='rest'){
-    const s=divSteps[step];
-    if(k==='del') s.restDigits[col]=undefined;
-    else s.restDigits[col]=Number(k);
-  }else if(zone==='ret'){
-    if(k==='del') delete divRetenues[retId];
-    else divRetenues[retId]=Number(k);
-    divActiveId=null;
-  }
-  renderDiv();
-}
-
-let divOkFinal=false;
-
-function checkDiv(){
-  if(divLocked)return;
-  // Vérifier quotient
-  const qStr=String(divQuotient).replace('.','');
-  const okQ=divQuotientDigits.every(function(d,i){
-    return d.value!==null&&Number(d.value)===Number(qStr[i]);
-  });
-  const qFilled=divQuotientDigits.every(function(d){return d.value!==null;});
-  if(!qFilled){showFeedback('Complète le quotient !','ko');return;}
-
-  divLocked=true;total++;
-  divOkFinal=okQ;
-
-  if(okQ){
-    score++;
-    const ddDisp=divIsDecimal?String(divDividende).replace('.',','):String(divDividende);
-    const qDisp=divIsDecimal&&divNbDecQ>0?String(divQuotient).replace('.',','):String(divQuotient);
-    showFeedback('Bravo ! '+ddDisp+' ÷ '+divDiviseur+' = '+qDisp+(divReste>0?' reste '+divReste:''),'ok');
-  }else{
-    const qDispKo=divIsDecimal&&divNbDecQ>0?String(divQuotient).replace('.',','):String(divQuotient);
-    showFeedback('Pas tout à fait — le quotient est '+qDispKo+(divReste>0?' reste '+divReste:''),'ko');
-  }
-  updateScore();renderDiv();
-}
-
-function resetDiv(){
-  divLocked=false;divActiveId=null;divRetenues={};divOkFinal=false;
-  const nbQ=String(divQuotient).length;
-  divQuotientDigits=Array.from({length:nbQ},function(){return {value:null};});
-  divSteps=[];
-  hideFeedback();renderDiv();
-}
-
 newGame();
 </script>
 <footer style="text-align:center;font-size:11px;color:#7A5C20;padding:1rem;border-top:2px solid #CE93D8;background:#fff;font-family:'Nunito Sans',sans-serif;">
