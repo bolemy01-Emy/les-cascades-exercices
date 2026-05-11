@@ -523,6 +523,10 @@ function loadQuestion() {
   const hasAide = MODES.find(m=>m.id===currentQ.mode)?.hasAide;
   document.getElementById('btn-aide').style.display = hasAide ? '' : 'none';
 
+  // Sélection automatique du premier slot éditable
+  const firstEditable = currentQ.slots.findIndex(s => s.ed);
+  if(firstEditable !== -1) activeSlot = firstEditable;
+
   renderQuestion();
   startChronoQuestion();
 }
@@ -757,9 +761,7 @@ function endSerie() {
   }else{
     errHtml='<div class="bilan-errors">'+errors.map(e=>
       `<div class="error-item">
-        <span class="error-q">${e.label.split('=')[0].trim()}</span>
-        <span class="error-arrow">→</span>
-        <span class="error-a">= ${e.correct}</span>
+        <span class="error-q">${e.label}</span>
       </div>`
     ).join('')+'</div>';
   }
