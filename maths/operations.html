@@ -337,7 +337,7 @@
 <div class="topbar">
   <div>
     <div class="game-title">Opérations posées</div>
-    <div class="game-sub">Additions, soustractions et multiplications posées</div>
+    <div class="game-sub">Addition, soustraction et multiplication posées</div>
   </div>
   <span class="score-pill" id="score-lbl">Score : 0 / 0</span>
 </div>
@@ -432,11 +432,7 @@
 let ops=['add'], nbChiffres=2, avecRetenue=true, poserSoiMeme=false;
 let score=0, total=0;
 
-function toggleOp(o,el){
-  if(ops.includes(o)&&ops.length===1)return;
-  ops=ops.includes(o)?ops.filter(x=>x!==o):[...ops,o];
-  el.classList.toggle('checked',ops.includes(o));
-}
+
 function toggleChiffres(n,el){
   nbChiffres=n;
   document.getElementById('cb-2c').classList.toggle('checked',n===2);
@@ -863,16 +859,7 @@ function toggleMul2(n,el){
 
 // Surcharge toggleOp pour afficher/masquer blocs config
 const _origToggleOp = toggleOp;
-function toggleOp(o,el){
-  ops=[o];
-  document.querySelectorAll('#cb-add,#cb-sub,#cb-mul').forEach(function(b){b.classList.remove('checked');});
-  el.classList.add('checked');
-  const hasMul=ops.includes('mul');
-  const hasOther=ops.includes('add')||ops.includes('sub');
-  document.getElementById('block-mul').style.display=hasMul?'':'none';
-  document.getElementById('block-mul2').style.display=hasMul?'':'none';
-  document.getElementById('block-addsub').style.display=hasOther?'':'none';
-}
+
 
 // ═══════════════════════════════════════════
 //  GENERATION MULTIPLICATION
@@ -1302,6 +1289,12 @@ function initDiv(){
 //  RENDER DIVISION
 // ═══════════════════════════════════════════
 function renderDiv(){
+  // Taille des cases selon nombre d'étapes
+  const nbEt=divSteps.length;
+  const CELL_W=nbEt>=3?36:nbEt>=2?44:52;
+  const CELL_H=nbEt>=3?38:nbEt>=2?44:52;
+  const FONT_DIV=nbEt>=3?'20px':nbEt>=2?'26px':'30px';
+
   // Formater dividende avec virgule si décimal
   const ddStr=divIsDecimal?String(divDividende).replace('.',','):String(divDividende);
   // Formater quotient attendu avec virgule si décimal
@@ -1309,8 +1302,6 @@ function renderDiv(){
   const dsStr=String(divDiviseur);
   const nbDD=ddStr.length;
   const nbQ=divQuotientDigits.length;
-  const CELL_W=52; // largeur d'une case en px
-
   // Helper : case saisie
   function divCell(cls,dataAttrs,val){
     return '<div class="'+cls+'" '+dataAttrs+' onclick="activateDivCell(this)" style="width:'+CELL_W+'px;min-width:'+CELL_W+'px;height:'+CELL_H+'px;font-size:'+FONT_DIV+'">'+(val!==null&&val!==undefined?val:'')+'</div>';
